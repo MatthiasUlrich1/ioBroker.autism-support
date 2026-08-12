@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200" fill="none">
+	<rect width="320" height="200" rx="12" fill="#1E1E1E"/>
+	<path d="M 110 52 L 146 52 L 146 124 L 74 124 L 74 52 Z" fill="#F7F7F7"/>
+	<path
+		d="M 110 44 L 154 44 L 154 132 L 66 132 L 66 44 Z"
+		fill="none"
+		stroke="#E0E0E0"
+		stroke-width="12"
+		stroke-linecap="butt"
+		stroke-linejoin="miter"
+	/>
+	<path
+		d="M 110 44 L 154 44 L 154 132 L 66 132 L 66 88"
+		fill="none"
+		stroke="#FF8A00"
+		stroke-width="12"
+		stroke-linecap="butt"
+		stroke-linejoin="miter"
+	/>
+	<text x="110" y="152" text-anchor="middle" fill="#FFFFFF" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="700">45:00</text>
+	<rect x="190" y="56" width="88" height="36" rx="6" fill="none" stroke="#9E9E9E" stroke-width="2"/>
+	<text x="234" y="79" text-anchor="middle" fill="#FFFFFF" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="600">0 h</text>
+	<rect x="190" y="104" width="88" height="36" rx="6" fill="none" stroke="#9E9E9E" stroke-width="2"/>
+	<text x="234" y="127" text-anchor="middle" fill="#FFFFFF" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="600">45 m</text>
+</svg>

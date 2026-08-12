@@ -1,8 +1,12 @@
 {
 	"common": {
 		"name": "autism-support",
-		"version": "0.0.14",
+		"version": "0.0.15",
 		"news": {
+			"0.0.15": {
+				"en": "Icons updated to square default geometry",
+				"de": "Icons an Standard-Geometrie Quadrat angepasst"
+			},
 			"0.0.14": {
 				"en": "Configurable geometry (square default; no full circle)",
 				"de": "Geometrie wählbar (Standard Quadrat; kein voller Kreis)"

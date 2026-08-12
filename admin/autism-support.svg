@@ -1,16 +1,23 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none">
-	<!-- Visual Countdown icon: orange progress ring at ~45 minutes (3/4), not a filled pie disk -->
-	<circle cx="64" cy="64" r="36" fill="#F7F7F7"/>
-	<circle cx="64" cy="64" r="42" fill="none" stroke="#E0E0E0" stroke-width="14" stroke-linecap="round"/>
-	<circle
-		cx="64"
-		cy="64"
-		r="42"
+	<!-- Visual Countdown default: square, ~45 min remaining, butt ends -->
+	<!-- Inner plate -->
+	<path d="M 64 35.72 L 92.28 35.72 L 92.28 92.28 L 35.72 92.28 L 35.72 35.72 Z" fill="#F7F7F7"/>
+	<!-- Full track -->
+	<path
+		d="M 64 30.06 L 97.94 30.06 L 97.94 97.94 L 30.06 97.94 L 30.06 30.06 Z"
+		fill="none"
+		stroke="#E0E0E0"
+		stroke-width="16"
+		stroke-linecap="butt"
+		stroke-linejoin="miter"
+	/>
+	<!-- Remaining ~45 min = 3/4 of perimeter, from 12 o'clock clockwise to 9 o'clock -->
+	<path
+		d="M 64 30.06 L 97.94 30.06 L 97.94 97.94 L 30.06 97.94 L 30.06 64"
 		fill="none"
 		stroke="#FF8A00"
-		stroke-width="14"
-		stroke-linecap="round"
-		stroke-dasharray="197.92 263.89"
-		transform="rotate(-90 64 64)"
+		stroke-width="16"
+		stroke-linecap="butt"
+		stroke-linejoin="miter"
 	/>
 </svg>
