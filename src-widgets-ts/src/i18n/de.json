@@ -17,6 +17,7 @@
 	"color_digital": "Farbe Digitalanzeige",
 	"color_remaining": "Farbe Fortschritt / verbleibend",
 	"color_elapsed": "Farbe Spur / abgelaufen",
+	"ring_width_percent": "Ringbreite (%)",
 	"color_controls_text": "Farbe Stunden/Minuten-Text",
 	"color_controls_border": "Farbe Stunden/Minuten-Rahmen",
 	"color_controls_arrows": "Farbe Stunden/Minuten-Pfeile",

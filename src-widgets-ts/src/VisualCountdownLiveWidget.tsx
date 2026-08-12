@@ -12,6 +12,7 @@ interface VisualCountdownLiveRxData {
 	colorDigital: string;
 	colorRemaining: string;
 	colorElapsed: string;
+	ringWidthPercent: number;
 }
 
 export default class VisualCountdownLiveWidget extends (window.visRxWidget as typeof VisRxWidget)<
@@ -69,6 +70,15 @@ export default class VisualCountdownLiveWidget extends (window.visRxWidget as ty
 							label: "color_elapsed",
 							default: "#E0E0E0",
 						},
+						{
+							name: "ringWidthPercent",
+							type: "number",
+							label: "ring_width_percent",
+							default: 18,
+							min: 5,
+							max: 35,
+							step: 1,
+						},
 					],
 				},
 			],
@@ -102,6 +112,7 @@ export default class VisualCountdownLiveWidget extends (window.visRxWidget as ty
 					colorDigital={this.state.rxData.colorDigital || "#000000"}
 					colorRemaining={this.state.rxData.colorRemaining || "#FF8A00"}
 					colorElapsed={this.state.rxData.colorElapsed || "#E0E0E0"}
+					ringWidthPercent={Number(this.state.rxData.ringWidthPercent) || 18}
 				/>
 			</Box>
 		);

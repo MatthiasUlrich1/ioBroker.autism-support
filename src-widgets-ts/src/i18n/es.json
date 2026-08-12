@@ -17,6 +17,7 @@
 	"color_digital": "Digital time color",
 	"color_remaining": "Remaining / progress color",
 	"color_elapsed": "Track / elapsed color",
+	"ring_width_percent": "Ring width (%)",
 	"color_controls_text": "Hours/minutes text color",
 	"color_controls_border": "Hours/minutes border color",
 	"color_controls_arrows": "Hours/minutes arrow color",

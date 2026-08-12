@@ -21,6 +21,7 @@ interface VisualCountdownConfigRxData {
 	colorControlsText: string;
 	colorControlsBorder: string;
 	colorControlsArrows: string;
+	ringWidthPercent: number;
 }
 
 interface VisualCountdownConfigState extends VisRxWidgetState {
@@ -151,6 +152,15 @@ export default class VisualCountdownConfigWidget extends (window.visRxWidget as 
 							label: "color_controls_arrows",
 							default: "#000000",
 						},
+						{
+							name: "ringWidthPercent",
+							type: "number",
+							label: "ring_width_percent",
+							default: 18,
+							min: 5,
+							max: 35,
+							step: 1,
+						},
 					],
 				},
 			],
@@ -231,6 +241,7 @@ export default class VisualCountdownConfigWidget extends (window.visRxWidget as 
 							colorDigital={this.state.rxData.colorDigital || "#000000"}
 							colorRemaining={this.state.rxData.colorRemaining || "#FF8A00"}
 							colorElapsed={this.state.rxData.colorElapsed || "#E0E0E0"}
+							ringWidthPercent={Number(this.state.rxData.ringWidthPercent) || 18}
 						/>
 					</Box>
 					<Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">

@@ -10,12 +10,19 @@ export interface VisualCountdownVisualProps {
 	/** Track / elapsed color (default light gray). */
 	colorElapsed?: string;
 	colorDigital?: string;
+	/**
+	 * Ring stroke width as percent of widget size.
+	 * Previous default was ~9%; new default is 18% (twice as wide).
+	 */
+	ringWidthPercent?: number;
 }
 
 /** Brand-neutral orange – deliberately not Time Timer red. */
 export const DEFAULT_REMAINING_COLOR = "#FF8A00";
 export const DEFAULT_TRACK_COLOR = "#E0E0E0";
 export const DEFAULT_DIGITAL_COLOR = "#1A1A1A";
+/** Twice the previous default (~9% → 18%). */
+export const DEFAULT_RING_WIDTH_PERCENT = 18;
 
 const SECONDS_PER_HOUR = 3600;
 
@@ -65,13 +72,15 @@ function HourRing({
 	diameter,
 	colorRemaining,
 	colorTrack,
+	strokeRatio = 0.36,
 }: {
 	diameter: number;
 	colorRemaining: string;
 	colorTrack: string;
+	strokeRatio?: number;
 }): React.JSX.Element {
-	const stroke = Math.max(3, diameter * 0.18);
-	const r = diameter / 2 - stroke;
+	const stroke = Math.max(3, diameter * strokeRatio);
+	const r = Math.max(2, diameter / 2 - stroke);
 	const c = diameter / 2;
 	return (
 		<svg width={diameter} height={diameter} viewBox={`0 0 ${diameter} ${diameter}`} role="img" aria-label="1 hour">
@@ -100,18 +109,21 @@ export default function VisualCountdownVisual({
 	colorRemaining = DEFAULT_REMAINING_COLOR,
 	colorElapsed = DEFAULT_TRACK_COLOR,
 	colorDigital = DEFAULT_DIGITAL_COLOR,
+	ringWidthPercent = DEFAULT_RING_WIDTH_PERCENT,
 }: VisualCountdownVisualProps): React.JSX.Element {
 	const safeDuration = Math.max(1, durationSeconds);
 	const safeRemaining = Math.max(0, Math.min(safeDuration, remainingSeconds));
 	const center = size / 2;
-	const stroke = Math.max(14, size * 0.09);
-	const radius = size * 0.36;
+	const widthRatio = Math.max(0.05, Math.min(0.35, Number(ringWidthPercent) / 100 || DEFAULT_RING_WIDTH_PERCENT / 100));
+	const stroke = Math.max(8, size * widthRatio);
+	const radius = Math.max(stroke, size * 0.36 - (widthRatio - 0.09) * size * 0.15);
 	const circumference = 2 * Math.PI * radius;
 
 	const remainingFraction = getCircleRemainingFraction(safeRemaining);
 	const hourCircleCount = getFullHourCircleCount(safeRemaining);
-	const smallDiameter = Math.max(24, Math.min(42, Math.round(size * 0.13)));
+	const smallDiameter = Math.max(24, Math.min(48, Math.round(size * 0.13)));
 	const progressLength = remainingFraction * circumference;
+	const hourStrokeRatio = Math.max(0.2, Math.min(0.45, widthRatio * 2));
 
 	const ticks = Array.from({ length: 12 }, (_, index) => {
 		const angle = (index / 12) * 360;
@@ -161,6 +173,7 @@ export default function VisualCountdownVisual({
 								diameter={smallDiameter}
 								colorRemaining={colorRemaining}
 								colorTrack={colorElapsed}
+								strokeRatio={hourStrokeRatio}
 							/>
 						))
 					: null}
@@ -168,7 +181,7 @@ export default function VisualCountdownVisual({
 
 			<svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} role="img" aria-label="Visual Countdown">
 				{/* Soft center plate – not a white timer disk */}
-				<circle cx={center} cy={center} r={radius - stroke * 0.55} fill="#F7F7F7" />
+				<circle cx={center} cy={center} r={Math.max(4, radius - stroke * 0.55)} fill="#F7F7F7" />
 
 				{/* Track ring */}
 				<circle
