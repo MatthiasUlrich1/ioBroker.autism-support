@@ -14,8 +14,8 @@ const config = {
 			name: "vis2AutismSupportWidgets",
 			filename: "customWidgets.js",
 			exposes: {
-				"./TimeTimerLiveWidget": "./src/TimeTimerLiveWidget",
-				"./TimeTimerConfigWidget": "./src/TimeTimerConfigWidget",
+				"./VisualCountdownLiveWidget": "./src/VisualCountdownLiveWidget",
+				"./VisualCountdownConfigWidget": "./src/VisualCountdownConfigWidget",
 				"./translations": "./src/translations",
 			},
 			remotes: {},

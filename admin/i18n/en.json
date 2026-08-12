@@ -1,7 +1,7 @@
 {
 	"autism-support adapter settings": "Autism Support adapter settings",
-	"timer_tab": "Time Timer",
-	"timer_settings_header": "Time Timer – default settings",
+	"timer_tab": "Visual Countdown",
+	"timer_settings_header": "Visual Countdown – default settings",
 	"default_duration_hours": "Default duration (hours)",
 	"default_duration_minutes": "Default duration (minutes)",
 	"max_duration_hours": "Maximum duration (hours, up to 24)",

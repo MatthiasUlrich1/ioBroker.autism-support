@@ -1,9 +1,9 @@
 {
 	"autism-support adapter settings": "Adaptereinstellungen Autismus-Unterstützung",
-	"timer_tab": "Time Timer",
-	"timer_settings_header": "Time Timer – Grundeinstellungen",
+	"timer_tab": "Visual Countdown",
+	"timer_settings_header": "Visual Countdown – Grundeinstellungen",
 	"default_duration_hours": "Standard-Dauer (Stunden)",
 	"default_duration_minutes": "Standard-Dauer (Minuten)",
 	"max_duration_hours": "Maximale Dauer (Stunden, bis 24)",
-	"timer_settings_hint": "Steuerung und Anzeige über VIS-2-Widgets „Time Timer (Live/Konfiguration)“ oder Datenpunkte unter timer.*. Der Kreis zeigt immer eine Stunde."
+	"timer_settings_hint": "Steuerung und Anzeige über VIS-2-Widgets „Visual Countdown (Live/Konfiguration)“ oder Datenpunkte unter timer.*. Der Kreis zeigt immer eine Stunde."
 }

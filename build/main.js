@@ -53,7 +53,7 @@ class AutismSupport extends utils.Adapter {
     await this.timerManager.setDuration(defaultSeconds, maxHours);
     await this.publishTimerSnapshot(this.timerManager.getSnapshot());
     this.subscribeStates(`${this.namespace}.${TIMER_CHANNEL}.*`);
-    this.log.info("Autism Support adapter ready \u2013 Time Timer initialized");
+    this.log.info("Autism Support adapter ready \u2013 Visual Countdown initialized");
   }
   getDefaultDurationSeconds(maxHours) {
     var _a, _b;

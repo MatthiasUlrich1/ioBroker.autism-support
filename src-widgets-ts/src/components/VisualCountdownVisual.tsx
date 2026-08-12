@@ -1,6 +1,6 @@
 import React from "react";
 
-export interface TimeTimerVisualProps {
+export interface VisualCountdownVisualProps {
 	durationSeconds: number;
 	remainingSeconds: number;
 	size?: number;
@@ -105,7 +105,7 @@ function HourCircle({
 	);
 }
 
-export default function TimeTimerVisual({
+export default function VisualCountdownVisual({
 	durationSeconds,
 	remainingSeconds,
 	size = 280,
@@ -113,7 +113,7 @@ export default function TimeTimerVisual({
 	colorRemaining = "#E53935",
 	colorElapsed = "#FFFFFF",
 	colorDigital = "#000000",
-}: TimeTimerVisualProps): React.JSX.Element {
+}: VisualCountdownVisualProps): React.JSX.Element {
 	const safeDuration = Math.max(1, durationSeconds);
 	const safeRemaining = Math.max(0, Math.min(safeDuration, remainingSeconds));
 	const circleRadius = size * 0.38;
@@ -162,7 +162,7 @@ export default function TimeTimerVisual({
 					: null}
 			</div>
 
-			<svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} role="img" aria-label="Time Timer">
+			<svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} role="img" aria-label="Visual Countdown">
 				<circle cx={center} cy={center} r={circleRadius} fill={colorElapsed} stroke="#424242" strokeWidth={3} />
 				<line
 					x1={center}

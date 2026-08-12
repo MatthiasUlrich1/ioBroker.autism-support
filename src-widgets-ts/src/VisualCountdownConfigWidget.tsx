@@ -5,9 +5,9 @@ import type { RxRenderWidgetProps, RxWidgetInfo, VisRxWidgetProps, VisRxWidgetSt
 import type VisRxWidget from "@iobroker/types-vis-2/visRxWidget";
 
 import DurationStepper from "./components/DurationStepper";
-import TimeTimerVisual from "./components/TimeTimerVisual";
+import VisualCountdownVisual from "./components/VisualCountdownVisual";
 
-interface TimeTimerConfigRxData {
+interface VisualCountdownConfigRxData {
 	oidDuration: string;
 	oidRemaining: string;
 	oidStart: string;
@@ -23,7 +23,7 @@ interface TimeTimerConfigRxData {
 	colorControlsArrows: string;
 }
 
-interface TimeTimerConfigState extends VisRxWidgetState {
+interface VisualCountdownConfigState extends VisRxWidgetState {
 	durationHours: number;
 	durationMinutes: number;
 }
@@ -40,9 +40,9 @@ function secondsToParts(totalSeconds: number): { hours: number; minutes: number 
 	};
 }
 
-export default class TimeTimerConfigWidget extends (window.visRxWidget as typeof VisRxWidget)<
-	TimeTimerConfigRxData,
-	TimeTimerConfigState
+export default class VisualCountdownConfigWidget extends (window.visRxWidget as typeof VisRxWidget)<
+	VisualCountdownConfigRxData,
+	VisualCountdownConfigState
 > {
 	static adapter: string;
 
@@ -57,9 +57,9 @@ export default class TimeTimerConfigWidget extends (window.visRxWidget as typeof
 
 	static getWidgetInfo(): RxWidgetInfo {
 		return {
-			id: "asTimeTimerConfig",
+			id: "asVisualCountdownConfig",
 			visSet: "autism-support",
-			visName: "TimeTimerConfig",
+			visName: "VisualCountdownConfig",
 			visAttrs: [
 				{
 					name: "timer",
@@ -154,16 +154,16 @@ export default class TimeTimerConfigWidget extends (window.visRxWidget as typeof
 					],
 				},
 			],
-			visPrev: "widgets/autism-support/img/time-timer-config.png",
+			visPrev: "widgets/autism-support/img/visual-countdown-config.png",
 		};
 	}
 
 	getWidgetInfo(): RxWidgetInfo {
-		return TimeTimerConfigWidget.getWidgetInfo();
+		return VisualCountdownConfigWidget.getWidgetInfo();
 	}
 
 	static getI18nPrefix(): string {
-		return `${TimeTimerConfigWidget.adapter}_`;
+		return `${VisualCountdownConfigWidget.adapter}_`;
 	}
 
 	componentDidMount(): void {
@@ -224,7 +224,7 @@ export default class TimeTimerConfigWidget extends (window.visRxWidget as typeof
 			<Box sx={{ width: "100%", height: "100%", bgcolor: "transparent", p: 1, boxSizing: "border-box" }}>
 				<Stack spacing={1} sx={{ height: "100%" }}>
 					<Box sx={{ flex: 1, minHeight: 180 }}>
-						<TimeTimerVisual
+						<VisualCountdownVisual
 							durationSeconds={duration}
 							remainingSeconds={remaining}
 							size={220}
@@ -238,8 +238,8 @@ export default class TimeTimerConfigWidget extends (window.visRxWidget as typeof
 							hours={this.state.durationHours}
 							minutes={this.state.durationMinutes}
 							maxHours={maxHours}
-							hoursLabel={TimeTimerConfigWidget.t("hours")}
-							minutesLabel={TimeTimerConfigWidget.t("minutes")}
+							hoursLabel={VisualCountdownConfigWidget.t("hours")}
+							minutesLabel={VisualCountdownConfigWidget.t("minutes")}
 							colorText={this.state.rxData.colorControlsText || "#000000"}
 							colorBorder={this.state.rxData.colorControlsBorder || "#9E9E9E"}
 							colorArrows={this.state.rxData.colorControlsArrows || "#000000"}
@@ -253,21 +253,21 @@ export default class TimeTimerConfigWidget extends (window.visRxWidget as typeof
 								borderColor: this.state.rxData.colorControlsBorder || "#9E9E9E",
 							}}
 						>
-							{TimeTimerConfigWidget.t("apply_duration")}
+							{VisualCountdownConfigWidget.t("apply_duration")}
 						</Button>
 					</Stack>
 					<Stack direction="row" spacing={1} flexWrap="wrap">
 						<Button variant="contained" color="success" onClick={() => this.sendState(this.state.rxData.oidStart, true)}>
-							{TimeTimerConfigWidget.t("start")}
+							{VisualCountdownConfigWidget.t("start")}
 						</Button>
 						<Button variant="contained" color="warning" onClick={() => this.sendState(this.state.rxData.oidPause, true)}>
-							{TimeTimerConfigWidget.t("pause")}
+							{VisualCountdownConfigWidget.t("pause")}
 						</Button>
 						<Button variant="contained" color="info" onClick={() => this.sendState(this.state.rxData.oidResume, true)}>
-							{TimeTimerConfigWidget.t("resume")}
+							{VisualCountdownConfigWidget.t("resume")}
 						</Button>
 						<Button variant="contained" color="error" onClick={() => this.sendState(this.state.rxData.oidStop, true)}>
-							{TimeTimerConfigWidget.t("stop")}
+							{VisualCountdownConfigWidget.t("stop")}
 						</Button>
 					</Stack>
 				</Stack>

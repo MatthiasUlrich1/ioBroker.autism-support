@@ -1,7 +1,7 @@
 {
   "name": "iobroker.autism-support",
-  "version": "0.0.9",
-  "description": "Unterstützung für Menschen mit Autismus: Time Timer, Bild-Ablaufpläne und Piktogramme",
+  "version": "0.0.10",
+  "description": "Unterstützung für Menschen mit Autismus: Visual Countdown, Bild-Ablaufpläne und Piktogramme",
   "author": {
     "name": "Matthias Ulrich",
     "email": "MatthiasUlrich1@gmail.com"
@@ -12,7 +12,7 @@
   "keywords": [
     "autism",
     "timer",
-    "time-timer",
+    "visual-countdown",
     "schedule",
     "pictogram",
     "vis-2",

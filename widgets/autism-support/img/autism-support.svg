@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none">
-	<!-- Time Timer icon: 45 minutes remaining (3/4 red), starts at 12 o'clock, clockwise -->
+	<!-- Visual Countdown icon: 45 minutes remaining (3/4 red), starts at 12 o'clock, clockwise -->
 	<circle cx="64" cy="64" r="54" fill="#FFFFFF" stroke="#424242" stroke-width="4"/>
 	<path
 		d="M64 64 L64 10 A54 54 0 1 1 10 64 Z"

@@ -1,13 +1,13 @@
 # ioBroker.autism-support
 
-Unterstützung für Menschen mit Autismus in ioBroker: visueller **Time Timer**, Bild-Ablaufpläne (geplant) und Piktogramme (geplant).
+Unterstützung für Menschen mit Autismus in ioBroker: **Visual Countdown**, Bild-Ablaufpläne (geplant) und Piktogramme (geplant).
 
-## Time Timer (MVP)
+## Visual Countdown (MVP)
 
-Der erste Baustein ist ein Time-Timer im Stil des bekannten Timetimer:
+Visueller Countdown mit Kreisdiagramm:
 
 - Kreisdiagramm: verbleibende Zeit rot, abgelaufene Zeit weiß
-- Stunden-Balken darüber (bis 24 h)
+- Kleine Kreise für volle Stunden darüber
 - Digitaler Countdown darunter
 
 ### Datenpunkte (`autism-support.0.timer.*`)
@@ -19,18 +19,18 @@ Der erste Baustein ist ein Time-Timer im Stil des bekannten Timetimer:
 | `elapsed` | Abgelaufene Sekunden |
 | `running` / `paused` / `finished` | Status |
 | `start` / `pause` / `resume` / `stop` | Befehle (Schreiben `true`) |
-| `setDurationMinutes` | Dauer in Minuten setzen |
+| `setDurationHours` / `setDurationMinutes` | Dauer setzen |
 
 ### Admin
 
-Instanz-Konfiguration: Standard-Dauer und maximale Stunden (1–24).
+Instanz-Konfiguration: Standard-Dauer (Stunden/Minuten) und maximale Stunden (1–24).
 
 ### VIS-2-Widgets
 
 | Widget | Zweck |
 |--------|--------|
-| **Time Timer (Live)** | Große Anzeige für den Nutzer |
-| **Time Timer (Config)** | Steuerung für Eltern/Pflegeperson |
+| **Visual Countdown (Live)** | Große Anzeige für den Nutzer |
+| **Visual Countdown (Config)** | Steuerung für Eltern/Pflegeperson |
 
 ## Entwicklung
 

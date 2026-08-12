@@ -2,7 +2,7 @@
 	"cli": true,
 	"target": "directory",
 	"adapterName": "autism-support",
-	"description": "Unterstützung für Menschen mit Autismus: Time Timer, Bild-Ablaufpläne und Piktogramme",
+	"description": "Unterstützung für Menschen mit Autismus: Visual Countdown, Bild-Ablaufpläne und Piktogramme",
 	"authorName": "Matthias Ulrich",
 	"authorGithub": "MatthiasUlrich1",
 	"authorEmail": "MatthiasUlrich1@gmail.com",

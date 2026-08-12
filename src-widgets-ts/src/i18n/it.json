@@ -1,7 +1,29 @@
-{
-  "My Demo widget:": "Il mio widget demo:",
-  "vis_2_widgets_template": "Modello di widget",
-  "oid": "ID oggetto",
-  "private": "Privato",
-  "type": "Tipo"
+﻿{
+	"autism_support_widgets": "Autism Support",
+	"VisualCountdownLive": "Visual Countdown (Live)",
+	"VisualCountdownConfig": "Visual Countdown (Config)",
+	"timer_states": "Timer states",
+	"oid_duration": "Duration state",
+	"oid_remaining": "Remaining state",
+	"oid_set_duration": "Set duration state",
+	"oid_start": "Start command",
+	"oid_pause": "Pause command",
+	"oid_resume": "Resume command",
+	"oid_stop": "Stop command",
+	"duration_minutes": "Duration (minutes)",
+	"hours": "Hours",
+	"minutes": "Minutes",
+	"appearance": "Appearance",
+	"color_digital": "Digital time color",
+	"color_remaining": "Remaining color (red)",
+	"color_elapsed": "Elapsed color (white)",
+	"color_controls_text": "Hours/minutes text color",
+	"color_controls_border": "Hours/minutes border color",
+	"color_controls_arrows": "Hours/minutes arrow color",
+	"apply_duration": "Apply",
+	"start": "Start",
+	"pause": "Pause",
+	"resume": "Resume",
+	"stop": "Stop"
 }
+

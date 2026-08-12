@@ -1,7 +1,7 @@
 {
 	"autism_support_widgets": "Autismus-Unterstützung",
-	"TimeTimerLive": "Time Timer (Live)",
-	"TimeTimerConfig": "Time Timer (Konfiguration)",
+	"VisualCountdownLive": "Visual Countdown (Live)",
+	"VisualCountdownConfig": "Visual Countdown (Konfiguration)",
 	"timer_states": "Timer-Datenpunkte",
 	"oid_duration": "Dauer",
 	"oid_remaining": "Verbleibende Zeit",

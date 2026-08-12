@@ -1,15 +1,19 @@
 {
 	"common": {
 		"name": "autism-support",
-		"version": "0.0.9",
+		"version": "0.0.10",
 		"news": {
+			"0.0.10": {
+				"en": "Rename Time Timer to Visual Countdown",
+				"de": "Umbenennung Time Timer in Visual Countdown"
+			},
 			"0.0.9": {
 				"en": "Fix CI lint errors (JSDoc/prettier)",
 				"de": "CI-Lint-Fehler behoben (JSDoc/Prettier)"
 			},
 			"0.0.8": {
-				"en": "New adapter icon: Time Timer circle at 45 minutes",
-				"de": "Neues Adapter-Icon: Time-Timer-Kreisdiagramm mit 45 Minuten"
+				"en": "New adapter icon: Visual Countdown circle at 45 minutes",
+				"de": "Neues Adapter-Icon: Visual-Countdown-Kreisdiagramm mit 45 Minuten"
 			},
 			"0.0.7": {
 				"en": "Replace hour bars with small full-hour circle diagrams",
@@ -32,8 +36,8 @@
 				"de": "Installationsfix: postinstall entfernt, das den Widget-Quellbaum benötigte"
 			},
 			"0.0.2": {
-				"en": "Time Timer: circle always shows one hour; hours/minutes input; config widget fixes",
-				"de": "Time Timer: Kreis zeigt immer eine Stunde; Stunden/Minuten-Eingabe; Config-Widget-Fixes"
+				"en": "Visual Countdown: circle always shows one hour; hours/minutes input; config widget fixes",
+				"de": "Visual Countdown: Kreis zeigt immer eine Stunde; Stunden/Minuten-Eingabe; Config-Widget-Fixes"
 			},
 			"0.0.1": {
 				"en": "initial release",
@@ -63,16 +67,16 @@
 			"zh-cn": "自闭症支持"
 		},
 		"desc": {
-			"en": "Unterstützung für Menschen mit Autismus: Time Timer, Bild-Ablaufpläne und Piktogramme",
-			"de": "Unterstützung für Menschen mit Autismus: Time Timer, Bild-Ablaufpläne und Piktogramme",
-			"ru": "Unterstützung für Menschen mit Autismus: Time Timer, Bild-Ablaufpläne und Piktogramme",
-			"pt": "Unterstützung für Menschen mit Autismus: Time Timer, Bild-Ablaufpläne e Piktogramme",
-			"nl": "Unterstützung für Menschen mit Autisme: Time Timer, Bild-Ablaufpläne en Piktogramme",
-			"fr": "Support pour hommes avec autisme : Time Timer, Bild-Ablaufpläne et Piktogramme",
+			"en": "Unterstützung für Menschen mit Autismus: Visual Countdown, Bild-Ablaufpläne und Piktogramme",
+			"de": "Unterstützung für Menschen mit Autismus: Visual Countdown, Bild-Ablaufpläne und Piktogramme",
+			"ru": "Unterstützung für Menschen mit Autismus: Visual Countdown, Bild-Ablaufpläne und Piktogramme",
+			"pt": "Unterstützung für Menschen mit Autismus: Visual Countdown, Bild-Ablaufpläne e Piktogramme",
+			"nl": "Unterstützung für Menschen mit Autisme: Visual Countdown, Bild-Ablaufpläne en Piktogramme",
+			"fr": "Support pour hommes avec autisme : Visual Countdown, Bild-Ablaufpläne et Piktogramme",
 			"it": "Supporto per uomini con autismo: timer, disegno grafico e pittogramma",
-			"es": "Unterstützung für Menschen mit Autismus: Time Timer, Bild-Ablaufpläne und Piktogramme",
+			"es": "Unterstützung für Menschen mit Autismus: Visual Countdown, Bild-Ablaufpläne und Piktogramme",
 			"pl": "Unterstützung für Menschen mit Autismus: Timer, Bild-Ablaufpläne i Piktogramme",
-			"uk": "Unterstützung für Menschen mit Autismus: Time Timer, Bild-Ablaufpläne und Piktogramme",
+			"uk": "Unterstützung für Menschen mit Autismus: Visual Countdown, Bild-Ablaufpläne und Piktogramme",
 			"zh-cn": "Unterstützung für Menschen mit 自闭症患者：时间计时器、图片绘制和图形图"
 		},
 		"authors": [
@@ -81,7 +85,7 @@
 		"keywords": [
 			"autism",
 			"timer",
-			"time-timer",
+			"visual-countdown",
 			"schedule",
 			"pictogram",
 			"vis-2",
@@ -127,22 +131,22 @@
 		},
 		"supportCustoms": true,
 		"visWidgets": {
-			"asTimeTimerLive": {
+			"asVisualCountdownLive": {
 				"i18n": "component",
-				"name": "asTimeTimerLive",
+				"name": "asVisualCountdownLive",
 				"url": "autism-support/customWidgets.js",
 				"bundlerType": "module",
 				"components": [
-					"TimeTimerLiveWidget"
+					"VisualCountdownLiveWidget"
 				]
 			},
-			"asTimeTimerConfig": {
+			"asVisualCountdownConfig": {
 				"i18n": "component",
-				"name": "asTimeTimerConfig",
+				"name": "asVisualCountdownConfig",
 				"url": "autism-support/customWidgets.js",
 				"bundlerType": "module",
 				"components": [
-					"TimeTimerConfigWidget"
+					"VisualCountdownConfigWidget"
 				]
 			}
 		},

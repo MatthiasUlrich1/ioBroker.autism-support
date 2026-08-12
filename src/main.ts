@@ -1,5 +1,5 @@
 /*
- * ioBroker.autism-support – Time Timer (MVP)
+ * ioBroker.autism-support – Visual Countdown (MVP)
  */
 
 import * as utils from "@iobroker/adapter-core";
@@ -41,7 +41,7 @@ class AutismSupport extends utils.Adapter {
 		await this.publishTimerSnapshot(this.timerManager.getSnapshot());
 
 		this.subscribeStates(`${this.namespace}.${TIMER_CHANNEL}.*`);
-		this.log.info("Autism Support adapter ready – Time Timer initialized");
+		this.log.info("Autism Support adapter ready – Visual Countdown initialized");
 	}
 
 	private getDefaultDurationSeconds(maxHours: number): number {

@@ -4,9 +4,9 @@ import { Box } from "@mui/material";
 import type { RxRenderWidgetProps, RxWidgetInfo, VisRxWidgetProps, VisRxWidgetState } from "@iobroker/types-vis-2";
 import type VisRxWidget from "@iobroker/types-vis-2/visRxWidget";
 
-import TimeTimerVisual from "./components/TimeTimerVisual";
+import VisualCountdownVisual from "./components/VisualCountdownVisual";
 
-interface TimeTimerLiveRxData {
+interface VisualCountdownLiveRxData {
 	oidDuration: string;
 	oidRemaining: string;
 	colorDigital: string;
@@ -14,20 +14,20 @@ interface TimeTimerLiveRxData {
 	colorElapsed: string;
 }
 
-export default class TimeTimerLiveWidget extends (window.visRxWidget as typeof VisRxWidget)<
-	TimeTimerLiveRxData,
+export default class VisualCountdownLiveWidget extends (window.visRxWidget as typeof VisRxWidget)<
+	VisualCountdownLiveRxData,
 	VisRxWidgetState
 > {
 	static adapter: string;
 
 	static getWidgetInfo(): RxWidgetInfo {
 		return {
-			id: "asTimeTimerLive",
+			id: "asVisualCountdownLive",
 			visSet: "autism-support",
 			visSetIcon: "widgets/autism-support/img/autism-support.svg",
 			visSetLabel: "autism_support_widgets",
 			visSetColor: "#E53935",
-			visName: "TimeTimerLive",
+			visName: "VisualCountdownLive",
 			visAttrs: [
 				{
 					name: "timer",
@@ -72,7 +72,7 @@ export default class TimeTimerLiveWidget extends (window.visRxWidget as typeof V
 					],
 				},
 			],
-			visPrev: "widgets/autism-support/img/time-timer-live.png",
+			visPrev: "widgets/autism-support/img/visual-countdown-live.png",
 		};
 	}
 
@@ -81,11 +81,11 @@ export default class TimeTimerLiveWidget extends (window.visRxWidget as typeof V
 	}
 
 	getWidgetInfo(): RxWidgetInfo {
-		return TimeTimerLiveWidget.getWidgetInfo();
+		return VisualCountdownLiveWidget.getWidgetInfo();
 	}
 
 	static getI18nPrefix(): string {
-		return `${TimeTimerLiveWidget.adapter}_`;
+		return `${VisualCountdownLiveWidget.adapter}_`;
 	}
 
 	renderWidgetBody(props: RxRenderWidgetProps): React.JSX.Element {
@@ -96,7 +96,7 @@ export default class TimeTimerLiveWidget extends (window.visRxWidget as typeof V
 
 		return (
 			<Box sx={{ width: "100%", height: "100%", bgcolor: "transparent" }}>
-				<TimeTimerVisual
+				<VisualCountdownVisual
 					durationSeconds={duration}
 					remainingSeconds={remaining}
 					colorDigital={this.state.rxData.colorDigital || "#000000"}
