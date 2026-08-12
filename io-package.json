@@ -1,8 +1,12 @@
 {
 	"common": {
 		"name": "autism-support",
-		"version": "0.0.7",
+		"version": "0.0.8",
 		"news": {
+			"0.0.8": {
+				"en": "New adapter icon: Time Timer circle at 45 minutes",
+				"de": "Neues Adapter-Icon: Time-Timer-Kreisdiagramm mit 45 Minuten"
+			},
 			"0.0.7": {
 				"en": "Replace hour bars with small full-hour circle diagrams",
 				"de": "Stundenbalken durch kleine volle Stunden-Kreisdiagramme ersetzt"
