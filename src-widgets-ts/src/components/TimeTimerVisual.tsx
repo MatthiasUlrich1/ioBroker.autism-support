@@ -23,6 +23,7 @@ function formatDigital(seconds: number): string {
 	return `${minutes}:${String(secs).padStart(2, "0")}`;
 }
 
+/** Angle 0 = top (12 o'clock), clockwise positive – like a clock. */
 function polarToCartesian(cx: number, cy: number, radius: number, angleDeg: number): { x: number; y: number } {
 	const angleRad = ((angleDeg - 90) * Math.PI) / 180;
 	return {
@@ -31,20 +32,24 @@ function polarToCartesian(cx: number, cy: number, radius: number, angleDeg: numb
 	};
 }
 
+/**
+ * Clockwise wedge from startAngle to endAngle (degrees, 0 = top).
+ */
 function describeWedge(cx: number, cy: number, radius: number, startAngle: number, endAngle: number): string {
-	if (endAngle - startAngle >= 359.99) {
+	const sweep = endAngle - startAngle;
+	if (sweep >= 359.99) {
 		return `M ${cx} ${cy - radius} A ${radius} ${radius} 0 1 1 ${cx - 0.01} ${cy - radius} Z`;
 	}
-	const start = polarToCartesian(cx, cy, radius, endAngle);
-	const end = polarToCartesian(cx, cy, radius, startAngle);
-	const largeArc = endAngle - startAngle <= 180 ? 0 : 1;
-	return `M ${cx} ${cy} L ${start.x} ${start.y} A ${radius} ${radius} 0 ${largeArc} 0 ${end.x} ${end.y} Z`;
+	const start = polarToCartesian(cx, cy, radius, startAngle);
+	const end = polarToCartesian(cx, cy, radius, endAngle);
+	const largeArc = sweep <= 180 ? 0 : 1;
+	// sweep-flag 1 = clockwise
+	return `M ${cx} ${cy} L ${start.x} ${start.y} A ${radius} ${radius} 0 ${largeArc} 1 ${end.x} ${end.y} Z`;
 }
 
 /**
- * Circle always represents one hour.
- * Uses the current hour fragment (modulo 3600): 30 min → half red, 90 min → half red (+ hour bars).
- * Exact hour boundaries (60/120/…) stay fully red.
+ * Circle = current hour fragment only (always one hour face).
+ * 30 min → 0.5, 90 min → 0.5, exact hours → 1.0
  */
 export function getCircleRemainingFraction(remainingSeconds: number): number {
 	const safeRemaining = Math.max(0, remainingSeconds);
@@ -58,6 +63,22 @@ export function getCircleRemainingFraction(remainingSeconds: number): number {
 	return Math.min(1, mod / SECONDS_PER_HOUR);
 }
 
+/**
+ * Full-hour bars = complete hours beyond the circle.
+ * 1:30 → 1 bar, 1:00 → 0 bars (+ full circle), 2:00 → 1 bar (+ full circle), 0:30 → 0 bars
+ */
+export function getFullHourBarCount(remainingSeconds: number): number {
+	const safeRemaining = Math.max(0, remainingSeconds);
+	if (safeRemaining <= 0) {
+		return 0;
+	}
+	const mod = safeRemaining % SECONDS_PER_HOUR;
+	if (mod === 0) {
+		return Math.max(0, Math.floor(safeRemaining / SECONDS_PER_HOUR) - 1);
+	}
+	return Math.floor(safeRemaining / SECONDS_PER_HOUR);
+}
+
 export default function TimeTimerVisual({
 	durationSeconds,
 	remainingSeconds,
@@ -69,25 +90,13 @@ export default function TimeTimerVisual({
 }: TimeTimerVisualProps): React.JSX.Element {
 	const safeDuration = Math.max(1, durationSeconds);
 	const safeRemaining = Math.max(0, Math.min(safeDuration, remainingSeconds));
-	const elapsed = safeDuration - safeRemaining;
-	const hourCount = Math.min(24, Math.max(1, Math.ceil(safeDuration / SECONDS_PER_HOUR)));
 	const circleRadius = size * 0.38;
 	const center = size / 2;
 
-	const hourBars = Array.from({ length: hourCount }, (_, index) => {
-		const segmentStart = index * SECONDS_PER_HOUR;
-		const segmentEnd = Math.min((index + 1) * SECONDS_PER_HOUR, safeDuration);
-		const segmentDuration = segmentEnd - segmentStart;
-		const segmentElapsed = Math.max(0, Math.min(segmentDuration, elapsed - segmentStart));
-		const remainingFraction = segmentDuration > 0 ? 1 - segmentElapsed / segmentDuration : 0;
-		return {
-			key: `hour-${index}`,
-			remainingFraction,
-		};
-	});
-
 	const remainingFraction = getCircleRemainingFraction(safeRemaining);
-	const wedgeEnd = -90 + remainingFraction * 360;
+	const hourBarCount = getFullHourBarCount(safeRemaining);
+	// Start at top (0°) and sweep clockwise for remaining time
+	const wedgeEnd = remainingFraction * 360;
 
 	return (
 		<div
@@ -109,43 +118,44 @@ export default function TimeTimerVisual({
 					gap: 4,
 					width: "100%",
 					maxWidth: size,
+					minHeight: 18,
 					height: 18,
 					alignItems: "flex-end",
+					justifyContent: "center",
 				}}
 			>
-				{hourBars.map((bar) => (
-					<div
-						key={bar.key}
-						style={{
-							flex: 1,
-							height: "100%",
-							background: colorElapsed,
-							border: "1px solid #BDBDBD",
-							borderRadius: 2,
-							overflow: "hidden",
-							position: "relative",
-						}}
-					>
-						<div
-							style={{
-								position: "absolute",
-								left: 0,
-								right: 0,
-								bottom: 0,
-								height: `${Math.max(0, Math.min(100, bar.remainingFraction * 100))}%`,
-								background: colorRemaining,
-								transition: "height 0.4s linear",
-							}}
-						/>
-					</div>
-				))}
+				{hourBarCount > 0
+					? Array.from({ length: hourBarCount }, (_, index) => (
+							<div
+								key={`hour-${index}`}
+								style={{
+									flex: 1,
+									maxWidth: 48,
+									height: "100%",
+									background: colorRemaining,
+									border: "1px solid #BDBDBD",
+									borderRadius: 2,
+								}}
+								title="1 h"
+							/>
+						))
+					: null}
 			</div>
 
 			<svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} role="img" aria-label="Time Timer">
-				{/* Elapsed / empty part is always white (or configured) under the red remaining wedge */}
+				{/* White base = elapsed part of the current hour */}
 				<circle cx={center} cy={center} r={circleRadius} fill={colorElapsed} stroke="#424242" strokeWidth={3} />
+				{/* Thin tick at 12 o'clock so the start position is visible */}
+				<line
+					x1={center}
+					y1={center - circleRadius}
+					x2={center}
+					y2={center - circleRadius + 10}
+					stroke="#424242"
+					strokeWidth={2}
+				/>
 				{remainingFraction > 0 && remainingFraction < 1 && (
-					<path d={describeWedge(center, center, circleRadius, -90, wedgeEnd)} fill={colorRemaining} />
+					<path d={describeWedge(center, center, circleRadius, 0, wedgeEnd)} fill={colorRemaining} />
 				)}
 				{remainingFraction >= 1 && (
 					<circle cx={center} cy={center} r={circleRadius} fill={colorRemaining} stroke="#424242" strokeWidth={3} />

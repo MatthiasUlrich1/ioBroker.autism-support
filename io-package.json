@@ -1,8 +1,12 @@
 {
 	"common": {
 		"name": "autism-support",
-		"version": "0.0.4",
+		"version": "0.0.5",
 		"news": {
+			"0.0.5": {
+				"en": "Circle starts at 12 o'clock; hour bars show only complete hours beyond the circle",
+				"de": "Kreis beginnt bei 12 Uhr; Stundenbalken nur für volle Stunden zusätzlich zum Kreis"
+			},
 			"0.0.4": {
 				"en": "Fix circle hour fragment (white again); configurable digital time color",
 				"de": "Kreis zeigt wieder Stundenfragment (weiß); Digitalfarbe konfigurierbar"
