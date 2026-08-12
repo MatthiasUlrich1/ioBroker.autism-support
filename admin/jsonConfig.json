@@ -1,0 +1,59 @@
+{
+	"i18n": true,
+	"type": "tabs",
+	"items": {
+		"_timerTab": {
+			"type": "panel",
+			"label": "timer_tab",
+			"items": {
+				"_timerHeader": {
+					"type": "header",
+					"text": "timer_settings_header",
+					"xs": 12,
+					"sm": 12,
+					"md": 12,
+					"lg": 12,
+					"xl": 12
+				},
+				"defaultDurationMinutes": {
+					"type": "number",
+					"label": "default_duration_minutes",
+					"min": 1,
+					"max": 1440,
+					"newLine": true,
+					"xs": 12,
+					"sm": 12,
+					"md": 6,
+					"lg": 4,
+					"xl": 4
+				},
+				"maxDurationHours": {
+					"type": "number",
+					"label": "max_duration_hours",
+					"min": 1,
+					"max": 24,
+					"newLine": true,
+					"xs": 12,
+					"sm": 12,
+					"md": 6,
+					"lg": 4,
+					"xl": 4
+				},
+				"_timerHint": {
+					"type": "staticText",
+					"text": "timer_settings_hint",
+					"style": {
+						"fontSize": "0.9em",
+						"opacity": 0.85
+					},
+					"newLine": true,
+					"xs": 12,
+					"sm": 12,
+					"md": 12,
+					"lg": 12,
+					"xl": 12
+				}
+			}
+		}
+	}
+}

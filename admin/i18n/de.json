@@ -1,0 +1,8 @@
+{
+	"autism-support adapter settings": "Adaptereinstellungen Autismus-Unterstützung",
+	"timer_tab": "Time Timer",
+	"timer_settings_header": "Time Timer – Grundeinstellungen",
+	"default_duration_minutes": "Standard-Dauer (Minuten)",
+	"max_duration_hours": "Maximale Dauer (Stunden, bis 24)",
+	"timer_settings_hint": "Steuerung und Anzeige erfolgen über die VIS-2-Widgets „Time Timer (Live)“ und „Time Timer (Konfiguration)“ sowie über die Datenpunkte unter timer.*."
+}

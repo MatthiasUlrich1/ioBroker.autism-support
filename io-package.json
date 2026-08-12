@@ -1,0 +1,135 @@
+{
+	"common": {
+		"name": "autism-support",
+		"version": "0.0.1",
+		"news": {
+			"0.0.1": {
+				"en": "initial release",
+				"de": "Erstveröffentlichung",
+				"ru": "Начальная версия",
+				"pt": "lançamento inicial",
+				"nl": "Eerste uitgave",
+				"fr": "Première version",
+				"it": "Versione iniziale",
+				"es": "Versión inicial",
+				"pl": "Pierwsze wydanie",
+				"uk": "Початкова версія",
+				"zh-cn": "首次出版"
+			}
+		},
+		"titleLang": {
+			"en": "Autism Support",
+			"de": "Autismus-Unterstützung",
+			"ru": "Поддержка аутизма",
+			"pt": "Apoio ao autismo",
+			"nl": "Ondersteuning voor autisme",
+			"fr": "Soutien à l'autisme",
+			"it": "Supporto all'autismo",
+			"es": "Apoyo al autismo",
+			"pl": "Wsparcie autyzmu",
+			"uk": "Підтримка аутистів",
+			"zh-cn": "自闭症支持"
+		},
+		"desc": {
+			"en": "Unterstützung für Menschen mit Autismus: Time Timer, Bild-Ablaufpläne und Piktogramme",
+			"de": "Unterstützung für Menschen mit Autismus: Time Timer, Bild-Ablaufpläne und Piktogramme",
+			"ru": "Unterstützung für Menschen mit Autismus: Time Timer, Bild-Ablaufpläne und Piktogramme",
+			"pt": "Unterstützung für Menschen mit Autismus: Time Timer, Bild-Ablaufpläne e Piktogramme",
+			"nl": "Unterstützung für Menschen mit Autisme: Time Timer, Bild-Ablaufpläne en Piktogramme",
+			"fr": "Support pour hommes avec autisme : Time Timer, Bild-Ablaufpläne et Piktogramme",
+			"it": "Supporto per uomini con autismo: timer, disegno grafico e pittogramma",
+			"es": "Unterstützung für Menschen mit Autismus: Time Timer, Bild-Ablaufpläne und Piktogramme",
+			"pl": "Unterstützung für Menschen mit Autismus: Timer, Bild-Ablaufpläne i Piktogramme",
+			"uk": "Unterstützung für Menschen mit Autismus: Time Timer, Bild-Ablaufpläne und Piktogramme",
+			"zh-cn": "Unterstützung für Menschen mit 自闭症患者：时间计时器、图片绘制和图形图"
+		},
+		"authors": [
+			"Matthias Ulrich <MatthiasUlrich1@gmail.com>"
+		],
+		"keywords": [
+			"autism",
+			"timer",
+			"time-timer",
+			"schedule",
+			"pictogram",
+			"vis-2",
+			"accessibility"
+		],
+		"licenseInformation": {
+			"type": "free",
+			"license": "MIT"
+		},
+		"platform": "Javascript/Node.js",
+		"icon": "autism-support.png",
+		"enabled": true,
+		"extIcon": "https://raw.githubusercontent.com/MatthiasUlrich1/ioBroker.autism-support/main/admin/autism-support.png",
+		"readme": "https://github.com/MatthiasUlrich1/ioBroker.autism-support/blob/main/README.md",
+		"loglevel": "info",
+		"tier": 3,
+		"restartAdapters": [
+			"vis-2"
+		],
+		"mode": "daemon",
+		"type": "general",
+		"compact": true,
+		"adminUI": {
+			"config": "json",
+			"tab": "materialize"
+		},
+		"adminTab": {
+			"singleton": true,
+			"name": {
+				"en": "Autism Support",
+				"de": "Autismus-Unterstützung",
+				"ru": "Поддержка аутизма",
+				"pt": "Apoio ao autismo",
+				"nl": "Ondersteuning voor autisme",
+				"fr": "Soutien à l'autisme",
+				"it": "Supporto all'autismo",
+				"es": "Apoyo al autismo",
+				"pl": "Wsparcie autyzmu",
+				"uk": "Підтримка аутистів",
+				"zh-cn": "自闭症支持"
+			},
+			"link": ""
+		},
+		"supportCustoms": true,
+		"visWidgets": {
+			"asTimeTimerLive": {
+				"i18n": "component",
+				"name": "asTimeTimerLive",
+				"url": "autism-support/customWidgets.js",
+				"bundlerType": "module",
+				"components": [
+					"TimeTimerLiveWidget"
+				]
+			},
+			"asTimeTimerConfig": {
+				"i18n": "component",
+				"name": "asTimeTimerConfig",
+				"url": "autism-support/customWidgets.js",
+				"bundlerType": "module",
+				"components": [
+					"TimeTimerConfigWidget"
+				]
+			}
+		},
+		"dependencies": [
+			{
+				"js-controller": ">=6.0.11"
+			},
+			"vis-2"
+		],
+		"globalDependencies": [
+			{
+				"admin": ">=7.0.23"
+			}
+		]
+	},
+	"native": {
+		"defaultDurationMinutes": 60,
+		"maxDurationHours": 24
+	},
+	"objects": [],
+	"instanceObjects": []
+}

@@ -1,0 +1,19 @@
+{
+	"autism_support_widgets": "Autism Support",
+	"TimeTimerLive": "Time Timer (Live)",
+	"TimeTimerConfig": "Time Timer (Config)",
+	"timer_states": "Timer states",
+	"oid_duration": "Duration state",
+	"oid_remaining": "Remaining state",
+	"oid_set_duration": "Set duration state",
+	"oid_start": "Start command",
+	"oid_pause": "Pause command",
+	"oid_resume": "Resume command",
+	"oid_stop": "Stop command",
+	"duration_minutes": "Duration (minutes)",
+	"apply_duration": "Apply",
+	"start": "Start",
+	"pause": "Pause",
+	"resume": "Resume",
+	"stop": "Stop"
+}

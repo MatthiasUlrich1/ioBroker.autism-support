@@ -1,0 +1,23 @@
+# No dot-directories except github/vscode
+.*/
+!.vscode/
+!.github/
+
+*.code-workspace
+node_modules
+src-widgets-ts/node_modules
+src-widgets-ts/build
+nbproject
+
+# npm package files
+iobroker.*.tgz
+
+Thumbs.db
+.commitinfo
+
+# NYC coverage files
+coverage
+
+# i18n intermediate files
+admin/i18n/flat.txt
+admin/i18n/*/flat.txt
