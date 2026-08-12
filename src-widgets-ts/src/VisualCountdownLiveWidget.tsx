@@ -14,6 +14,8 @@ interface VisualCountdownLiveRxData {
 	colorElapsed: string;
 	ringWidthPercent: number;
 	geometry: string;
+	showBorder: boolean;
+	colorBorder: string;
 }
 
 export default class VisualCountdownLiveWidget extends (window.visRxWidget as typeof VisRxWidget)<
@@ -95,6 +97,19 @@ export default class VisualCountdownLiveWidget extends (window.visRxWidget as ty
 							max: 45,
 							step: 1,
 						},
+						{
+							name: "showBorder",
+							type: "checkbox",
+							label: "show_border",
+							default: false,
+						},
+						{
+							name: "colorBorder",
+							type: "color",
+							label: "color_border",
+							default: "#424242",
+							hidden: "!data.showBorder",
+						},
 					],
 				},
 			],
@@ -130,6 +145,8 @@ export default class VisualCountdownLiveWidget extends (window.visRxWidget as ty
 					colorElapsed={this.state.rxData.colorElapsed || "#E0E0E0"}
 					ringWidthPercent={Number(this.state.rxData.ringWidthPercent) || 18}
 					geometry={this.state.rxData.geometry || "square"}
+					showBorder={Boolean(this.state.rxData.showBorder)}
+					colorBorder={this.state.rxData.colorBorder || "#424242"}
 				/>
 			</Box>
 		);

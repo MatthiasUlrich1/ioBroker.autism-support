@@ -37,18 +37,37 @@ export interface VisualCountdownVisualProps {
 	ringWidthPercent?: number;
 	/** Outline geometry. Default square. Full circle is not allowed. */
 	geometry?: CountdownGeometry | string;
+	/** Draw a border around the geometry. */
+	showBorder?: boolean;
+	/** Border color when showBorder is enabled. */
+	colorBorder?: string;
 }
 
 /** Brand-neutral orange – deliberately not Time Timer red. */
 export const DEFAULT_REMAINING_COLOR = "#FF8A00";
 export const DEFAULT_TRACK_COLOR = "#E0E0E0";
 export const DEFAULT_DIGITAL_COLOR = "#1A1A1A";
+export const DEFAULT_BORDER_COLOR = "#424242";
 export const DEFAULT_RING_WIDTH_PERCENT = 18;
 export const DEFAULT_GEOMETRY: CountdownGeometry = "square";
 /** Cap so a circular outline can never become a filled disc. */
 export const MAX_STROKE_WIDTH_PERCENT = 45;
 
 const SECONDS_PER_HOUR = 3600;
+
+interface Point {
+	x: number;
+	y: number;
+}
+
+interface TickMark {
+	key: string;
+	x1: number;
+	y1: number;
+	x2: number;
+	y2: number;
+	major: boolean;
+}
 
 function formatDigital(seconds: number): string {
 	const total = Math.max(0, Math.round(seconds));
@@ -106,32 +125,99 @@ export function normalizeGeometry(value: unknown): CountdownGeometry {
 	return DEFAULT_GEOMETRY;
 }
 
-/** Regular polygon, vertex on top, clockwise. */
-function regularPolygonPath(cx: number, cy: number, r: number, sides: number): string {
-	const start = -Math.PI / 2;
-	const parts: string[] = [];
-	for (let i = 0; i < sides; i++) {
-		const a = start + (i * 2 * Math.PI) / sides;
-		const x = cx + r * Math.cos(a);
-		const y = cy + r * Math.sin(a);
-		parts.push(`${i === 0 ? "M" : "L"} ${x} ${y}`);
+function sideCount(geometry: CountdownGeometry): number {
+	switch (geometry) {
+		case "triangle":
+			return 3;
+		case "square":
+		case "diamond":
+			return 4;
+		case "pentagon":
+			return 5;
+		case "hexagon":
+			return 6;
+		case "octagon":
+			return 8;
+		default:
+			return 4;
 	}
-	return `${parts.join(" ")} Z`;
 }
 
-/** Axis-aligned square. */
+/** Minor ticks per edge (vertices are always major). */
+function minorsPerSide(geometry: CountdownGeometry): number {
+	switch (geometry) {
+		case "triangle":
+			return 3;
+		case "square":
+		case "diamond":
+			return 2;
+		case "pentagon":
+			return 1;
+		case "hexagon":
+			return 1;
+		case "octagon":
+			return 0;
+		default:
+			return 2;
+	}
+}
+
+/** Regular polygon, vertex on top, clockwise. */
+function regularPolygonPath(cx: number, cy: number, r: number, sides: number): string {
+	const verts = regularPolygonVertices(cx, cy, r, sides);
+	return `${verts.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ")} Z`;
+}
+
+function regularPolygonVertices(cx: number, cy: number, r: number, sides: number): Point[] {
+	const start = -Math.PI / 2;
+	const verts: Point[] = [];
+	for (let i = 0; i < sides; i++) {
+		const a = start + (i * 2 * Math.PI) / sides;
+		verts.push({ x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) });
+	}
+	return verts;
+}
+
+/** Axis-aligned square vertices, clockwise from top-left. */
+function flatSquareVertices(cx: number, cy: number, halfSide: number): Point[] {
+	return [
+		{ x: cx - halfSide, y: cy - halfSide },
+		{ x: cx + halfSide, y: cy - halfSide },
+		{ x: cx + halfSide, y: cy + halfSide },
+		{ x: cx - halfSide, y: cy + halfSide },
+	];
+}
+
 function flatSquarePath(cx: number, cy: number, halfSide: number): string {
-	const top = cy - halfSide;
-	const bottom = cy + halfSide;
-	const left = cx - halfSide;
-	const right = cx + halfSide;
-	return `M ${left} ${top} L ${right} ${top} L ${right} ${bottom} L ${left} ${bottom} Z`;
+	const [a, b, c, d] = flatSquareVertices(cx, cy, halfSide);
+	return `M ${a.x} ${a.y} L ${b.x} ${b.y} L ${c.x} ${c.y} L ${d.x} ${d.y} Z`;
+}
+
+function shapeVertices(geometry: CountdownGeometry, cx: number, cy: number, r: number): Point[] {
+	switch (geometry) {
+		case "ring":
+			return [];
+		case "square":
+			return flatSquareVertices(cx, cy, r / Math.SQRT2);
+		case "diamond":
+			return regularPolygonVertices(cx, cy, r, 4);
+		case "triangle":
+			return regularPolygonVertices(cx, cy, r, 3);
+		case "pentagon":
+			return regularPolygonVertices(cx, cy, r, 5);
+		case "hexagon":
+			return regularPolygonVertices(cx, cy, r, 6);
+		case "octagon":
+			return regularPolygonVertices(cx, cy, r, 8);
+		default:
+			return flatSquareVertices(cx, cy, r / Math.SQRT2);
+	}
 }
 
 function outerShapePath(geometry: CountdownGeometry, cx: number, cy: number, r: number): string {
 	switch (geometry) {
 		case "ring":
-			return ""; // circle handled separately
+			return "";
 		case "square":
 			return flatSquarePath(cx, cy, r / Math.SQRT2);
 		case "diamond":
@@ -151,7 +237,6 @@ function outerShapePath(geometry: CountdownGeometry, cx: number, cy: number, r: 
 
 /**
  * Frame path = outer shape minus inner hole (evenodd).
- * Inner hole uses the same geometry so the open center matches.
  */
 function framePath(
 	geometry: CountdownGeometry,
@@ -161,7 +246,6 @@ function framePath(
 	innerR: number,
 ): string {
 	if (geometry === "ring") {
-		// Two circles for evenodd fill
 		const outer = `M ${cx + outerR} ${cy} A ${outerR} ${outerR} 0 1 1 ${cx - outerR} ${cy} A ${outerR} ${outerR} 0 1 1 ${cx + outerR} ${cy} Z`;
 		const inner = `M ${cx + innerR} ${cy} A ${innerR} ${innerR} 0 1 0 ${cx - innerR} ${cy} A ${innerR} ${innerR} 0 1 0 ${cx + innerR} ${cy} Z`;
 		return `${outer} ${inner}`;
@@ -173,7 +257,6 @@ function framePath(
 
 /**
  * Circular sector from 12 o'clock, clockwise.
- * Remaining color is always cut by radii from the center – never mid-edge polygon stubs.
  */
 function circularSectorPath(cx: number, cy: number, r: number, fraction: number): string {
 	if (fraction <= 0) {
@@ -190,6 +273,69 @@ function circularSectorPath(cx: number, cy: number, r: number, fraction: number)
 	const y2 = cy + r * Math.sin(end);
 	const largeArc = fraction > 0.5 ? 1 : 0;
 	return `M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${largeArc} 1 ${x2} ${y2} Z`;
+}
+
+/**
+ * Segment ticks follow the geometry outline (across the frame band),
+ * not a circle – except for ring, which keeps radial clock ticks.
+ */
+function buildGeometryTicks(
+	geometry: CountdownGeometry,
+	cx: number,
+	cy: number,
+	outerR: number,
+	innerR: number,
+): TickMark[] {
+	const thickness = Math.max(1, outerR - innerR);
+
+	if (geometry === "ring") {
+		return Array.from({ length: 12 }, (_, index) => {
+			const rad = ((index / 12) * 360 - 90) * (Math.PI / 180);
+			const outer = outerR - thickness * 0.12;
+			const inner = innerR + thickness * 0.12;
+			return {
+				key: `tick-${index}`,
+				x1: cx + Math.cos(rad) * inner,
+				y1: cy + Math.sin(rad) * inner,
+				x2: cx + Math.cos(rad) * outer,
+				y2: cy + Math.sin(rad) * outer,
+				major: index % 3 === 0,
+			};
+		});
+	}
+
+	const outerVerts = shapeVertices(geometry, cx, cy, outerR - thickness * 0.1);
+	const innerVerts = shapeVertices(geometry, cx, cy, innerR + thickness * 0.1);
+	const sides = sideCount(geometry);
+	const minors = minorsPerSide(geometry);
+	const ticks: TickMark[] = [];
+	let tickIndex = 0;
+
+	for (let s = 0; s < sides; s++) {
+		const oa = outerVerts[s];
+		const ob = outerVerts[(s + 1) % sides];
+		const ia = innerVerts[s];
+		const ib = innerVerts[(s + 1) % sides];
+		const samples = minors + 1; // start vertex; end belongs to next side
+
+		for (let m = 0; m < samples; m++) {
+			const t = m / samples;
+			const ox = oa.x + (ob.x - oa.x) * t;
+			const oy = oa.y + (ob.y - oa.y) * t;
+			const ix = ia.x + (ib.x - ia.x) * t;
+			const iy = ia.y + (ib.y - ia.y) * t;
+			ticks.push({
+				key: `tick-${tickIndex++}`,
+				x1: ix,
+				y1: iy,
+				x2: ox,
+				y2: oy,
+				major: m === 0,
+			});
+		}
+	}
+
+	return ticks;
 }
 
 function HourMarker({
@@ -221,7 +367,7 @@ function HourMarker({
 
 /**
  * Geometry defines the outer frame; remaining color is revealed with a circular
- * wipe from the center (sector clip) so cuts stay radial – no odd partial edges.
+ * wipe from the center (sector clip). Segment ticks follow the geometry edges.
  */
 export default function VisualCountdownVisual({
 	durationSeconds,
@@ -233,6 +379,8 @@ export default function VisualCountdownVisual({
 	colorDigital = DEFAULT_DIGITAL_COLOR,
 	ringWidthPercent = DEFAULT_RING_WIDTH_PERCENT,
 	geometry: geometryProp = DEFAULT_GEOMETRY,
+	showBorder = false,
+	colorBorder = DEFAULT_BORDER_COLOR,
 }: VisualCountdownVisualProps): React.JSX.Element {
 	const reactId = useId().replace(/:/g, "");
 	const clipId = `as-cd-sector-${reactId}`;
@@ -241,7 +389,9 @@ export default function VisualCountdownVisual({
 	const safeDuration = Math.max(1, durationSeconds);
 	const safeRemaining = Math.max(0, Math.min(safeDuration, remainingSeconds));
 	const center = size / 2;
-	const padding = 4;
+	const borderWidth = showBorder ? Math.max(3, size * 0.018) : 0;
+	const borderGap = showBorder ? Math.max(2, size * 0.01) : 0;
+	const padding = 4 + (showBorder ? borderWidth + borderGap : 0);
 	const outerR = Math.max(8, size / 2 - padding);
 
 	const clampedPercent = Math.max(
@@ -257,23 +407,12 @@ export default function VisualCountdownVisual({
 	const hourStrokeRatio = Math.max(0.2, Math.min(0.45, (clampedPercent / 100) * 2));
 
 	const frameD = framePath(geometry, center, center, outerR, innerR);
-	const sectorR = outerR * 1.15; // slightly past outer edge so clip fully covers frame
+	const sectorR = outerR * 1.15;
 	const sectorD = circularSectorPath(center, center, sectorR, remainingFraction);
-
-	const ticks = Array.from({ length: 12 }, (_, index) => {
-		const angle = (index / 12) * 360;
-		const rad = ((angle - 90) * Math.PI) / 180;
-		const outer = outerR - thickness * 0.15;
-		const inner = innerR + thickness * 0.15;
-		return {
-			key: `tick-${index}`,
-			x1: center + Math.cos(rad) * inner,
-			y1: center + Math.sin(rad) * inner,
-			x2: center + Math.cos(rad) * outer,
-			y2: center + Math.sin(rad) * outer,
-			major: index % 3 === 0,
-		};
-	});
+	const ticks = buildGeometryTicks(geometry, center, center, outerR, innerR);
+	const borderR = outerR + borderGap + borderWidth / 2;
+	const borderPath =
+		geometry === "ring" ? "" : outerShapePath(geometry, center, center, borderR);
 
 	return (
 		<div
@@ -319,11 +458,30 @@ export default function VisualCountdownVisual({
 				<defs>
 					<clipPath id={clipId}>
 						{remainingFraction > 0 && remainingFraction < 1 && <path d={sectorD} />}
-						{remainingFraction >= 1 && (
-							<circle cx={center} cy={center} r={sectorR} />
-						)}
+						{remainingFraction >= 1 && <circle cx={center} cy={center} r={sectorR} />}
 					</clipPath>
 				</defs>
+
+				{/* Optional outer border matching geometry */}
+				{showBorder &&
+					(geometry === "ring" ? (
+						<circle
+							cx={center}
+							cy={center}
+							r={borderR}
+							fill="none"
+							stroke={colorBorder || DEFAULT_BORDER_COLOR}
+							strokeWidth={borderWidth}
+						/>
+					) : (
+						<path
+							d={borderPath}
+							fill="none"
+							stroke={colorBorder || DEFAULT_BORDER_COLOR}
+							strokeWidth={borderWidth}
+							strokeLinejoin="miter"
+						/>
+					))}
 
 				{/* Soft center plate */}
 				{geometry === "ring" ? (
@@ -356,7 +514,7 @@ export default function VisualCountdownVisual({
 						stroke="#9E9E9E"
 						strokeWidth={tick.major ? 2 : 1}
 						strokeLinecap="butt"
-						opacity={0.7}
+						opacity={0.75}
 					/>
 				))}
 			</svg>

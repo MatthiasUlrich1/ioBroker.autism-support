@@ -26,6 +26,8 @@
 	"color_remaining": "Remaining / progress color",
 	"color_elapsed": "Track / elapsed color",
 	"ring_width_percent": "Stroke width (%)",
+	"show_border": "Border around geometry",
+	"color_border": "Border color",
 	"color_controls_text": "Hours/minutes text color",
 	"color_controls_border": "Hours/minutes border color",
 	"color_controls_arrows": "Hours/minutes arrow color",

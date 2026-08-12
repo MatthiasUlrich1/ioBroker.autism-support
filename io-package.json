@@ -1,8 +1,12 @@
 {
 	"common": {
 		"name": "autism-support",
-		"version": "0.0.16",
+		"version": "0.0.17",
 		"news": {
+			"0.0.17": {
+				"en": "Geometry-aligned segment ticks; optional colored border",
+				"de": "Segmentstriche an Geometrie; optionaler farbiger Rahmen"
+			},
 			"0.0.16": {
 				"en": "Remaining color uses circular wipe from center (no odd edge shapes)",
 				"de": "Restfarbe verschwindet kreisförmig vom Zentrum (keine kantigen Restformen)"

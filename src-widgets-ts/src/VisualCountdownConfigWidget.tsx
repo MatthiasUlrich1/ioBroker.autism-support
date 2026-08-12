@@ -23,6 +23,8 @@ interface VisualCountdownConfigRxData {
 	colorControlsArrows: string;
 	ringWidthPercent: number;
 	geometry: string;
+	showBorder: boolean;
+	colorBorder: string;
 }
 
 interface VisualCountdownConfigState extends VisRxWidgetState {
@@ -177,6 +179,19 @@ export default class VisualCountdownConfigWidget extends (window.visRxWidget as 
 							max: 45,
 							step: 1,
 						},
+						{
+							name: "showBorder",
+							type: "checkbox",
+							label: "show_border",
+							default: false,
+						},
+						{
+							name: "colorBorder",
+							type: "color",
+							label: "color_border",
+							default: "#424242",
+							hidden: "!data.showBorder",
+						},
 					],
 				},
 			],
@@ -259,6 +274,8 @@ export default class VisualCountdownConfigWidget extends (window.visRxWidget as 
 							colorElapsed={this.state.rxData.colorElapsed || "#E0E0E0"}
 							ringWidthPercent={Number(this.state.rxData.ringWidthPercent) || 18}
 							geometry={this.state.rxData.geometry || "square"}
+							showBorder={Boolean(this.state.rxData.showBorder)}
+							colorBorder={this.state.rxData.colorBorder || "#424242"}
 						/>
 					</Box>
 					<Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
