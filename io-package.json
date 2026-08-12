@@ -1,8 +1,12 @@
 {
 	"common": {
 		"name": "autism-support",
-		"version": "0.0.6",
+		"version": "0.0.7",
 		"news": {
+			"0.0.7": {
+				"en": "Replace hour bars with small full-hour circle diagrams",
+				"de": "Stundenbalken durch kleine volle Stunden-Kreisdiagramme ersetzt"
+			},
 			"0.0.6": {
 				"en": "Config widget: configurable text, border and arrow colors for hours/minutes",
 				"de": "Config-Widget: Schrift-, Rahmen- und Pfeilfarbe für Stunden/Minuten einstellbar"

@@ -43,12 +43,11 @@ function describeWedge(cx: number, cy: number, radius: number, startAngle: numbe
 	const start = polarToCartesian(cx, cy, radius, startAngle);
 	const end = polarToCartesian(cx, cy, radius, endAngle);
 	const largeArc = sweep <= 180 ? 0 : 1;
-	// sweep-flag 1 = clockwise
 	return `M ${cx} ${cy} L ${start.x} ${start.y} A ${radius} ${radius} 0 ${largeArc} 1 ${end.x} ${end.y} Z`;
 }
 
 /**
- * Circle = current hour fragment only (always one hour face).
+ * Main circle = current hour fragment only.
  * 30 min → 0.5, 90 min → 0.5, exact hours → 1.0
  */
 export function getCircleRemainingFraction(remainingSeconds: number): number {
@@ -64,10 +63,10 @@ export function getCircleRemainingFraction(remainingSeconds: number): number {
 }
 
 /**
- * Full-hour bars = complete hours beyond the circle.
- * 1:30 → 1 bar, 1:00 → 0 bars (+ full circle), 2:00 → 1 bar (+ full circle), 0:30 → 0 bars
+ * Small full-hour circles = complete hours beyond the main circle.
+ * 1:30 → 1, 1:00 → 0 (+ full main circle), 2:00 → 1, 0:30 → 0
  */
-export function getFullHourBarCount(remainingSeconds: number): number {
+export function getFullHourCircleCount(remainingSeconds: number): number {
 	const safeRemaining = Math.max(0, remainingSeconds);
 	if (safeRemaining <= 0) {
 		return 0;
@@ -77,6 +76,33 @@ export function getFullHourBarCount(remainingSeconds: number): number {
 		return Math.max(0, Math.floor(safeRemaining / SECONDS_PER_HOUR) - 1);
 	}
 	return Math.floor(safeRemaining / SECONDS_PER_HOUR);
+}
+
+function HourCircle({
+	diameter,
+	colorRemaining,
+	colorElapsed,
+}: {
+	diameter: number;
+	colorRemaining: string;
+	colorElapsed: string;
+}): React.JSX.Element {
+	const r = diameter / 2 - 1.5;
+	const c = diameter / 2;
+	return (
+		<svg
+			width={diameter}
+			height={diameter}
+			viewBox={`0 0 ${diameter} ${diameter}`}
+			role="img"
+			aria-label="1 hour"
+			title="1 h"
+		>
+			<circle cx={c} cy={c} r={r} fill={colorElapsed} stroke="#424242" strokeWidth={1.5} />
+			<circle cx={c} cy={c} r={r} fill={colorRemaining} stroke="#424242" strokeWidth={1.5} />
+			<circle cx={c} cy={c} r={Math.max(2, r * 0.12)} fill="#424242" />
+		</svg>
+	);
 }
 
 export default function TimeTimerVisual({
@@ -94,9 +120,9 @@ export default function TimeTimerVisual({
 	const center = size / 2;
 
 	const remainingFraction = getCircleRemainingFraction(safeRemaining);
-	const hourBarCount = getFullHourBarCount(safeRemaining);
-	// Start at top (0°) and sweep clockwise for remaining time
+	const hourCircleCount = getFullHourCircleCount(safeRemaining);
 	const wedgeEnd = remainingFraction * 360;
+	const smallDiameter = Math.max(22, Math.min(40, Math.round(size * 0.12)));
 
 	return (
 		<div
@@ -115,37 +141,29 @@ export default function TimeTimerVisual({
 			<div
 				style={{
 					display: "flex",
-					gap: 4,
+					flexWrap: "wrap",
+					gap: 6,
 					width: "100%",
 					maxWidth: size,
-					minHeight: 18,
-					height: 18,
-					alignItems: "flex-end",
+					minHeight: smallDiameter,
+					alignItems: "center",
 					justifyContent: "center",
 				}}
 			>
-				{hourBarCount > 0
-					? Array.from({ length: hourBarCount }, (_, index) => (
-							<div
+				{hourCircleCount > 0
+					? Array.from({ length: hourCircleCount }, (_, index) => (
+							<HourCircle
 								key={`hour-${index}`}
-								style={{
-									flex: 1,
-									maxWidth: 48,
-									height: "100%",
-									background: colorRemaining,
-									border: "1px solid #BDBDBD",
-									borderRadius: 2,
-								}}
-								title="1 h"
+								diameter={smallDiameter}
+								colorRemaining={colorRemaining}
+								colorElapsed={colorElapsed}
 							/>
 						))
 					: null}
 			</div>
 
 			<svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} role="img" aria-label="Time Timer">
-				{/* White base = elapsed part of the current hour */}
 				<circle cx={center} cy={center} r={circleRadius} fill={colorElapsed} stroke="#424242" strokeWidth={3} />
-				{/* Thin tick at 12 o'clock so the start position is visible */}
 				<line
 					x1={center}
 					y1={center - circleRadius}
