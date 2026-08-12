@@ -1,23 +1,23 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none">
-	<!-- Visual Countdown default: square, ~45 min remaining, butt ends -->
-	<!-- Inner plate -->
-	<path d="M 64 35.72 L 92.28 35.72 L 92.28 92.28 L 35.72 92.28 L 35.72 35.72 Z" fill="#F7F7F7"/>
-	<!-- Full track -->
+	<!-- Square frame; remaining via circular sector from center (~45 min) -->
+	<defs>
+		<clipPath id="sector45">
+			<path d="M 64 64 L 64 8 A 56 56 0 1 1 8 64 Z"/>
+		</clipPath>
+	</defs>
+	<!-- center plate -->
+	<path d="M 40 40 L 88 40 L 88 88 L 40 88 Z" fill="#F7F7F7"/>
+	<!-- track frame (outer square minus inner) -->
 	<path
-		d="M 64 30.06 L 97.94 30.06 L 97.94 97.94 L 30.06 97.94 L 30.06 30.06 Z"
-		fill="none"
-		stroke="#E0E0E0"
-		stroke-width="16"
-		stroke-linecap="butt"
-		stroke-linejoin="miter"
+		d="M 22 22 L 106 22 L 106 106 L 22 106 Z M 40 40 L 40 88 L 88 88 L 88 40 Z"
+		fill="#E0E0E0"
+		fill-rule="evenodd"
 	/>
-	<!-- Remaining ~45 min = 3/4 of perimeter, from 12 o'clock clockwise to 9 o'clock -->
+	<!-- remaining: same frame, circular wipe -->
 	<path
-		d="M 64 30.06 L 97.94 30.06 L 97.94 97.94 L 30.06 97.94 L 30.06 64"
-		fill="none"
-		stroke="#FF8A00"
-		stroke-width="16"
-		stroke-linecap="butt"
-		stroke-linejoin="miter"
+		d="M 22 22 L 106 22 L 106 106 L 22 106 Z M 40 40 L 40 88 L 88 88 L 88 40 Z"
+		fill="#FF8A00"
+		fill-rule="evenodd"
+		clip-path="url(#sector45)"
 	/>
 </svg>

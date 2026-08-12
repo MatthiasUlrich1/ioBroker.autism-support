@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useId } from "react";
 
 /** Allowed countdown outlines. Full circle / filled disc is intentionally excluded. */
 export type CountdownGeometry =
@@ -31,7 +31,7 @@ export interface VisualCountdownVisualProps {
 	colorElapsed?: string;
 	colorDigital?: string;
 	/**
-	 * Stroke width as percent of widget size (5–45).
+	 * Frame thickness as percent of widget size (5–45).
 	 * Always leaves an open center – never a filled circle.
 	 */
 	ringWidthPercent?: number;
@@ -49,7 +49,6 @@ export const DEFAULT_GEOMETRY: CountdownGeometry = "square";
 export const MAX_STROKE_WIDTH_PERCENT = 45;
 
 const SECONDS_PER_HOUR = 3600;
-const PATH_LENGTH = 1000;
 
 function formatDigital(seconds: number): string {
 	const total = Math.max(0, Math.round(seconds));
@@ -120,19 +119,19 @@ function regularPolygonPath(cx: number, cy: number, r: number, sides: number): s
 	return `${parts.join(" ")} Z`;
 }
 
-/** Axis-aligned square, path starts at top-center (12 o'clock), clockwise. */
+/** Axis-aligned square. */
 function flatSquarePath(cx: number, cy: number, halfSide: number): string {
 	const top = cy - halfSide;
 	const bottom = cy + halfSide;
 	const left = cx - halfSide;
 	const right = cx + halfSide;
-	return `M ${cx} ${top} L ${right} ${top} L ${right} ${bottom} L ${left} ${bottom} L ${left} ${top} Z`;
+	return `M ${left} ${top} L ${right} ${top} L ${right} ${bottom} L ${left} ${bottom} Z`;
 }
 
-function shapePath(geometry: CountdownGeometry, cx: number, cy: number, r: number): string {
+function outerShapePath(geometry: CountdownGeometry, cx: number, cy: number, r: number): string {
 	switch (geometry) {
 		case "ring":
-			return "";
+			return ""; // circle handled separately
 		case "square":
 			return flatSquarePath(cx, cy, r / Math.SQRT2);
 		case "diamond":
@@ -150,6 +149,49 @@ function shapePath(geometry: CountdownGeometry, cx: number, cy: number, r: numbe
 	}
 }
 
+/**
+ * Frame path = outer shape minus inner hole (evenodd).
+ * Inner hole uses the same geometry so the open center matches.
+ */
+function framePath(
+	geometry: CountdownGeometry,
+	cx: number,
+	cy: number,
+	outerR: number,
+	innerR: number,
+): string {
+	if (geometry === "ring") {
+		// Two circles for evenodd fill
+		const outer = `M ${cx + outerR} ${cy} A ${outerR} ${outerR} 0 1 1 ${cx - outerR} ${cy} A ${outerR} ${outerR} 0 1 1 ${cx + outerR} ${cy} Z`;
+		const inner = `M ${cx + innerR} ${cy} A ${innerR} ${innerR} 0 1 0 ${cx - innerR} ${cy} A ${innerR} ${innerR} 0 1 0 ${cx + innerR} ${cy} Z`;
+		return `${outer} ${inner}`;
+	}
+	const outer = outerShapePath(geometry, cx, cy, outerR);
+	const inner = outerShapePath(geometry, cx, cy, Math.max(1, innerR));
+	return `${outer} ${inner}`;
+}
+
+/**
+ * Circular sector from 12 o'clock, clockwise.
+ * Remaining color is always cut by radii from the center – never mid-edge polygon stubs.
+ */
+function circularSectorPath(cx: number, cy: number, r: number, fraction: number): string {
+	if (fraction <= 0) {
+		return "";
+	}
+	if (fraction >= 1) {
+		return `M ${cx + r} ${cy} A ${r} ${r} 0 1 1 ${cx - r} ${cy} A ${r} ${r} 0 1 1 ${cx + r} ${cy} Z`;
+	}
+	const start = -Math.PI / 2;
+	const end = start + fraction * 2 * Math.PI;
+	const x1 = cx + r * Math.cos(start);
+	const y1 = cy + r * Math.sin(start);
+	const x2 = cx + r * Math.cos(end);
+	const y2 = cy + r * Math.sin(end);
+	const largeArc = fraction > 0.5 ? 1 : 0;
+	return `M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${largeArc} 1 ${x2} ${y2} Z`;
+}
+
 function HourMarker({
 	diameter,
 	colorRemaining,
@@ -163,53 +205,23 @@ function HourMarker({
 	strokeRatio?: number;
 	geometry: CountdownGeometry;
 }): React.JSX.Element {
-	const stroke = Math.max(3, diameter * strokeRatio);
 	const c = diameter / 2;
-	const r = Math.max(2, diameter / 2 - stroke / 2);
-	const d = shapePath(geometry, c, c, r);
+	const outerR = Math.max(4, diameter / 2 - 1);
+	const thickness = Math.max(2, diameter * strokeRatio * 0.5);
+	const innerR = Math.max(1, outerR - thickness);
+	const d = framePath(geometry, c, c, outerR, innerR);
 
 	return (
 		<svg width={diameter} height={diameter} viewBox={`0 0 ${diameter} ${diameter}`} role="img" aria-label="1 hour">
-			{geometry === "ring" ? (
-				<>
-					<circle cx={c} cy={c} r={r} fill="none" stroke={colorTrack} strokeWidth={stroke} strokeLinecap="butt" />
-					<circle
-						cx={c}
-						cy={c}
-						r={r}
-						fill="none"
-						stroke={colorRemaining}
-						strokeWidth={stroke}
-						strokeLinecap="butt"
-					/>
-				</>
-			) : (
-				<>
-					<path
-						d={d}
-						fill="none"
-						stroke={colorTrack}
-						strokeWidth={stroke}
-						strokeLinecap="butt"
-						strokeLinejoin="miter"
-					/>
-					<path
-						d={d}
-						fill="none"
-						stroke={colorRemaining}
-						strokeWidth={stroke}
-						strokeLinecap="butt"
-						strokeLinejoin="miter"
-					/>
-				</>
-			)}
+			<path d={d} fill={colorTrack} fillRule="evenodd" />
+			<path d={d} fill={colorRemaining} fillRule="evenodd" />
 		</svg>
 	);
 }
 
 /**
- * Outline countdown. Default geometry is square.
- * Full circle / filled disc is not offered.
+ * Geometry defines the outer frame; remaining color is revealed with a circular
+ * wipe from the center (sector clip) so cuts stay radial – no odd partial edges.
  */
 export default function VisualCountdownVisual({
 	durationSeconds,
@@ -222,33 +234,37 @@ export default function VisualCountdownVisual({
 	ringWidthPercent = DEFAULT_RING_WIDTH_PERCENT,
 	geometry: geometryProp = DEFAULT_GEOMETRY,
 }: VisualCountdownVisualProps): React.JSX.Element {
+	const reactId = useId().replace(/:/g, "");
+	const clipId = `as-cd-sector-${reactId}`;
+
 	const geometry = normalizeGeometry(geometryProp);
 	const safeDuration = Math.max(1, durationSeconds);
 	const safeRemaining = Math.max(0, Math.min(safeDuration, remainingSeconds));
 	const center = size / 2;
 	const padding = 4;
-	const outerLimit = Math.max(8, size / 2 - padding);
+	const outerR = Math.max(8, size / 2 - padding);
 
 	const clampedPercent = Math.max(
 		5,
 		Math.min(MAX_STROKE_WIDTH_PERCENT, Number(ringWidthPercent) || DEFAULT_RING_WIDTH_PERCENT),
 	);
-	const stroke = Math.min(outerLimit * 0.9, Math.max(8, size * (clampedPercent / 100)));
-	const radius = Math.max(1, outerLimit - stroke / 2);
-	const innerRadius = Math.max(0, radius - stroke / 2);
-	const pathD = shapePath(geometry, center, center, radius);
+	const thickness = Math.min(outerR * 0.9, Math.max(8, size * (clampedPercent / 100)));
+	const innerR = Math.max(2, outerR - thickness);
 
 	const remainingFraction = getCircleRemainingFraction(safeRemaining);
 	const hourCircleCount = getFullHourCircleCount(safeRemaining);
 	const smallDiameter = Math.max(24, Math.min(48, Math.round(size * 0.13)));
-	const progressLength = remainingFraction * PATH_LENGTH;
 	const hourStrokeRatio = Math.max(0.2, Math.min(0.45, (clampedPercent / 100) * 2));
+
+	const frameD = framePath(geometry, center, center, outerR, innerR);
+	const sectorR = outerR * 1.15; // slightly past outer edge so clip fully covers frame
+	const sectorD = circularSectorPath(center, center, sectorR, remainingFraction);
 
 	const ticks = Array.from({ length: 12 }, (_, index) => {
 		const angle = (index / 12) * 360;
 		const rad = ((angle - 90) * Math.PI) / 180;
-		const outer = radius + stroke * 0.15;
-		const inner = Math.max(innerRadius + 2, radius - stroke * 0.35);
+		const outer = outerR - thickness * 0.15;
+		const inner = innerR + thickness * 0.15;
 		return {
 			key: `tick-${index}`,
 			x1: center + Math.cos(rad) * inner,
@@ -258,25 +274,6 @@ export default function VisualCountdownVisual({
 			major: index % 3 === 0,
 		};
 	});
-
-	const progressStrokeProps = {
-		fill: "none" as const,
-		stroke: colorRemaining,
-		strokeWidth: stroke,
-		strokeLinecap: "butt" as const,
-		strokeLinejoin: "miter" as const,
-		pathLength: PATH_LENGTH,
-		strokeDasharray: remainingFraction >= 1 ? undefined : `${progressLength} ${PATH_LENGTH}`,
-		style: { transition: "stroke-dasharray 0.35s linear" },
-	};
-
-	const trackStrokeProps = {
-		fill: "none" as const,
-		stroke: colorElapsed,
-		strokeWidth: stroke,
-		strokeLinecap: "butt" as const,
-		strokeLinejoin: "miter" as const,
-	};
 
 	return (
 		<div
@@ -319,32 +316,34 @@ export default function VisualCountdownVisual({
 			</div>
 
 			<svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} role="img" aria-label="Visual Countdown">
-				{/* Soft center plate matching geometry */}
-				{innerRadius > 4 &&
-					(geometry === "ring" ? (
-						<circle cx={center} cy={center} r={innerRadius} fill="#F7F7F7" />
-					) : (
-						<path d={shapePath(geometry, center, center, innerRadius)} fill="#F7F7F7" stroke="none" />
-					))}
-
-				{geometry === "ring" ? (
-					<>
-						<circle cx={center} cy={center} r={radius} {...trackStrokeProps} />
-						{remainingFraction > 0 && (
-							<circle
-								cx={center}
-								cy={center}
-								r={radius}
-								{...progressStrokeProps}
-								transform={`rotate(-90 ${center} ${center})`}
-							/>
+				<defs>
+					<clipPath id={clipId}>
+						{remainingFraction > 0 && remainingFraction < 1 && <path d={sectorD} />}
+						{remainingFraction >= 1 && (
+							<circle cx={center} cy={center} r={sectorR} />
 						)}
-					</>
+					</clipPath>
+				</defs>
+
+				{/* Soft center plate */}
+				{geometry === "ring" ? (
+					<circle cx={center} cy={center} r={innerR} fill="#F7F7F7" />
 				) : (
-					<>
-						<path d={pathD} {...trackStrokeProps} />
-						{remainingFraction > 0 && <path d={pathD} {...progressStrokeProps} />}
-					</>
+					<path d={outerShapePath(geometry, center, center, innerR)} fill="#F7F7F7" />
+				)}
+
+				{/* Full frame track (elapsed / empty) */}
+				<path d={frameD} fill={colorElapsed} fillRule="evenodd" />
+
+				{/* Remaining: same frame, circular wipe from center */}
+				{remainingFraction > 0 && (
+					<path
+						d={frameD}
+						fill={colorRemaining}
+						fillRule="evenodd"
+						clipPath={`url(#${clipId})`}
+						style={{ transition: "opacity 0.2s linear" }}
+					/>
 				)}
 
 				{ticks.map(tick => (

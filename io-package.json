@@ -1,8 +1,12 @@
 {
 	"common": {
 		"name": "autism-support",
-		"version": "0.0.15",
+		"version": "0.0.16",
 		"news": {
+			"0.0.16": {
+				"en": "Remaining color uses circular wipe from center (no odd edge shapes)",
+				"de": "Restfarbe verschwindet kreisförmig vom Zentrum (keine kantigen Restformen)"
+			},
 			"0.0.15": {
 				"en": "Icons updated to square default geometry",
 				"de": "Icons an Standard-Geometrie Quadrat angepasst"
