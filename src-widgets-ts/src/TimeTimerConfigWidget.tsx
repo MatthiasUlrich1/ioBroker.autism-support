@@ -18,6 +18,9 @@ interface TimeTimerConfigRxData {
 	colorDigital: string;
 	colorRemaining: string;
 	colorElapsed: string;
+	colorControlsText: string;
+	colorControlsBorder: string;
+	colorControlsArrows: string;
 }
 
 interface TimeTimerConfigState extends VisRxWidgetState {
@@ -130,6 +133,24 @@ export default class TimeTimerConfigWidget extends (window.visRxWidget as typeof
 							label: "color_elapsed",
 							default: "#FFFFFF",
 						},
+						{
+							name: "colorControlsText",
+							type: "color",
+							label: "color_controls_text",
+							default: "#000000",
+						},
+						{
+							name: "colorControlsBorder",
+							type: "color",
+							label: "color_controls_border",
+							default: "#9E9E9E",
+						},
+						{
+							name: "colorControlsArrows",
+							type: "color",
+							label: "color_controls_arrows",
+							default: "#000000",
+						},
 					],
 				},
 			],
@@ -219,9 +240,19 @@ export default class TimeTimerConfigWidget extends (window.visRxWidget as typeof
 							maxHours={maxHours}
 							hoursLabel={TimeTimerConfigWidget.t("hours")}
 							minutesLabel={TimeTimerConfigWidget.t("minutes")}
+							colorText={this.state.rxData.colorControlsText || "#000000"}
+							colorBorder={this.state.rxData.colorControlsBorder || "#9E9E9E"}
+							colorArrows={this.state.rxData.colorControlsArrows || "#000000"}
 							onChange={(hours, minutes) => this.setState({ durationHours: hours, durationMinutes: minutes })}
 						/>
-						<Button variant="outlined" onClick={() => this.applyDuration()}>
+						<Button
+							variant="outlined"
+							onClick={() => this.applyDuration()}
+							sx={{
+								color: this.state.rxData.colorControlsText || "#000000",
+								borderColor: this.state.rxData.colorControlsBorder || "#9E9E9E",
+							}}
+						>
 							{TimeTimerConfigWidget.t("apply_duration")}
 						</Button>
 					</Stack>

@@ -1,8 +1,12 @@
 {
 	"common": {
 		"name": "autism-support",
-		"version": "0.0.5",
+		"version": "0.0.6",
 		"news": {
+			"0.0.6": {
+				"en": "Config widget: configurable text, border and arrow colors for hours/minutes",
+				"de": "Config-Widget: Schrift-, Rahmen- und Pfeilfarbe für Stunden/Minuten einstellbar"
+			},
 			"0.0.5": {
 				"en": "Circle starts at 12 o'clock; hour bars show only complete hours beyond the circle",
 				"de": "Kreis beginnt bei 12 Uhr; Stundenbalken nur für volle Stunden zusätzlich zum Kreis"
