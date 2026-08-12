@@ -76,7 +76,7 @@ export default class VisualCountdownLiveWidget extends (window.visRxWidget as ty
 							label: "ring_width_percent",
 							default: 18,
 							min: 5,
-							max: 35,
+							max: 100,
 							step: 1,
 						},
 					],

@@ -1,8 +1,12 @@
 {
 	"common": {
 		"name": "autism-support",
-		"version": "0.0.12",
+		"version": "0.0.13",
 		"news": {
+			"0.0.13": {
+				"en": "Square ring ends, no outer clipping; 100% width = filled disc",
+				"de": "Eckige Ringenden, kein Abschneiden außen; 100% Breite = Scheibe"
+			},
 			"0.0.12": {
 				"en": "Configurable ring width (default twice as thick)",
 				"de": "Ringbreite einstellbar (Standard doppelt so dick)"

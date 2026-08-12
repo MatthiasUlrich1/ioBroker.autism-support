@@ -11,8 +11,8 @@ export interface VisualCountdownVisualProps {
 	colorElapsed?: string;
 	colorDigital?: string;
 	/**
-	 * Ring stroke width as percent of widget size.
-	 * Previous default was ~9%; new default is 18% (twice as wide).
+	 * Ring stroke width as percent of widget size (5–100).
+	 * Default 18% = ring. At 100% = filled disc.
 	 */
 	ringWidthPercent?: number;
 }
@@ -21,7 +21,7 @@ export interface VisualCountdownVisualProps {
 export const DEFAULT_REMAINING_COLOR = "#FF8A00";
 export const DEFAULT_TRACK_COLOR = "#E0E0E0";
 export const DEFAULT_DIGITAL_COLOR = "#1A1A1A";
-/** Twice the previous default (~9% → 18%). */
+/** Twice the previous thin-ring default (~9% → 18%). */
 export const DEFAULT_RING_WIDTH_PERCENT = 18;
 
 const SECONDS_PER_HOUR = 3600;
@@ -68,6 +68,21 @@ export function getFullHourCircleCount(remainingSeconds: number): number {
 	return Math.floor(safeRemaining / SECONDS_PER_HOUR);
 }
 
+/** Pie sector from 12 o'clock, clockwise. fraction in (0, 1]. */
+function pieSectorPath(cx: number, cy: number, r: number, fraction: number): string {
+	if (fraction >= 1) {
+		return "";
+	}
+	const start = -Math.PI / 2;
+	const end = start + fraction * 2 * Math.PI;
+	const x1 = cx + r * Math.cos(start);
+	const y1 = cy + r * Math.sin(start);
+	const x2 = cx + r * Math.cos(end);
+	const y2 = cy + r * Math.sin(end);
+	const largeArc = fraction > 0.5 ? 1 : 0;
+	return `M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${largeArc} 1 ${x2} ${y2} Z`;
+}
+
 function HourRing({
 	diameter,
 	colorRemaining,
@@ -80,11 +95,11 @@ function HourRing({
 	strokeRatio?: number;
 }): React.JSX.Element {
 	const stroke = Math.max(3, diameter * strokeRatio);
-	const r = Math.max(2, diameter / 2 - stroke);
+	const r = Math.max(2, diameter / 2 - stroke / 2);
 	const c = diameter / 2;
 	return (
 		<svg width={diameter} height={diameter} viewBox={`0 0 ${diameter} ${diameter}`} role="img" aria-label="1 hour">
-			<circle cx={c} cy={c} r={r} fill="none" stroke={colorTrack} strokeWidth={stroke} />
+			<circle cx={c} cy={c} r={r} fill="none" stroke={colorTrack} strokeWidth={stroke} strokeLinecap="butt" />
 			<circle
 				cx={c}
 				cy={c}
@@ -92,14 +107,15 @@ function HourRing({
 				fill="none"
 				stroke={colorRemaining}
 				strokeWidth={stroke}
-				strokeLinecap="round"
+				strokeLinecap="butt"
 			/>
 		</svg>
 	);
 }
 
 /**
- * Ring-based countdown (not a filled pie disk) to avoid resemblance to commercial Time Timer products.
+ * Ring-based countdown by default; at 100% width becomes a filled disc.
+ * Square (butt) stroke ends so remaining time maps exactly to the arc.
  */
 export default function VisualCountdownVisual({
 	durationSeconds,
@@ -114,22 +130,32 @@ export default function VisualCountdownVisual({
 	const safeDuration = Math.max(1, durationSeconds);
 	const safeRemaining = Math.max(0, Math.min(safeDuration, remainingSeconds));
 	const center = size / 2;
-	const widthRatio = Math.max(0.05, Math.min(0.35, Number(ringWidthPercent) / 100 || DEFAULT_RING_WIDTH_PERCENT / 100));
-	const stroke = Math.max(8, size * widthRatio);
-	const radius = Math.max(stroke, size * 0.36 - (widthRatio - 0.09) * size * 0.15);
+	const padding = 4;
+	const outerLimit = Math.max(8, size / 2 - padding);
+
+	const clampedPercent = Math.max(
+		5,
+		Math.min(100, Number(ringWidthPercent) || DEFAULT_RING_WIDTH_PERCENT),
+	);
+	const isDisc = clampedPercent >= 100;
+
+	// Keep outer edge fixed so thick rings never clip outside the SVG.
+	const stroke = isDisc ? outerLimit * 2 : Math.min(outerLimit * 2, Math.max(8, size * (clampedPercent / 100)));
+	const radius = isDisc ? outerLimit : Math.max(1, outerLimit - stroke / 2);
+	const innerRadius = Math.max(0, radius - stroke / 2);
 	const circumference = 2 * Math.PI * radius;
 
 	const remainingFraction = getCircleRemainingFraction(safeRemaining);
 	const hourCircleCount = getFullHourCircleCount(safeRemaining);
 	const smallDiameter = Math.max(24, Math.min(48, Math.round(size * 0.13)));
 	const progressLength = remainingFraction * circumference;
-	const hourStrokeRatio = Math.max(0.2, Math.min(0.45, widthRatio * 2));
+	const hourStrokeRatio = Math.max(0.2, Math.min(0.45, (clampedPercent / 100) * 2));
 
 	const ticks = Array.from({ length: 12 }, (_, index) => {
 		const angle = (index / 12) * 360;
 		const rad = ((angle - 90) * Math.PI) / 180;
-		const outer = radius + stroke * 0.15;
-		const inner = radius - stroke * 0.35;
+		const outer = isDisc ? outerLimit * 0.92 : radius + stroke * 0.15;
+		const inner = isDisc ? outerLimit * 0.78 : Math.max(innerRadius + 2, radius - stroke * 0.35);
 		return {
 			key: `tick-${index}`,
 			x1: center + Math.cos(rad) * inner,
@@ -139,6 +165,11 @@ export default function VisualCountdownVisual({
 			major: index % 3 === 0,
 		};
 	});
+
+	const piePath =
+		!isDisc || remainingFraction <= 0 || remainingFraction >= 1
+			? ""
+			: pieSectorPath(center, center, outerLimit, remainingFraction);
 
 	return (
 		<div
@@ -180,37 +211,54 @@ export default function VisualCountdownVisual({
 			</div>
 
 			<svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} role="img" aria-label="Visual Countdown">
-				{/* Soft center plate – not a white timer disk */}
-				<circle cx={center} cy={center} r={Math.max(4, radius - stroke * 0.55)} fill="#F7F7F7" />
+				{isDisc ? (
+					<>
+						{/* Full disc track */}
+						<circle cx={center} cy={center} r={outerLimit} fill={colorElapsed} />
+						{remainingFraction >= 1 && (
+							<circle cx={center} cy={center} r={outerLimit} fill={colorRemaining} />
+						)}
+						{remainingFraction > 0 && remainingFraction < 1 && piePath && (
+							<path d={piePath} fill={colorRemaining} />
+						)}
+					</>
+				) : (
+					<>
+						{/* Soft center plate */}
+						{innerRadius > 4 && (
+							<circle cx={center} cy={center} r={innerRadius} fill="#F7F7F7" />
+						)}
 
-				{/* Track ring */}
-				<circle
-					cx={center}
-					cy={center}
-					r={radius}
-					fill="none"
-					stroke={colorElapsed}
-					strokeWidth={stroke}
-					strokeLinecap="round"
-				/>
+						{/* Track ring – square ends */}
+						<circle
+							cx={center}
+							cy={center}
+							r={radius}
+							fill="none"
+							stroke={colorElapsed}
+							strokeWidth={stroke}
+							strokeLinecap="butt"
+						/>
 
-				{/* Remaining progress ring, starts at 12 o'clock, clockwise */}
-				{remainingFraction > 0 && (
-					<circle
-						cx={center}
-						cy={center}
-						r={radius}
-						fill="none"
-						stroke={colorRemaining}
-						strokeWidth={stroke}
-						strokeLinecap="round"
-						strokeDasharray={`${progressLength} ${circumference}`}
-						transform={`rotate(-90 ${center} ${center})`}
-						style={{ transition: "stroke-dasharray 0.35s linear" }}
-					/>
+						{/* Remaining progress ring, starts at 12 o'clock, clockwise */}
+						{remainingFraction > 0 && (
+							<circle
+								cx={center}
+								cy={center}
+								r={radius}
+								fill="none"
+								stroke={colorRemaining}
+								strokeWidth={stroke}
+								strokeLinecap="butt"
+								strokeDasharray={`${progressLength} ${circumference}`}
+								transform={`rotate(-90 ${center} ${center})`}
+								style={{ transition: "stroke-dasharray 0.35s linear" }}
+							/>
+						)}
+					</>
 				)}
 
-				{/* Subtle 5-minute ticks on the ring */}
+				{/* Subtle 5-minute ticks */}
 				{ticks.map(tick => (
 					<line
 						key={tick.key}
@@ -220,7 +268,7 @@ export default function VisualCountdownVisual({
 						y2={tick.y2}
 						stroke="#9E9E9E"
 						strokeWidth={tick.major ? 2 : 1}
-						strokeLinecap="round"
+						strokeLinecap="butt"
 						opacity={0.7}
 					/>
 				))}
