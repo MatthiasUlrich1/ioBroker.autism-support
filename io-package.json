@@ -1,8 +1,12 @@
 {
 	"common": {
 		"name": "autism-support",
-		"version": "0.0.8",
+		"version": "0.0.9",
 		"news": {
+			"0.0.9": {
+				"en": "Fix CI lint errors (JSDoc/prettier)",
+				"de": "CI-Lint-Fehler behoben (JSDoc/Prettier)"
+			},
 			"0.0.8": {
 				"en": "New adapter icon: Time Timer circle at 45 minutes",
 				"de": "Neues Adapter-Icon: Time-Timer-Kreisdiagramm mit 45 Minuten"

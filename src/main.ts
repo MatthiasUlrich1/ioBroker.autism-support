@@ -33,7 +33,7 @@ class AutismSupport extends utils.Adapter {
 		const defaultSeconds = this.getDefaultDurationSeconds(maxHours);
 
 		await this.createTimerStates();
-		this.timerManager = new TimerManager(async (snapshot) => {
+		this.timerManager = new TimerManager(async snapshot => {
 			await this.publishTimerSnapshot(snapshot);
 		});
 

@@ -1,12 +1,32 @@
+/** Current timer values published to ioBroker states. */
 export interface TimerSnapshot {
+	/**
+	 *
+	 */
 	duration: number;
+	/**
+	 *
+	 */
 	remaining: number;
+	/**
+	 *
+	 */
 	elapsed: number;
+	/**
+	 *
+	 */
 	running: boolean;
+	/**
+	 *
+	 */
 	paused: boolean;
+	/**
+	 *
+	 */
 	finished: boolean;
 }
 
+/** Countdown timer with second ticks and state callbacks. */
 export class TimerManager {
 	private durationSeconds = 3600;
 	private remainingSeconds = 3600;
@@ -15,14 +35,22 @@ export class TimerManager {
 	private finished = false;
 	private tickHandle: NodeJS.Timeout | null = null;
 
-	public constructor(
-		private readonly onUpdate: (snapshot: TimerSnapshot) => Promise<void>,
-	) {}
+	/**
+	 * @param onUpdate Called whenever the timer snapshot changes
+	 */
+	public constructor(private readonly onUpdate: (snapshot: TimerSnapshot) => Promise<void>) {}
 
+	/** Returns the current timer snapshot. */
 	public getSnapshot(): TimerSnapshot {
 		return this.buildSnapshot();
 	}
 
+	/**
+	 * Sets the total duration. Resets remaining time when the timer is idle.
+	 *
+	 * @param seconds Desired duration in seconds
+	 * @param maxHours Upper limit in hours
+	 */
 	public async setDuration(seconds: number, maxHours: number): Promise<void> {
 		const maxSeconds = maxHours * 3600;
 		this.durationSeconds = Math.max(60, Math.min(maxSeconds, Math.round(seconds)));
@@ -34,6 +62,7 @@ export class TimerManager {
 		await this.emitUpdate();
 	}
 
+	/** Starts or restarts the countdown. */
 	public async start(): Promise<void> {
 		if (this.running && !this.paused) {
 			return;
@@ -48,6 +77,7 @@ export class TimerManager {
 		await this.emitUpdate();
 	}
 
+	/** Pauses a running countdown. */
 	public async pause(): Promise<void> {
 		if (!this.running || this.paused) {
 			return;
@@ -58,6 +88,7 @@ export class TimerManager {
 		await this.emitUpdate();
 	}
 
+	/** Continues a paused countdown. */
 	public async resume(): Promise<void> {
 		if (!this.paused) {
 			return;
@@ -69,6 +100,7 @@ export class TimerManager {
 		await this.emitUpdate();
 	}
 
+	/** Stops and resets remaining time to the configured duration. */
 	public async stop(): Promise<void> {
 		this.running = false;
 		this.paused = false;
@@ -78,10 +110,12 @@ export class TimerManager {
 		await this.emitUpdate();
 	}
 
+	/** Alias for stop(). */
 	public async reset(): Promise<void> {
 		await this.stop();
 	}
 
+	/** Clears the internal tick interval. */
 	public destroy(): void {
 		this.stopTick();
 	}

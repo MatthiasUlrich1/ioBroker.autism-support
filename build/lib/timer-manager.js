@@ -22,6 +22,9 @@ __export(timer_manager_exports, {
 });
 module.exports = __toCommonJS(timer_manager_exports);
 class TimerManager {
+  /**
+   * @param onUpdate Called whenever the timer snapshot changes
+   */
   constructor(onUpdate) {
     this.onUpdate = onUpdate;
   }
@@ -31,9 +34,16 @@ class TimerManager {
   paused = false;
   finished = false;
   tickHandle = null;
+  /** Returns the current timer snapshot. */
   getSnapshot() {
     return this.buildSnapshot();
   }
+  /**
+   * Sets the total duration. Resets remaining time when the timer is idle.
+   *
+   * @param seconds Desired duration in seconds
+   * @param maxHours Upper limit in hours
+   */
   async setDuration(seconds, maxHours) {
     const maxSeconds = maxHours * 3600;
     this.durationSeconds = Math.max(60, Math.min(maxSeconds, Math.round(seconds)));
@@ -44,6 +54,7 @@ class TimerManager {
     }
     await this.emitUpdate();
   }
+  /** Starts or restarts the countdown. */
   async start() {
     if (this.running && !this.paused) {
       return;
@@ -57,6 +68,7 @@ class TimerManager {
     this.startTick();
     await this.emitUpdate();
   }
+  /** Pauses a running countdown. */
   async pause() {
     if (!this.running || this.paused) {
       return;
@@ -66,6 +78,7 @@ class TimerManager {
     this.stopTick();
     await this.emitUpdate();
   }
+  /** Continues a paused countdown. */
   async resume() {
     if (!this.paused) {
       return;
@@ -76,6 +89,7 @@ class TimerManager {
     this.startTick();
     await this.emitUpdate();
   }
+  /** Stops and resets remaining time to the configured duration. */
   async stop() {
     this.running = false;
     this.paused = false;
@@ -84,9 +98,11 @@ class TimerManager {
     this.stopTick();
     await this.emitUpdate();
   }
+  /** Alias for stop(). */
   async reset() {
     await this.stop();
   }
+  /** Clears the internal tick interval. */
   destroy() {
     this.stopTick();
   }
