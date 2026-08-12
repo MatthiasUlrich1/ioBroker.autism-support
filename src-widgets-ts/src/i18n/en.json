@@ -11,6 +11,8 @@
 	"oid_resume": "Resume command",
 	"oid_stop": "Stop command",
 	"duration_minutes": "Duration (minutes)",
+	"hours": "Hours",
+	"minutes": "Minutes",
 	"apply_duration": "Apply",
 	"start": "Start",
 	"pause": "Pause",

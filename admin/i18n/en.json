@@ -2,7 +2,8 @@
 	"autism-support adapter settings": "Autism Support adapter settings",
 	"timer_tab": "Time Timer",
 	"timer_settings_header": "Time Timer – default settings",
+	"default_duration_hours": "Default duration (hours)",
 	"default_duration_minutes": "Default duration (minutes)",
 	"max_duration_hours": "Maximum duration (hours, up to 24)",
-	"timer_settings_hint": "Control and display via VIS-2 widgets “Time Timer (Live)” and “Time Timer (Config)” and states under timer.*."
+	"timer_settings_hint": "Control and display via VIS-2 widgets or states under timer.*. The circle always represents one hour."
 }

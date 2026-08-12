@@ -7,6 +7,14 @@ import { TimerManager } from "./lib/timer-manager";
 
 const TIMER_CHANNEL = "timer";
 
+function secondsToParts(totalSeconds: number): { hours: number; minutes: number } {
+	const safe = Math.max(0, Math.round(totalSeconds));
+	return {
+		hours: Math.floor(safe / 3600),
+		minutes: Math.floor((safe % 3600) / 60),
+	};
+}
+
 class AutismSupport extends utils.Adapter {
 	private timerManager: TimerManager | null = null;
 
@@ -21,19 +29,26 @@ class AutismSupport extends utils.Adapter {
 	}
 
 	private async onReady(): Promise<void> {
-		const defaultMinutes = this.config.defaultDurationMinutes ?? 60;
 		const maxHours = this.config.maxDurationHours ?? 24;
+		const defaultSeconds = this.getDefaultDurationSeconds(maxHours);
 
 		await this.createTimerStates();
 		this.timerManager = new TimerManager(async (snapshot) => {
 			await this.publishTimerSnapshot(snapshot);
 		});
 
-		await this.timerManager.setDuration(defaultMinutes * 60, maxHours);
+		await this.timerManager.setDuration(defaultSeconds, maxHours);
 		await this.publishTimerSnapshot(this.timerManager.getSnapshot());
 
 		this.subscribeStates(`${this.namespace}.${TIMER_CHANNEL}.*`);
 		this.log.info("Autism Support adapter ready – Time Timer initialized");
+	}
+
+	private getDefaultDurationSeconds(maxHours: number): number {
+		const hours = Math.min(maxHours, Math.max(0, this.config.defaultDurationHours ?? 1));
+		const minutes = Math.min(59, Math.max(0, this.config.defaultDurationMinutes ?? 0));
+		const total = hours * 3600 + minutes * 60;
+		return Math.max(60, Math.min(maxHours * 3600, total));
 	}
 
 	private async createTimerStates(): Promise<void> {
@@ -125,6 +140,16 @@ class AutismSupport extends utils.Adapter {
 				read: true,
 				write: true,
 			},
+			setDurationHours: {
+				type: "number",
+				role: "level",
+				name: "Set timer duration (hours)",
+				read: true,
+				write: true,
+				unit: "h",
+				min: 0,
+				max: 24,
+			},
 			setDurationMinutes: {
 				type: "number",
 				role: "level",
@@ -132,8 +157,8 @@ class AutismSupport extends utils.Adapter {
 				read: true,
 				write: true,
 				unit: "min",
-				min: 1,
-				max: 1440,
+				min: 0,
+				max: 59,
 			},
 		};
 
@@ -210,10 +235,17 @@ class AutismSupport extends utils.Adapter {
 						await this.timerManager.setDuration(state.val, maxHours);
 					}
 					break;
+				case "setDurationHours":
+					if (typeof state.val === "number") {
+						await this.applyDurationParts(Math.round(state.val), undefined, maxHours);
+					}
+					await this.setState(`${TIMER_CHANNEL}.setDurationHours`, 0, true);
+					break;
 				case "setDurationMinutes":
 					if (typeof state.val === "number") {
-						await this.timerManager.setDuration(state.val * 60, maxHours);
+						await this.applyDurationParts(undefined, Math.round(state.val), maxHours);
 					}
+					await this.setState(`${TIMER_CHANNEL}.setDurationMinutes`, 0, true);
 					break;
 				default:
 					break;
@@ -221,6 +253,22 @@ class AutismSupport extends utils.Adapter {
 		} catch (error) {
 			this.log.error(`Timer command failed (${localId}): ${(error as Error).message}`);
 		}
+	}
+
+	private async applyDurationParts(
+		hours: number | undefined,
+		minutes: number | undefined,
+		maxHours: number,
+	): Promise<void> {
+		if (!this.timerManager) {
+			return;
+		}
+		const snapshot = this.timerManager.getSnapshot();
+		const current = secondsToParts(snapshot.duration);
+		const nextHours = hours ?? current.hours;
+		const nextMinutes = minutes ?? current.minutes;
+		const totalSeconds = nextHours * 3600 + nextMinutes * 60;
+		await this.timerManager.setDuration(totalSeconds, maxHours);
 	}
 
 	private onUnload(callback: () => void): void {

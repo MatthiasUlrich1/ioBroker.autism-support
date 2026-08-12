@@ -15,17 +15,29 @@
 					"lg": 12,
 					"xl": 12
 				},
+				"defaultDurationHours": {
+					"type": "number",
+					"label": "default_duration_hours",
+					"min": 0,
+					"max": 24,
+					"newLine": true,
+					"xs": 12,
+					"sm": 6,
+					"md": 4,
+					"lg": 3,
+					"xl": 3
+				},
 				"defaultDurationMinutes": {
 					"type": "number",
 					"label": "default_duration_minutes",
-					"min": 1,
-					"max": 1440,
+					"min": 0,
+					"max": 59,
 					"newLine": true,
 					"xs": 12,
-					"sm": 12,
-					"md": 6,
-					"lg": 4,
-					"xl": 4
+					"sm": 6,
+					"md": 4,
+					"lg": 3,
+					"xl": 3
 				},
 				"maxDurationHours": {
 					"type": "number",
@@ -34,10 +46,10 @@
 					"max": 24,
 					"newLine": true,
 					"xs": 12,
-					"sm": 12,
-					"md": 6,
-					"lg": 4,
-					"xl": 4
+					"sm": 6,
+					"md": 4,
+					"lg": 3,
+					"xl": 3
 				},
 				"_timerHint": {
 					"type": "staticText",

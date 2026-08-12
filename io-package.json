@@ -1,8 +1,12 @@
 {
 	"common": {
 		"name": "autism-support",
-		"version": "0.0.1",
+		"version": "0.0.2",
 		"news": {
+			"0.0.2": {
+				"en": "Time Timer: circle always shows one hour; hours/minutes input; config widget fixes",
+				"de": "Time Timer: Kreis zeigt immer eine Stunde; Stunden/Minuten-Eingabe; Config-Widget-Fixes"
+			},
 			"0.0.1": {
 				"en": "initial release",
 				"de": "Erstveröffentlichung",
@@ -127,7 +131,8 @@
 		]
 	},
 	"native": {
-		"defaultDurationMinutes": 60,
+		"defaultDurationHours": 1,
+		"defaultDurationMinutes": 0,
 		"maxDurationHours": 24
 	},
 	"objects": [],

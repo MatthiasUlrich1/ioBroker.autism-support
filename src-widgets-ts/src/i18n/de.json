@@ -11,6 +11,8 @@
 	"oid_resume": "Fortsetzen-Befehl",
 	"oid_stop": "Stopp-Befehl",
 	"duration_minutes": "Dauer (Minuten)",
+	"hours": "Stunden",
+	"minutes": "Minuten",
 	"apply_duration": "Übernehmen",
 	"start": "Start",
 	"pause": "Pause",

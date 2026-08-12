@@ -9,10 +9,12 @@ export interface TimeTimerVisualProps {
 	colorElapsed?: string;
 }
 
+const SECONDS_PER_HOUR = 3600;
+
 function formatDigital(seconds: number): string {
 	const total = Math.max(0, Math.round(seconds));
-	const hours = Math.floor(total / 3600);
-	const minutes = Math.floor((total % 3600) / 60);
+	const hours = Math.floor(total / SECONDS_PER_HOUR);
+	const minutes = Math.floor((total % SECONDS_PER_HOUR) / 60);
 	const secs = total % 60;
 	if (hours > 0) {
 		return `${hours}:${String(minutes).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
@@ -38,6 +40,12 @@ function describeWedge(cx: number, cy: number, radius: number, startAngle: numbe
 	return `M ${cx} ${cy} L ${start.x} ${start.y} A ${radius} ${radius} 0 ${largeArc} 0 ${end.x} ${end.y} Z`;
 }
 
+/** Circle always represents one hour (60 min). Remaining time within the current hour is shown in red. */
+export function getCircleRemainingFraction(remainingSeconds: number): number {
+	const safeRemaining = Math.max(0, remainingSeconds);
+	return Math.min(1, safeRemaining / SECONDS_PER_HOUR);
+}
+
 export default function TimeTimerVisual({
 	durationSeconds,
 	remainingSeconds,
@@ -49,13 +57,13 @@ export default function TimeTimerVisual({
 	const safeDuration = Math.max(1, durationSeconds);
 	const safeRemaining = Math.max(0, Math.min(safeDuration, remainingSeconds));
 	const elapsed = safeDuration - safeRemaining;
-	const hourCount = Math.min(24, Math.max(1, Math.ceil(safeDuration / 3600)));
+	const hourCount = Math.min(24, Math.max(1, Math.ceil(safeDuration / SECONDS_PER_HOUR)));
 	const circleRadius = size * 0.38;
 	const center = size / 2;
 
 	const hourBars = Array.from({ length: hourCount }, (_, index) => {
-		const segmentStart = index * 3600;
-		const segmentEnd = Math.min((index + 1) * 3600, safeDuration);
+		const segmentStart = index * SECONDS_PER_HOUR;
+		const segmentEnd = Math.min((index + 1) * SECONDS_PER_HOUR, safeDuration);
 		const segmentDuration = segmentEnd - segmentStart;
 		const segmentElapsed = Math.max(0, Math.min(segmentDuration, elapsed - segmentStart));
 		const remainingFraction = segmentDuration > 0 ? 1 - segmentElapsed / segmentDuration : 0;
@@ -65,7 +73,7 @@ export default function TimeTimerVisual({
 		};
 	});
 
-	const remainingFraction = safeRemaining / safeDuration;
+	const remainingFraction = getCircleRemainingFraction(safeRemaining);
 	const wedgeEnd = -90 + remainingFraction * 360;
 
 	return (
