@@ -1,8 +1,12 @@
 {
 	"common": {
 		"name": "autism-support",
-		"version": "0.0.3",
+		"version": "0.0.4",
 		"news": {
+			"0.0.4": {
+				"en": "Fix circle hour fragment (white again); configurable digital time color",
+				"de": "Kreis zeigt wieder Stundenfragment (weiß); Digitalfarbe konfigurierbar"
+			},
 			"0.0.3": {
 				"en": "Fix install: remove postinstall that required widget source tree",
 				"de": "Installationsfix: postinstall entfernt, das den Widget-Quellbaum benötigte"

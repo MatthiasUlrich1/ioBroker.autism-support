@@ -7,6 +7,7 @@ export interface TimeTimerVisualProps {
 	showDigital?: boolean;
 	colorRemaining?: string;
 	colorElapsed?: string;
+	colorDigital?: string;
 }
 
 const SECONDS_PER_HOUR = 3600;
@@ -40,10 +41,21 @@ function describeWedge(cx: number, cy: number, radius: number, startAngle: numbe
 	return `M ${cx} ${cy} L ${start.x} ${start.y} A ${radius} ${radius} 0 ${largeArc} 0 ${end.x} ${end.y} Z`;
 }
 
-/** Circle always represents one hour (60 min). Remaining time within the current hour is shown in red. */
+/**
+ * Circle always represents one hour.
+ * Uses the current hour fragment (modulo 3600): 30 min → half red, 90 min → half red (+ hour bars).
+ * Exact hour boundaries (60/120/…) stay fully red.
+ */
 export function getCircleRemainingFraction(remainingSeconds: number): number {
 	const safeRemaining = Math.max(0, remainingSeconds);
-	return Math.min(1, safeRemaining / SECONDS_PER_HOUR);
+	if (safeRemaining <= 0) {
+		return 0;
+	}
+	const mod = safeRemaining % SECONDS_PER_HOUR;
+	if (mod === 0) {
+		return 1;
+	}
+	return Math.min(1, mod / SECONDS_PER_HOUR);
 }
 
 export default function TimeTimerVisual({
@@ -53,6 +65,7 @@ export default function TimeTimerVisual({
 	showDigital = true,
 	colorRemaining = "#E53935",
 	colorElapsed = "#FFFFFF",
+	colorDigital = "#000000",
 }: TimeTimerVisualProps): React.JSX.Element {
 	const safeDuration = Math.max(1, durationSeconds);
 	const safeRemaining = Math.max(0, Math.min(safeDuration, remainingSeconds));
@@ -129,9 +142,13 @@ export default function TimeTimerVisual({
 			</div>
 
 			<svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} role="img" aria-label="Time Timer">
+				{/* Elapsed / empty part is always white (or configured) under the red remaining wedge */}
 				<circle cx={center} cy={center} r={circleRadius} fill={colorElapsed} stroke="#424242" strokeWidth={3} />
-				{remainingFraction > 0 && (
+				{remainingFraction > 0 && remainingFraction < 1 && (
 					<path d={describeWedge(center, center, circleRadius, -90, wedgeEnd)} fill={colorRemaining} />
+				)}
+				{remainingFraction >= 1 && (
+					<circle cx={center} cy={center} r={circleRadius} fill={colorRemaining} stroke="#424242" strokeWidth={3} />
 				)}
 				<circle cx={center} cy={center} r={circleRadius * 0.08} fill="#424242" />
 			</svg>
@@ -143,7 +160,7 @@ export default function TimeTimerVisual({
 						fontWeight: 700,
 						fontFamily: "Consolas, 'Courier New', monospace",
 						letterSpacing: 2,
-						color: "#212121",
+						color: colorDigital || "#000000",
 					}}
 				>
 					{formatDigital(safeRemaining)}

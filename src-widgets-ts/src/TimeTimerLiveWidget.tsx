@@ -9,6 +9,9 @@ import TimeTimerVisual from "./components/TimeTimerVisual";
 interface TimeTimerLiveRxData {
 	oidDuration: string;
 	oidRemaining: string;
+	colorDigital: string;
+	colorRemaining: string;
+	colorElapsed: string;
 }
 
 export default class TimeTimerLiveWidget extends (window.visRxWidget as typeof VisRxWidget)<
@@ -44,6 +47,30 @@ export default class TimeTimerLiveWidget extends (window.visRxWidget as typeof V
 						},
 					],
 				},
+				{
+					name: "appearance",
+					label: "appearance",
+					fields: [
+						{
+							name: "colorDigital",
+							type: "color",
+							label: "color_digital",
+							default: "#000000",
+						},
+						{
+							name: "colorRemaining",
+							type: "color",
+							label: "color_remaining",
+							default: "#E53935",
+						},
+						{
+							name: "colorElapsed",
+							type: "color",
+							label: "color_elapsed",
+							default: "#FFFFFF",
+						},
+					],
+				},
 			],
 			visPrev: "widgets/autism-support/img/time-timer-live.png",
 		};
@@ -68,8 +95,14 @@ export default class TimeTimerLiveWidget extends (window.visRxWidget as typeof V
 		const remaining = Number(this.state.values[`${this.state.rxData.oidRemaining}.val`] ?? duration);
 
 		return (
-			<Box sx={{ width: "100%", height: "100%", bgcolor: "#FAFAFA" }}>
-				<TimeTimerVisual durationSeconds={duration} remainingSeconds={remaining} />
+			<Box sx={{ width: "100%", height: "100%", bgcolor: "transparent" }}>
+				<TimeTimerVisual
+					durationSeconds={duration}
+					remainingSeconds={remaining}
+					colorDigital={this.state.rxData.colorDigital || "#000000"}
+					colorRemaining={this.state.rxData.colorRemaining || "#E53935"}
+					colorElapsed={this.state.rxData.colorElapsed || "#FFFFFF"}
+				/>
 			</Box>
 		);
 	}

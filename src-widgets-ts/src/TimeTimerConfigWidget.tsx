@@ -15,6 +15,9 @@ interface TimeTimerConfigRxData {
 	oidResume: string;
 	oidStop: string;
 	maxDurationHours: number;
+	colorDigital: string;
+	colorRemaining: string;
+	colorElapsed: string;
 }
 
 interface TimeTimerConfigState extends VisRxWidgetState {
@@ -105,6 +108,30 @@ export default class TimeTimerConfigWidget extends (window.visRxWidget as typeof
 						},
 					],
 				},
+				{
+					name: "appearance",
+					label: "appearance",
+					fields: [
+						{
+							name: "colorDigital",
+							type: "color",
+							label: "color_digital",
+							default: "#000000",
+						},
+						{
+							name: "colorRemaining",
+							type: "color",
+							label: "color_remaining",
+							default: "#E53935",
+						},
+						{
+							name: "colorElapsed",
+							type: "color",
+							label: "color_elapsed",
+							default: "#FFFFFF",
+						},
+					],
+				},
 			],
 			visPrev: "widgets/autism-support/img/time-timer-config.png",
 		};
@@ -173,10 +200,17 @@ export default class TimeTimerConfigWidget extends (window.visRxWidget as typeof
 		const maxHours = Number(this.state.rxData.maxDurationHours) || 24;
 
 		return (
-			<Box sx={{ width: "100%", height: "100%", bgcolor: "#FFFFFF", p: 1, boxSizing: "border-box" }}>
+			<Box sx={{ width: "100%", height: "100%", bgcolor: "transparent", p: 1, boxSizing: "border-box" }}>
 				<Stack spacing={1} sx={{ height: "100%" }}>
 					<Box sx={{ flex: 1, minHeight: 180 }}>
-						<TimeTimerVisual durationSeconds={duration} remainingSeconds={remaining} size={220} />
+						<TimeTimerVisual
+							durationSeconds={duration}
+							remainingSeconds={remaining}
+							size={220}
+							colorDigital={this.state.rxData.colorDigital || "#000000"}
+							colorRemaining={this.state.rxData.colorRemaining || "#E53935"}
+							colorElapsed={this.state.rxData.colorElapsed || "#FFFFFF"}
+						/>
 					</Box>
 					<Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
 						<DurationStepper
