@@ -1,8 +1,12 @@
 {
 	"common": {
 		"name": "autism-support",
-		"version": "0.0.13",
+		"version": "0.0.14",
 		"news": {
+			"0.0.14": {
+				"en": "Configurable geometry (square default; no full circle)",
+				"de": "Geometrie wählbar (Standard Quadrat; kein voller Kreis)"
+			},
 			"0.0.13": {
 				"en": "Square ring ends, no outer clipping; 100% width = filled disc",
 				"de": "Eckige Ringenden, kein Abschneiden außen; 100% Breite = Scheibe"

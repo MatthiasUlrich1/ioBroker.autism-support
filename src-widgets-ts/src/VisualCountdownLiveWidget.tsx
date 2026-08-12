@@ -13,6 +13,7 @@ interface VisualCountdownLiveRxData {
 	colorRemaining: string;
 	colorElapsed: string;
 	ringWidthPercent: number;
+	geometry: string;
 }
 
 export default class VisualCountdownLiveWidget extends (window.visRxWidget as typeof VisRxWidget)<
@@ -71,12 +72,27 @@ export default class VisualCountdownLiveWidget extends (window.visRxWidget as ty
 							default: "#E0E0E0",
 						},
 						{
+							name: "geometry",
+							type: "select",
+							label: "geometry",
+							default: "square",
+							options: [
+								{ value: "square", label: "geometry_square" },
+								{ value: "ring", label: "geometry_ring" },
+								{ value: "triangle", label: "geometry_triangle" },
+								{ value: "diamond", label: "geometry_diamond" },
+								{ value: "pentagon", label: "geometry_pentagon" },
+								{ value: "hexagon", label: "geometry_hexagon" },
+								{ value: "octagon", label: "geometry_octagon" },
+							],
+						},
+						{
 							name: "ringWidthPercent",
 							type: "number",
 							label: "ring_width_percent",
 							default: 18,
 							min: 5,
-							max: 100,
+							max: 45,
 							step: 1,
 						},
 					],
@@ -113,6 +129,7 @@ export default class VisualCountdownLiveWidget extends (window.visRxWidget as ty
 					colorRemaining={this.state.rxData.colorRemaining || "#FF8A00"}
 					colorElapsed={this.state.rxData.colorElapsed || "#E0E0E0"}
 					ringWidthPercent={Number(this.state.rxData.ringWidthPercent) || 18}
+					geometry={this.state.rxData.geometry || "square"}
 				/>
 			</Box>
 		);

@@ -1,5 +1,25 @@
 import React from "react";
 
+/** Allowed countdown outlines. Full circle / filled disc is intentionally excluded. */
+export type CountdownGeometry =
+	| "square"
+	| "ring"
+	| "triangle"
+	| "diamond"
+	| "pentagon"
+	| "hexagon"
+	| "octagon";
+
+export const COUNTDOWN_GEOMETRIES: CountdownGeometry[] = [
+	"square",
+	"ring",
+	"triangle",
+	"diamond",
+	"pentagon",
+	"hexagon",
+	"octagon",
+];
+
 export interface VisualCountdownVisualProps {
 	durationSeconds: number;
 	remainingSeconds: number;
@@ -11,20 +31,25 @@ export interface VisualCountdownVisualProps {
 	colorElapsed?: string;
 	colorDigital?: string;
 	/**
-	 * Ring stroke width as percent of widget size (5–100).
-	 * Default 18% = ring. At 100% = filled disc.
+	 * Stroke width as percent of widget size (5–45).
+	 * Always leaves an open center – never a filled circle.
 	 */
 	ringWidthPercent?: number;
+	/** Outline geometry. Default square. Full circle is not allowed. */
+	geometry?: CountdownGeometry | string;
 }
 
 /** Brand-neutral orange – deliberately not Time Timer red. */
 export const DEFAULT_REMAINING_COLOR = "#FF8A00";
 export const DEFAULT_TRACK_COLOR = "#E0E0E0";
 export const DEFAULT_DIGITAL_COLOR = "#1A1A1A";
-/** Twice the previous thin-ring default (~9% → 18%). */
 export const DEFAULT_RING_WIDTH_PERCENT = 18;
+export const DEFAULT_GEOMETRY: CountdownGeometry = "square";
+/** Cap so a circular outline can never become a filled disc. */
+export const MAX_STROKE_WIDTH_PERCENT = 45;
 
 const SECONDS_PER_HOUR = 3600;
+const PATH_LENGTH = 1000;
 
 function formatDigital(seconds: number): string {
 	const total = Math.max(0, Math.round(seconds));
@@ -38,7 +63,7 @@ function formatDigital(seconds: number): string {
 }
 
 /**
- * Main ring = current hour fragment only.
+ * Main display = current hour fragment only.
  * 30 min → 0.5, 90 min → 0.5, exact hours → 1.0
  */
 export function getCircleRemainingFraction(remainingSeconds: number): number {
@@ -54,7 +79,7 @@ export function getCircleRemainingFraction(remainingSeconds: number): number {
 }
 
 /**
- * Small full-hour rings = complete hours beyond the main ring.
+ * Small full-hour markers = complete hours beyond the main display.
  */
 export function getFullHourCircleCount(remainingSeconds: number): number {
 	const safeRemaining = Math.max(0, remainingSeconds);
@@ -68,54 +93,123 @@ export function getFullHourCircleCount(remainingSeconds: number): number {
 	return Math.floor(safeRemaining / SECONDS_PER_HOUR);
 }
 
-/** Pie sector from 12 o'clock, clockwise. fraction in (0, 1]. */
-function pieSectorPath(cx: number, cy: number, r: number, fraction: number): string {
-	if (fraction >= 1) {
-		return "";
+export function normalizeGeometry(value: unknown): CountdownGeometry {
+	const raw = String(value ?? DEFAULT_GEOMETRY)
+		.trim()
+		.toLowerCase();
+	// Explicitly reject full-circle / disc variants
+	if (raw === "circle" || raw === "disc" || raw === "disk" || raw === "pie" || raw === "full") {
+		return DEFAULT_GEOMETRY;
 	}
-	const start = -Math.PI / 2;
-	const end = start + fraction * 2 * Math.PI;
-	const x1 = cx + r * Math.cos(start);
-	const y1 = cy + r * Math.sin(start);
-	const x2 = cx + r * Math.cos(end);
-	const y2 = cy + r * Math.sin(end);
-	const largeArc = fraction > 0.5 ? 1 : 0;
-	return `M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${largeArc} 1 ${x2} ${y2} Z`;
+	if ((COUNTDOWN_GEOMETRIES as string[]).includes(raw)) {
+		return raw as CountdownGeometry;
+	}
+	return DEFAULT_GEOMETRY;
 }
 
-function HourRing({
+/** Regular polygon, vertex on top, clockwise. */
+function regularPolygonPath(cx: number, cy: number, r: number, sides: number): string {
+	const start = -Math.PI / 2;
+	const parts: string[] = [];
+	for (let i = 0; i < sides; i++) {
+		const a = start + (i * 2 * Math.PI) / sides;
+		const x = cx + r * Math.cos(a);
+		const y = cy + r * Math.sin(a);
+		parts.push(`${i === 0 ? "M" : "L"} ${x} ${y}`);
+	}
+	return `${parts.join(" ")} Z`;
+}
+
+/** Axis-aligned square, path starts at top-center (12 o'clock), clockwise. */
+function flatSquarePath(cx: number, cy: number, halfSide: number): string {
+	const top = cy - halfSide;
+	const bottom = cy + halfSide;
+	const left = cx - halfSide;
+	const right = cx + halfSide;
+	return `M ${cx} ${top} L ${right} ${top} L ${right} ${bottom} L ${left} ${bottom} L ${left} ${top} Z`;
+}
+
+function shapePath(geometry: CountdownGeometry, cx: number, cy: number, r: number): string {
+	switch (geometry) {
+		case "ring":
+			return "";
+		case "square":
+			return flatSquarePath(cx, cy, r / Math.SQRT2);
+		case "diamond":
+			return regularPolygonPath(cx, cy, r, 4);
+		case "triangle":
+			return regularPolygonPath(cx, cy, r, 3);
+		case "pentagon":
+			return regularPolygonPath(cx, cy, r, 5);
+		case "hexagon":
+			return regularPolygonPath(cx, cy, r, 6);
+		case "octagon":
+			return regularPolygonPath(cx, cy, r, 8);
+		default:
+			return flatSquarePath(cx, cy, r / Math.SQRT2);
+	}
+}
+
+function HourMarker({
 	diameter,
 	colorRemaining,
 	colorTrack,
 	strokeRatio = 0.36,
+	geometry,
 }: {
 	diameter: number;
 	colorRemaining: string;
 	colorTrack: string;
 	strokeRatio?: number;
+	geometry: CountdownGeometry;
 }): React.JSX.Element {
 	const stroke = Math.max(3, diameter * strokeRatio);
-	const r = Math.max(2, diameter / 2 - stroke / 2);
 	const c = diameter / 2;
+	const r = Math.max(2, diameter / 2 - stroke / 2);
+	const d = shapePath(geometry, c, c, r);
+
 	return (
 		<svg width={diameter} height={diameter} viewBox={`0 0 ${diameter} ${diameter}`} role="img" aria-label="1 hour">
-			<circle cx={c} cy={c} r={r} fill="none" stroke={colorTrack} strokeWidth={stroke} strokeLinecap="butt" />
-			<circle
-				cx={c}
-				cy={c}
-				r={r}
-				fill="none"
-				stroke={colorRemaining}
-				strokeWidth={stroke}
-				strokeLinecap="butt"
-			/>
+			{geometry === "ring" ? (
+				<>
+					<circle cx={c} cy={c} r={r} fill="none" stroke={colorTrack} strokeWidth={stroke} strokeLinecap="butt" />
+					<circle
+						cx={c}
+						cy={c}
+						r={r}
+						fill="none"
+						stroke={colorRemaining}
+						strokeWidth={stroke}
+						strokeLinecap="butt"
+					/>
+				</>
+			) : (
+				<>
+					<path
+						d={d}
+						fill="none"
+						stroke={colorTrack}
+						strokeWidth={stroke}
+						strokeLinecap="butt"
+						strokeLinejoin="miter"
+					/>
+					<path
+						d={d}
+						fill="none"
+						stroke={colorRemaining}
+						strokeWidth={stroke}
+						strokeLinecap="butt"
+						strokeLinejoin="miter"
+					/>
+				</>
+			)}
 		</svg>
 	);
 }
 
 /**
- * Ring-based countdown by default; at 100% width becomes a filled disc.
- * Square (butt) stroke ends so remaining time maps exactly to the arc.
+ * Outline countdown. Default geometry is square.
+ * Full circle / filled disc is not offered.
  */
 export default function VisualCountdownVisual({
 	durationSeconds,
@@ -126,7 +220,9 @@ export default function VisualCountdownVisual({
 	colorElapsed = DEFAULT_TRACK_COLOR,
 	colorDigital = DEFAULT_DIGITAL_COLOR,
 	ringWidthPercent = DEFAULT_RING_WIDTH_PERCENT,
+	geometry: geometryProp = DEFAULT_GEOMETRY,
 }: VisualCountdownVisualProps): React.JSX.Element {
+	const geometry = normalizeGeometry(geometryProp);
 	const safeDuration = Math.max(1, durationSeconds);
 	const safeRemaining = Math.max(0, Math.min(safeDuration, remainingSeconds));
 	const center = size / 2;
@@ -135,27 +231,24 @@ export default function VisualCountdownVisual({
 
 	const clampedPercent = Math.max(
 		5,
-		Math.min(100, Number(ringWidthPercent) || DEFAULT_RING_WIDTH_PERCENT),
+		Math.min(MAX_STROKE_WIDTH_PERCENT, Number(ringWidthPercent) || DEFAULT_RING_WIDTH_PERCENT),
 	);
-	const isDisc = clampedPercent >= 100;
-
-	// Keep outer edge fixed so thick rings never clip outside the SVG.
-	const stroke = isDisc ? outerLimit * 2 : Math.min(outerLimit * 2, Math.max(8, size * (clampedPercent / 100)));
-	const radius = isDisc ? outerLimit : Math.max(1, outerLimit - stroke / 2);
+	const stroke = Math.min(outerLimit * 0.9, Math.max(8, size * (clampedPercent / 100)));
+	const radius = Math.max(1, outerLimit - stroke / 2);
 	const innerRadius = Math.max(0, radius - stroke / 2);
-	const circumference = 2 * Math.PI * radius;
+	const pathD = shapePath(geometry, center, center, radius);
 
 	const remainingFraction = getCircleRemainingFraction(safeRemaining);
 	const hourCircleCount = getFullHourCircleCount(safeRemaining);
 	const smallDiameter = Math.max(24, Math.min(48, Math.round(size * 0.13)));
-	const progressLength = remainingFraction * circumference;
+	const progressLength = remainingFraction * PATH_LENGTH;
 	const hourStrokeRatio = Math.max(0.2, Math.min(0.45, (clampedPercent / 100) * 2));
 
 	const ticks = Array.from({ length: 12 }, (_, index) => {
 		const angle = (index / 12) * 360;
 		const rad = ((angle - 90) * Math.PI) / 180;
-		const outer = isDisc ? outerLimit * 0.92 : radius + stroke * 0.15;
-		const inner = isDisc ? outerLimit * 0.78 : Math.max(innerRadius + 2, radius - stroke * 0.35);
+		const outer = radius + stroke * 0.15;
+		const inner = Math.max(innerRadius + 2, radius - stroke * 0.35);
 		return {
 			key: `tick-${index}`,
 			x1: center + Math.cos(rad) * inner,
@@ -166,10 +259,24 @@ export default function VisualCountdownVisual({
 		};
 	});
 
-	const piePath =
-		!isDisc || remainingFraction <= 0 || remainingFraction >= 1
-			? ""
-			: pieSectorPath(center, center, outerLimit, remainingFraction);
+	const progressStrokeProps = {
+		fill: "none" as const,
+		stroke: colorRemaining,
+		strokeWidth: stroke,
+		strokeLinecap: "butt" as const,
+		strokeLinejoin: "miter" as const,
+		pathLength: PATH_LENGTH,
+		strokeDasharray: remainingFraction >= 1 ? undefined : `${progressLength} ${PATH_LENGTH}`,
+		style: { transition: "stroke-dasharray 0.35s linear" },
+	};
+
+	const trackStrokeProps = {
+		fill: "none" as const,
+		stroke: colorElapsed,
+		strokeWidth: stroke,
+		strokeLinecap: "butt" as const,
+		strokeLinejoin: "miter" as const,
+	};
 
 	return (
 		<div
@@ -199,66 +306,47 @@ export default function VisualCountdownVisual({
 			>
 				{hourCircleCount > 0
 					? Array.from({ length: hourCircleCount }, (_, index) => (
-							<HourRing
+							<HourMarker
 								key={`hour-${index}`}
 								diameter={smallDiameter}
 								colorRemaining={colorRemaining}
 								colorTrack={colorElapsed}
 								strokeRatio={hourStrokeRatio}
+								geometry={geometry}
 							/>
 						))
 					: null}
 			</div>
 
 			<svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} role="img" aria-label="Visual Countdown">
-				{isDisc ? (
-					<>
-						{/* Full disc track */}
-						<circle cx={center} cy={center} r={outerLimit} fill={colorElapsed} />
-						{remainingFraction >= 1 && (
-							<circle cx={center} cy={center} r={outerLimit} fill={colorRemaining} />
-						)}
-						{remainingFraction > 0 && remainingFraction < 1 && piePath && (
-							<path d={piePath} fill={colorRemaining} />
-						)}
-					</>
-				) : (
-					<>
-						{/* Soft center plate */}
-						{innerRadius > 4 && (
-							<circle cx={center} cy={center} r={innerRadius} fill="#F7F7F7" />
-						)}
+				{/* Soft center plate matching geometry */}
+				{innerRadius > 4 &&
+					(geometry === "ring" ? (
+						<circle cx={center} cy={center} r={innerRadius} fill="#F7F7F7" />
+					) : (
+						<path d={shapePath(geometry, center, center, innerRadius)} fill="#F7F7F7" stroke="none" />
+					))}
 
-						{/* Track ring – square ends */}
-						<circle
-							cx={center}
-							cy={center}
-							r={radius}
-							fill="none"
-							stroke={colorElapsed}
-							strokeWidth={stroke}
-							strokeLinecap="butt"
-						/>
-
-						{/* Remaining progress ring, starts at 12 o'clock, clockwise */}
+				{geometry === "ring" ? (
+					<>
+						<circle cx={center} cy={center} r={radius} {...trackStrokeProps} />
 						{remainingFraction > 0 && (
 							<circle
 								cx={center}
 								cy={center}
 								r={radius}
-								fill="none"
-								stroke={colorRemaining}
-								strokeWidth={stroke}
-								strokeLinecap="butt"
-								strokeDasharray={`${progressLength} ${circumference}`}
+								{...progressStrokeProps}
 								transform={`rotate(-90 ${center} ${center})`}
-								style={{ transition: "stroke-dasharray 0.35s linear" }}
 							/>
 						)}
 					</>
+				) : (
+					<>
+						<path d={pathD} {...trackStrokeProps} />
+						{remainingFraction > 0 && <path d={pathD} {...progressStrokeProps} />}
+					</>
 				)}
 
-				{/* Subtle 5-minute ticks */}
 				{ticks.map(tick => (
 					<line
 						key={tick.key}

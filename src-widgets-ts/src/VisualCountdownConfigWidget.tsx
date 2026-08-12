@@ -22,6 +22,7 @@ interface VisualCountdownConfigRxData {
 	colorControlsBorder: string;
 	colorControlsArrows: string;
 	ringWidthPercent: number;
+	geometry: string;
 }
 
 interface VisualCountdownConfigState extends VisRxWidgetState {
@@ -153,12 +154,27 @@ export default class VisualCountdownConfigWidget extends (window.visRxWidget as 
 							default: "#000000",
 						},
 						{
+							name: "geometry",
+							type: "select",
+							label: "geometry",
+							default: "square",
+							options: [
+								{ value: "square", label: "geometry_square" },
+								{ value: "ring", label: "geometry_ring" },
+								{ value: "triangle", label: "geometry_triangle" },
+								{ value: "diamond", label: "geometry_diamond" },
+								{ value: "pentagon", label: "geometry_pentagon" },
+								{ value: "hexagon", label: "geometry_hexagon" },
+								{ value: "octagon", label: "geometry_octagon" },
+							],
+						},
+						{
 							name: "ringWidthPercent",
 							type: "number",
 							label: "ring_width_percent",
 							default: 18,
 							min: 5,
-							max: 100,
+							max: 45,
 							step: 1,
 						},
 					],
@@ -242,6 +258,7 @@ export default class VisualCountdownConfigWidget extends (window.visRxWidget as 
 							colorRemaining={this.state.rxData.colorRemaining || "#FF8A00"}
 							colorElapsed={this.state.rxData.colorElapsed || "#E0E0E0"}
 							ringWidthPercent={Number(this.state.rxData.ringWidthPercent) || 18}
+							geometry={this.state.rxData.geometry || "square"}
 						/>
 					</Box>
 					<Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
