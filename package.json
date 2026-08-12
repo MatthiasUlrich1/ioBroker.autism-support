@@ -1,6 +1,6 @@
 {
   "name": "iobroker.autism-support",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Unterstützung für Menschen mit Autismus: Time Timer, Bild-Ablaufpläne und Piktogramme",
   "author": {
     "name": "Matthias Ulrich",
@@ -79,8 +79,7 @@
     "lint": "eslint -c eslint.config.mjs .",
     "translate": "translate-adapter",
     "release": "release-script",
-    "dev-server": "dev-server",
-    "postinstall": "npm install --prefix src-widgets-ts"
+    "dev-server": "dev-server"
   },
   "nyc": {
     "include": [

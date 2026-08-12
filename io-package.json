@@ -1,8 +1,12 @@
 {
 	"common": {
 		"name": "autism-support",
-		"version": "0.0.2",
+		"version": "0.0.3",
 		"news": {
+			"0.0.3": {
+				"en": "Fix install: remove postinstall that required widget source tree",
+				"de": "Installationsfix: postinstall entfernt, das den Widget-Quellbaum benötigte"
+			},
 			"0.0.2": {
 				"en": "Time Timer: circle always shows one hour; hours/minutes input; config widget fixes",
 				"de": "Time Timer: Kreis zeigt immer eine Stunde; Stunden/Minuten-Eingabe; Config-Widget-Fixes"
