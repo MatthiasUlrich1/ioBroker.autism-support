@@ -1,8 +1,12 @@
 {
 	"common": {
 		"name": "autism-support",
-		"version": "0.0.10",
+		"version": "0.0.11",
 		"news": {
+			"0.0.11": {
+				"en": "New ring design with orange default color (configurable) to avoid Time Timer look-alike",
+				"de": "Neues Ring-Design mit orange als Standardfarbe (anpassbar), ohne Time-Timer-Ähnlichkeit"
+			},
 			"0.0.10": {
 				"en": "Rename Time Timer to Visual Countdown",
 				"de": "Umbenennung Time Timer in Visual Countdown"

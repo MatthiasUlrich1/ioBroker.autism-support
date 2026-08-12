@@ -125,13 +125,13 @@ export default class VisualCountdownConfigWidget extends (window.visRxWidget as 
 							name: "colorRemaining",
 							type: "color",
 							label: "color_remaining",
-							default: "#E53935",
+							default: "#FF8A00",
 						},
 						{
 							name: "colorElapsed",
 							type: "color",
 							label: "color_elapsed",
-							default: "#FFFFFF",
+							default: "#E0E0E0",
 						},
 						{
 							name: "colorControlsText",
@@ -229,8 +229,8 @@ export default class VisualCountdownConfigWidget extends (window.visRxWidget as 
 							remainingSeconds={remaining}
 							size={220}
 							colorDigital={this.state.rxData.colorDigital || "#000000"}
-							colorRemaining={this.state.rxData.colorRemaining || "#E53935"}
-							colorElapsed={this.state.rxData.colorElapsed || "#FFFFFF"}
+							colorRemaining={this.state.rxData.colorRemaining || "#FF8A00"}
+							colorElapsed={this.state.rxData.colorElapsed || "#E0E0E0"}
 						/>
 					</Box>
 					<Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">

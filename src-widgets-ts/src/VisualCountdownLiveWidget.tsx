@@ -26,7 +26,7 @@ export default class VisualCountdownLiveWidget extends (window.visRxWidget as ty
 			visSet: "autism-support",
 			visSetIcon: "widgets/autism-support/img/autism-support.svg",
 			visSetLabel: "autism_support_widgets",
-			visSetColor: "#E53935",
+			visSetColor: "#FF8A00",
 			visName: "VisualCountdownLive",
 			visAttrs: [
 				{
@@ -61,13 +61,13 @@ export default class VisualCountdownLiveWidget extends (window.visRxWidget as ty
 							name: "colorRemaining",
 							type: "color",
 							label: "color_remaining",
-							default: "#E53935",
+							default: "#FF8A00",
 						},
 						{
 							name: "colorElapsed",
 							type: "color",
 							label: "color_elapsed",
-							default: "#FFFFFF",
+							default: "#E0E0E0",
 						},
 					],
 				},
@@ -100,8 +100,8 @@ export default class VisualCountdownLiveWidget extends (window.visRxWidget as ty
 					durationSeconds={duration}
 					remainingSeconds={remaining}
 					colorDigital={this.state.rxData.colorDigital || "#000000"}
-					colorRemaining={this.state.rxData.colorRemaining || "#E53935"}
-					colorElapsed={this.state.rxData.colorElapsed || "#FFFFFF"}
+					colorRemaining={this.state.rxData.colorRemaining || "#FF8A00"}
+					colorElapsed={this.state.rxData.colorElapsed || "#E0E0E0"}
 				/>
 			</Box>
 		);

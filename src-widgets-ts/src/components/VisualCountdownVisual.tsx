@@ -5,10 +5,17 @@ export interface VisualCountdownVisualProps {
 	remainingSeconds: number;
 	size?: number;
 	showDigital?: boolean;
+	/** Progress / remaining color (default orange). */
 	colorRemaining?: string;
+	/** Track / elapsed color (default light gray). */
 	colorElapsed?: string;
 	colorDigital?: string;
 }
+
+/** Brand-neutral orange – deliberately not Time Timer red. */
+export const DEFAULT_REMAINING_COLOR = "#FF8A00";
+export const DEFAULT_TRACK_COLOR = "#E0E0E0";
+export const DEFAULT_DIGITAL_COLOR = "#1A1A1A";
 
 const SECONDS_PER_HOUR = 3600;
 
@@ -23,31 +30,8 @@ function formatDigital(seconds: number): string {
 	return `${minutes}:${String(secs).padStart(2, "0")}`;
 }
 
-/** Angle 0 = top (12 o'clock), clockwise positive – like a clock. */
-function polarToCartesian(cx: number, cy: number, radius: number, angleDeg: number): { x: number; y: number } {
-	const angleRad = ((angleDeg - 90) * Math.PI) / 180;
-	return {
-		x: cx + radius * Math.cos(angleRad),
-		y: cy + radius * Math.sin(angleRad),
-	};
-}
-
 /**
- * Clockwise wedge from startAngle to endAngle (degrees, 0 = top).
- */
-function describeWedge(cx: number, cy: number, radius: number, startAngle: number, endAngle: number): string {
-	const sweep = endAngle - startAngle;
-	if (sweep >= 359.99) {
-		return `M ${cx} ${cy - radius} A ${radius} ${radius} 0 1 1 ${cx - 0.01} ${cy - radius} Z`;
-	}
-	const start = polarToCartesian(cx, cy, radius, startAngle);
-	const end = polarToCartesian(cx, cy, radius, endAngle);
-	const largeArc = sweep <= 180 ? 0 : 1;
-	return `M ${cx} ${cy} L ${start.x} ${start.y} A ${radius} ${radius} 0 ${largeArc} 1 ${end.x} ${end.y} Z`;
-}
-
-/**
- * Main circle = current hour fragment only.
+ * Main ring = current hour fragment only.
  * 30 min → 0.5, 90 min → 0.5, exact hours → 1.0
  */
 export function getCircleRemainingFraction(remainingSeconds: number): number {
@@ -63,8 +47,7 @@ export function getCircleRemainingFraction(remainingSeconds: number): number {
 }
 
 /**
- * Small full-hour circles = complete hours beyond the main circle.
- * 1:30 → 1, 1:00 → 0 (+ full main circle), 2:00 → 1, 0:30 → 0
+ * Small full-hour rings = complete hours beyond the main ring.
  */
 export function getFullHourCircleCount(remainingSeconds: number): number {
 	const safeRemaining = Math.max(0, remainingSeconds);
@@ -78,51 +61,72 @@ export function getFullHourCircleCount(remainingSeconds: number): number {
 	return Math.floor(safeRemaining / SECONDS_PER_HOUR);
 }
 
-function HourCircle({
+function HourRing({
 	diameter,
 	colorRemaining,
-	colorElapsed,
+	colorTrack,
 }: {
 	diameter: number;
 	colorRemaining: string;
-	colorElapsed: string;
+	colorTrack: string;
 }): React.JSX.Element {
-	const r = diameter / 2 - 1.5;
+	const stroke = Math.max(3, diameter * 0.18);
+	const r = diameter / 2 - stroke;
 	const c = diameter / 2;
 	return (
-		<svg
-			width={diameter}
-			height={diameter}
-			viewBox={`0 0 ${diameter} ${diameter}`}
-			role="img"
-			aria-label="1 hour"
-			title="1 h"
-		>
-			<circle cx={c} cy={c} r={r} fill={colorElapsed} stroke="#424242" strokeWidth={1.5} />
-			<circle cx={c} cy={c} r={r} fill={colorRemaining} stroke="#424242" strokeWidth={1.5} />
-			<circle cx={c} cy={c} r={Math.max(2, r * 0.12)} fill="#424242" />
+		<svg width={diameter} height={diameter} viewBox={`0 0 ${diameter} ${diameter}`} role="img" aria-label="1 hour">
+			<circle cx={c} cy={c} r={r} fill="none" stroke={colorTrack} strokeWidth={stroke} />
+			<circle
+				cx={c}
+				cy={c}
+				r={r}
+				fill="none"
+				stroke={colorRemaining}
+				strokeWidth={stroke}
+				strokeLinecap="round"
+			/>
 		</svg>
 	);
 }
 
+/**
+ * Ring-based countdown (not a filled pie disk) to avoid resemblance to commercial Time Timer products.
+ */
 export default function VisualCountdownVisual({
 	durationSeconds,
 	remainingSeconds,
 	size = 280,
 	showDigital = true,
-	colorRemaining = "#E53935",
-	colorElapsed = "#FFFFFF",
-	colorDigital = "#000000",
+	colorRemaining = DEFAULT_REMAINING_COLOR,
+	colorElapsed = DEFAULT_TRACK_COLOR,
+	colorDigital = DEFAULT_DIGITAL_COLOR,
 }: VisualCountdownVisualProps): React.JSX.Element {
 	const safeDuration = Math.max(1, durationSeconds);
 	const safeRemaining = Math.max(0, Math.min(safeDuration, remainingSeconds));
-	const circleRadius = size * 0.38;
 	const center = size / 2;
+	const stroke = Math.max(14, size * 0.09);
+	const radius = size * 0.36;
+	const circumference = 2 * Math.PI * radius;
 
 	const remainingFraction = getCircleRemainingFraction(safeRemaining);
 	const hourCircleCount = getFullHourCircleCount(safeRemaining);
-	const wedgeEnd = remainingFraction * 360;
-	const smallDiameter = Math.max(22, Math.min(40, Math.round(size * 0.12)));
+	const smallDiameter = Math.max(24, Math.min(42, Math.round(size * 0.13)));
+	const progressLength = remainingFraction * circumference;
+
+	const ticks = Array.from({ length: 12 }, (_, index) => {
+		const angle = (index / 12) * 360;
+		const rad = ((angle - 90) * Math.PI) / 180;
+		const outer = radius + stroke * 0.15;
+		const inner = radius - stroke * 0.35;
+		return {
+			key: `tick-${index}`,
+			x1: center + Math.cos(rad) * inner,
+			y1: center + Math.sin(rad) * inner,
+			x2: center + Math.cos(rad) * outer,
+			y2: center + Math.sin(rad) * outer,
+			major: index % 3 === 0,
+		};
+	});
 
 	return (
 		<div
@@ -142,7 +146,7 @@ export default function VisualCountdownVisual({
 				style={{
 					display: "flex",
 					flexWrap: "wrap",
-					gap: 6,
+					gap: 8,
 					width: "100%",
 					maxWidth: size,
 					minHeight: smallDiameter,
@@ -152,33 +156,61 @@ export default function VisualCountdownVisual({
 			>
 				{hourCircleCount > 0
 					? Array.from({ length: hourCircleCount }, (_, index) => (
-							<HourCircle
+							<HourRing
 								key={`hour-${index}`}
 								diameter={smallDiameter}
 								colorRemaining={colorRemaining}
-								colorElapsed={colorElapsed}
+								colorTrack={colorElapsed}
 							/>
 						))
 					: null}
 			</div>
 
 			<svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} role="img" aria-label="Visual Countdown">
-				<circle cx={center} cy={center} r={circleRadius} fill={colorElapsed} stroke="#424242" strokeWidth={3} />
-				<line
-					x1={center}
-					y1={center - circleRadius}
-					x2={center}
-					y2={center - circleRadius + 10}
-					stroke="#424242"
-					strokeWidth={2}
+				{/* Soft center plate – not a white timer disk */}
+				<circle cx={center} cy={center} r={radius - stroke * 0.55} fill="#F7F7F7" />
+
+				{/* Track ring */}
+				<circle
+					cx={center}
+					cy={center}
+					r={radius}
+					fill="none"
+					stroke={colorElapsed}
+					strokeWidth={stroke}
+					strokeLinecap="round"
 				/>
-				{remainingFraction > 0 && remainingFraction < 1 && (
-					<path d={describeWedge(center, center, circleRadius, 0, wedgeEnd)} fill={colorRemaining} />
+
+				{/* Remaining progress ring, starts at 12 o'clock, clockwise */}
+				{remainingFraction > 0 && (
+					<circle
+						cx={center}
+						cy={center}
+						r={radius}
+						fill="none"
+						stroke={colorRemaining}
+						strokeWidth={stroke}
+						strokeLinecap="round"
+						strokeDasharray={`${progressLength} ${circumference}`}
+						transform={`rotate(-90 ${center} ${center})`}
+						style={{ transition: "stroke-dasharray 0.35s linear" }}
+					/>
 				)}
-				{remainingFraction >= 1 && (
-					<circle cx={center} cy={center} r={circleRadius} fill={colorRemaining} stroke="#424242" strokeWidth={3} />
-				)}
-				<circle cx={center} cy={center} r={circleRadius * 0.08} fill="#424242" />
+
+				{/* Subtle 5-minute ticks on the ring */}
+				{ticks.map(tick => (
+					<line
+						key={tick.key}
+						x1={tick.x1}
+						y1={tick.y1}
+						x2={tick.x2}
+						y2={tick.y2}
+						stroke="#9E9E9E"
+						strokeWidth={tick.major ? 2 : 1}
+						strokeLinecap="round"
+						opacity={0.7}
+					/>
+				))}
 			</svg>
 
 			{showDigital && (
@@ -186,9 +218,9 @@ export default function VisualCountdownVisual({
 					style={{
 						fontSize: Math.max(28, size * 0.14),
 						fontWeight: 700,
-						fontFamily: "Consolas, 'Courier New', monospace",
-						letterSpacing: 2,
-						color: colorDigital || "#000000",
+						fontFamily: "Segoe UI, system-ui, sans-serif",
+						letterSpacing: 1,
+						color: colorDigital || DEFAULT_DIGITAL_COLOR,
 					}}
 				>
 					{formatDigital(safeRemaining)}

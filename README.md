@@ -4,11 +4,12 @@ Unterstützung für Menschen mit Autismus in ioBroker: **Visual Countdown**, Bil
 
 ## Visual Countdown (MVP)
 
-Visueller Countdown mit Kreisdiagramm:
+Visueller Countdown als **Fortschrittsring** (keine gefüllte Scheibe):
 
-- Kreisdiagramm: verbleibende Zeit rot, abgelaufene Zeit weiß
-- Kleine Kreise für volle Stunden darüber
-- Digitaler Countdown darunter
+- Orangener Fortschrittsring (Farbe in den Widget-Einstellungen änderbar)
+- Graue Spur für abgelaufene Zeit
+- Kleine Ringe für volle Stunden
+- Digitale Anzeige darunter
 
 ### Datenpunkte (`autism-support.0.timer.*`)
 
