@@ -1,8 +1,12 @@
 {
 	"common": {
 		"name": "autism-support",
-		"version": "0.1.3",
+		"version": "0.1.4",
 		"news": {
+			"0.1.4": {
+				"en": "Fix schedule bar: time-proportional layout with gaps and period boundaries",
+				"de": "Zeitbalken korrigiert: zeitproportionale Anordnung inkl. Lücken und Tagesbereiche"
+			},
 			"0.1.3": {
 				"en": "Time bar follows pictogram times/count; toggle day periods in Config",
 				"de": "Zeitbalken folgt Piktogramm-Zeiten/Anzahl; Tagesbereiche im Config ein/aus"
