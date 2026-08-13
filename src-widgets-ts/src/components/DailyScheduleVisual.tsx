@@ -23,12 +23,34 @@ export interface DailyScheduleVisualProps {
 	pictogramSize?: number;
 }
 
-interface TimelineSlice {
-	id: string;
+interface ItemClip {
+	item: ScheduleItem;
+	itemIndex: number;
 	startMin: number;
 	endMin: number;
-	color: string;
 }
+
+interface LayoutRow {
+	kind: "item" | "gap";
+	startMin: number;
+	endMin: number;
+	topPx: number;
+	heightPx: number;
+	clip?: ItemClip;
+}
+
+interface PeriodBlockLayout {
+	id: string;
+	periodId: string;
+	color: string;
+	startMin: number;
+	endMin: number;
+	topPx: number;
+	heightPx: number;
+	rows: LayoutRow[];
+}
+
+const PERIOD_BLOCK_GAP_PX = 4;
 
 function clamp(n: number, min: number, max: number): number {
 	return Math.max(min, Math.min(max, n));
@@ -75,117 +97,6 @@ export function itemEndMin(item: ScheduleItem): number {
 	return itemStartMin(item) + itemDurationMin(item);
 }
 
-function periodColorAt(minutes: number, periods: DayPeriodDefinition[]): string {
-	const enabled = periods.filter(p => p.enabled);
-	for (const period of enabled) {
-		const segs = periodToSegments(period);
-		if (segs.some(seg => minutes >= seg.startMin && minutes < seg.endMin)) {
-			return period.color;
-		}
-	}
-	return "#CFD8DC";
-}
-
-/**
- * Visible window from pictogram times, extended over gaps and to period boundaries
- * so e.g. Mittag (12:00–14:00) continues through a gap until the next period starts.
- */
-export function computeViewWindow(
-	items: ScheduleItem[],
-	periods: DayPeriodDefinition[],
-): { viewStartMin: number; viewEndMin: number } {
-	if (!items.length) {
-		return { viewStartMin: 0, viewEndMin: 1440 };
-	}
-
-	let minStart = Infinity;
-	let maxEnd = -Infinity;
-
-	for (const item of items) {
-		const s = itemStartMin(item);
-		const e = itemEndMin(item);
-		minStart = Math.min(minStart, s);
-		maxEnd = Math.max(maxEnd, Math.min(1440, e));
-	}
-
-	const enabled = periods.filter(p => p.enabled);
-
-	// Extend to full period end when a pictogram overlaps that period (e.g. Mittag until 14:00).
-	for (const item of items) {
-		const s = itemStartMin(item);
-		const e = itemEndMin(item);
-		for (const period of enabled) {
-			for (const seg of periodToSegments(period)) {
-				if (e > seg.startMin && s < seg.endMin) {
-					maxEnd = Math.max(maxEnd, Math.min(1440, seg.endMin));
-				}
-			}
-		}
-	}
-
-	// Extend over gaps between consecutive pictograms to the next start time.
-	const sorted = [...items].sort((a, b) => itemStartMin(a) - itemStartMin(b));
-	for (let i = 0; i < sorted.length - 1; i++) {
-		const gapEnd = itemStartMin(sorted[i + 1]);
-		const gapStart = itemEndMin(sorted[i]);
-		if (gapEnd > gapStart) {
-			maxEnd = Math.max(maxEnd, gapEnd);
-		}
-	}
-
-	const pad = 15;
-	const viewStartMin = clamp(minStart - pad, 0, 1439);
-	const viewEndMin = clamp(Math.max(maxEnd + pad, viewStartMin + 60), viewStartMin + 60, 1440);
-	return { viewStartMin, viewEndMin };
-}
-
-/** Period-colored slices on the shared timeline (time-proportional heights). */
-function buildTimelineBarSlices(
-	viewStartMin: number,
-	viewEndMin: number,
-	periods: DayPeriodDefinition[],
-): TimelineSlice[] {
-	const enabled = periods.filter(p => p.enabled);
-	const cuts = new Set<number>([viewStartMin, viewEndMin]);
-
-	for (const period of enabled) {
-		for (const seg of periodToSegments(period)) {
-			if (seg.endMin > viewStartMin && seg.startMin < viewEndMin) {
-				cuts.add(clamp(seg.startMin, viewStartMin, viewEndMin));
-				cuts.add(clamp(seg.endMin, viewStartMin, viewEndMin));
-			}
-		}
-	}
-
-	const points = [...cuts].sort((a, b) => a - b);
-	const slices: TimelineSlice[] = [];
-
-	for (let i = 0; i < points.length - 1; i++) {
-		const startMin = points[i];
-		const endMin = points[i + 1];
-		if (endMin <= startMin) {
-			continue;
-		}
-		slices.push({
-			id: `bar-${startMin}-${endMin}`,
-			startMin,
-			endMin,
-			color: periodColorAt((startMin + endMin) / 2, periods),
-		});
-	}
-
-	if (!slices.length) {
-		slices.push({
-			id: "bar-full",
-			startMin: viewStartMin,
-			endMin: viewEndMin,
-			color: "#CFD8DC",
-		});
-	}
-
-	return slices;
-}
-
 function formatClock(minutes: number): string {
 	const m = clamp(Math.round(minutes), 0, 1440);
 	const hh = Math.floor(m / 60) % 24;
@@ -193,17 +104,224 @@ function formatClock(minutes: number): string {
 	return `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}`;
 }
 
-function timeToTop(minutes: number, viewStartMin: number, pxPerMin: number): number {
-	return (minutes - viewStartMin) * pxPerMin;
+function getClipsInSegment(
+	items: ScheduleItem[],
+	segStart: number,
+	segEnd: number,
+): ItemClip[] {
+	const clips: ItemClip[] = [];
+	items.forEach((item, itemIndex) => {
+		const itemStart = itemStartMin(item);
+		const itemEnd = itemEndMin(item);
+		const clipStart = Math.max(itemStart, segStart);
+		const clipEnd = Math.min(itemEnd, segEnd);
+		if (clipEnd > clipStart) {
+			clips.push({ item, itemIndex, startMin: clipStart, endMin: clipEnd });
+		}
+	});
+	return clips.sort((a, b) => a.startMin - b.startMin);
 }
 
-function timeToHeight(startMin: number, endMin: number, pxPerMin: number): number {
-	return Math.max(1, (endMin - startMin) * pxPerMin);
+function isNowInSegment(nowMinutes: number, segStart: number, segEnd: number): boolean {
+	return nowMinutes >= segStart && nowMinutes < segEnd;
+}
+
+/** Build ordered item + gap slots inside a period segment (gaps include tail until period end). */
+function buildSegmentSlots(
+	clips: ItemClip[],
+	segStart: number,
+	segEnd: number,
+): Array<{ kind: "item" | "gap"; startMin: number; endMin: number; clip?: ItemClip }> {
+	if (!clips.length) {
+		return [{ kind: "gap", startMin: segStart, endMin: segEnd }];
+	}
+
+	const slots: Array<{ kind: "item" | "gap"; startMin: number; endMin: number; clip?: ItemClip }> =
+		[];
+	let cursor = segStart;
+
+	for (const clip of clips) {
+		if (clip.startMin > cursor) {
+			slots.push({ kind: "gap", startMin: cursor, endMin: clip.startMin });
+		}
+		slots.push({
+			kind: "item",
+			startMin: clip.startMin,
+			endMin: clip.endMin,
+			clip,
+		});
+		cursor = Math.max(cursor, clip.endMin);
+	}
+
+	if (cursor < segEnd) {
+		slots.push({ kind: "gap", startMin: cursor, endMin: segEnd });
+	}
+
+	return slots;
 }
 
 /**
- * Shared time axis: pictograms and period bar use the same minute scale.
- * Gaps between pictograms stay empty on the left; the period bar continues through them.
+ * Period blocks stretch with pictogram count and gaps; only the now marker
+ * uses real clock position within each period segment.
+ */
+export function buildPeriodBlockLayout(
+	items: ScheduleItem[],
+	periods: DayPeriodDefinition[],
+	nowMinutes: number,
+	pictoPx: number,
+): PeriodBlockLayout[] {
+	const enabled = periods.filter(p => p.enabled);
+	const minItemH = pictoPx + 16;
+	const minGapH = 10;
+	const pxPerMin = 1.8;
+	const blocks: PeriodBlockLayout[] = [];
+	let topPx = 0;
+
+	for (const period of enabled) {
+		for (const seg of periodToSegments(period)) {
+			const clips = getClipsInSegment(items, seg.startMin, seg.endMin);
+			const hasNow = isNowInSegment(nowMinutes, seg.startMin, seg.endMin);
+			if (!clips.length && !hasNow) {
+				continue;
+			}
+
+			const slotDefs = buildSegmentSlots(clips, seg.startMin, seg.endMin);
+			const weights = slotDefs.map(slot => {
+				const duration = Math.max(1, slot.endMin - slot.startMin);
+				if (slot.kind === "item") {
+					return Math.max(minItemH, duration * pxPerMin);
+				}
+				return Math.max(minGapH, duration * pxPerMin);
+			});
+			const blockHeight = weights.reduce((sum, w) => sum + w, 0) || minItemH;
+
+			let rowTop = 0;
+			const rows: LayoutRow[] = slotDefs.map((slot, index) => {
+				const row: LayoutRow = {
+					kind: slot.kind,
+					startMin: slot.startMin,
+					endMin: slot.endMin,
+					topPx: rowTop,
+					heightPx: weights[index],
+					clip: slot.clip,
+				};
+				rowTop += weights[index];
+				return row;
+			});
+
+			blocks.push({
+				id: `${period.id}-${seg.startMin}`,
+				periodId: period.id,
+				color: period.color,
+				startMin: seg.startMin,
+				endMin: seg.endMin,
+				topPx,
+				heightPx: blockHeight,
+				rows,
+			});
+			topPx += blockHeight + PERIOD_BLOCK_GAP_PX;
+		}
+	}
+
+	return blocks;
+}
+
+/** Real-clock position of the now marker within stretched period blocks. */
+export function computeNowMarkerTop(
+	blocks: PeriodBlockLayout[],
+	nowMinutes: number,
+): number | null {
+	for (const block of blocks) {
+		if (isNowInSegment(nowMinutes, block.startMin, block.endMin)) {
+			const span = Math.max(1, block.endMin - block.startMin);
+			const frac = clamp((nowMinutes - block.startMin) / span, 0, 1);
+			return block.topPx + frac * block.heightPx;
+		}
+	}
+	return null;
+}
+
+function renderPictogramRow(
+	row: LayoutRow,
+	currentItemIndex: number,
+	adapterInstance: string,
+	pictoPx: number,
+): React.JSX.Element | null {
+	if (row.kind !== "item" || !row.clip) {
+		return null;
+	}
+
+	const { item, itemIndex } = row.clip;
+	const active = itemIndex === currentItemIndex;
+	const img = resolveItemImageUrl(item, adapterInstance);
+	const slotPicto = Math.min(pictoPx, Math.max(28, row.heightPx - 12));
+
+	return (
+		<div
+			style={{
+				position: "absolute",
+				left: 0,
+				right: 0,
+				top: row.topPx,
+				height: row.heightPx,
+				display: "flex",
+				alignItems: "center",
+				gap: 10,
+				padding: "4px 10px",
+				boxSizing: "border-box",
+				borderRadius: 10,
+				background: active ? "rgba(255,138,0,0.15)" : "rgba(0,0,0,0.04)",
+				outline: active ? "2px solid #FF8A00" : "1px solid transparent",
+				overflow: "hidden",
+			}}
+		>
+			<div
+				style={{
+					width: slotPicto,
+					height: slotPicto,
+					flexShrink: 0,
+					borderRadius: 8,
+					background: "#fff",
+					display: "flex",
+					alignItems: "center",
+					justifyContent: "center",
+					overflow: "hidden",
+				}}
+			>
+				{img ? (
+					<img
+						src={img}
+						alt=""
+						style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }}
+						referrerPolicy="no-referrer"
+					/>
+				) : (
+					<span style={{ fontSize: 12, opacity: 0.5 }}>?</span>
+				)}
+			</div>
+			<div style={{ flex: 1, minWidth: 0 }}>
+				<div
+					style={{
+						fontWeight: 700,
+						fontSize: Math.max(12, Math.min(18, slotPicto * 0.22)),
+						lineHeight: 1.2,
+						overflow: "hidden",
+						textOverflow: "ellipsis",
+						whiteSpace: "nowrap",
+					}}
+				>
+					{item.label || "—"}
+				</div>
+				<div style={{ fontSize: 12, opacity: 0.75, lineHeight: 1.2 }}>
+					{item.start} – {item.end}
+				</div>
+			</div>
+		</div>
+	);
+}
+
+/**
+ * Stretched period blocks (by pictogram count); now marker is clock-accurate inside each period.
  */
 export default function DailyScheduleVisual({
 	plan,
@@ -216,23 +334,19 @@ export default function DailyScheduleVisual({
 }: DailyScheduleVisualProps): React.JSX.Element {
 	const pictoPx = Math.max(32, Math.min(200, Number(pictogramSize) || 64));
 	const sorted = [...plan.items].sort((a, b) => itemStartMin(a) - itemStartMin(b));
-	const { viewStartMin, viewEndMin } = computeViewWindow(sorted, periods);
-	const viewSpan = Math.max(60, viewEndMin - viewStartMin);
+	const blocks = buildPeriodBlockLayout(sorted, periods, nowMinutes, pictoPx);
+	const totalHeight =
+		blocks.length > 0
+			? blocks[blocks.length - 1].topPx + blocks[blocks.length - 1].heightPx
+			: 0;
+	const nowTop = computeNowMarkerTop(blocks, nowMinutes);
 
 	const usesArasaac = plan.items.some(item => item.source === "arasaac" && item.arasaacId);
 	const attribution = locale.startsWith("de") ? ARASAAC_ATTRIBUTION_DE : ARASAAC_ATTRIBUTION_EN;
 	const activePeriods = periods.filter(p => p.enabled);
-	const barSlices = buildTimelineBarSlices(viewStartMin, viewEndMin, periods);
 
-	const minItemDuration =
-		sorted.length > 0 ? Math.min(...sorted.map(item => itemDurationMin(item))) : 30;
-	const pxPerMin = Math.max(2.5, (pictoPx + 20) / Math.max(15, minItemDuration));
-	const timelineHeight = viewSpan * pxPerMin;
-
-	const nowTop =
-		nowMinutes >= viewStartMin && nowMinutes <= viewEndMin
-			? timeToTop(nowMinutes, viewStartMin, pxPerMin)
-			: null;
+	const viewStartMin = blocks.length ? blocks[0].startMin : 0;
+	const viewEndMin = blocks.length ? blocks[blocks.length - 1].endMin : 1440;
 
 	return (
 		<div
@@ -256,102 +370,41 @@ export default function DailyScheduleVisual({
 					alignItems: "stretch",
 				}}
 			>
-				<div
-					style={{
-						flex: 1,
-						overflowY: "auto",
-						minWidth: 0,
-					}}
-				>
-					{sorted.length === 0 ? (
+				<div style={{ flex: 1, overflowY: "auto", minWidth: 0 }}>
+					{blocks.length === 0 ? (
 						<div style={{ opacity: 0.7, padding: 12 }}>—</div>
 					) : (
-						<div
-							style={{
-								position: "relative",
-								height: timelineHeight,
-								minHeight: "100%",
-							}}
-						>
-							{sorted.map((item, index) => {
-								const originalIndex = plan.items.findIndex(p => p.id === item.id);
-								const active = originalIndex === currentItemIndex;
-								const img = resolveItemImageUrl(item, adapterInstance);
-								const startMin = itemStartMin(item);
-								const endMin = itemEndMin(item);
-								const top = timeToTop(startMin, viewStartMin, pxPerMin);
-								const height = timeToHeight(startMin, endMin, pxPerMin);
-								const slotPicto = Math.min(pictoPx, Math.max(28, height - 12));
-
-								return (
-									<div
-										key={item.id || index}
-										style={{
-											position: "absolute",
-											left: 0,
-											right: 0,
-											top,
-											height,
-											display: "flex",
-											alignItems: "center",
-											gap: 10,
-											padding: "4px 10px",
-											boxSizing: "border-box",
-											borderRadius: 10,
-											background: active ? "rgba(255,138,0,0.15)" : "rgba(0,0,0,0.04)",
-											outline: active ? "2px solid #FF8A00" : "1px solid transparent",
-											overflow: "hidden",
-										}}
-									>
-										<div
-											style={{
-												width: slotPicto,
-												height: slotPicto,
-												flexShrink: 0,
-												borderRadius: 8,
-												background: "#fff",
-												display: "flex",
-												alignItems: "center",
-												justifyContent: "center",
-												overflow: "hidden",
-											}}
-										>
-											{img ? (
-												<img
-													src={img}
-													alt=""
-													style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }}
-													referrerPolicy="no-referrer"
-												/>
-											) : (
-												<span style={{ fontSize: 12, opacity: 0.5 }}>?</span>
-											)}
-										</div>
-										<div style={{ flex: 1, minWidth: 0 }}>
-											<div
-												style={{
-													fontWeight: 700,
-													fontSize: Math.max(12, Math.min(18, slotPicto * 0.22)),
-													lineHeight: 1.2,
-													overflow: "hidden",
-													textOverflow: "ellipsis",
-													whiteSpace: "nowrap",
-												}}
-											>
-												{item.label || "—"}
-											</div>
-											<div style={{ fontSize: 12, opacity: 0.75, lineHeight: 1.2 }}>
-												{item.start} – {item.end}
-											</div>
-										</div>
-									</div>
-								);
-							})}
+						<div style={{ position: "relative", height: totalHeight, minHeight: "100%" }}>
+							{blocks.map(block => (
+								<div
+									key={block.id}
+									style={{
+										position: "absolute",
+										left: 0,
+										right: 0,
+										top: block.topPx,
+										height: block.heightPx,
+									}}
+								>
+									{block.rows.map(row =>
+										row.kind === "item" ? (
+											<React.Fragment key={`${block.id}-item-${row.clip?.item.id}-${row.startMin}`}>
+												{renderPictogramRow(
+													row,
+													currentItemIndex,
+													adapterInstance,
+													pictoPx,
+												)}
+											</React.Fragment>
+										) : null,
+									)}
+								</div>
+							))}
 						</div>
 					)}
 				</div>
 
-				{sorted.length > 0 && (
+				{blocks.length > 0 && (
 					<div
 						style={{
 							flex: "0 0 88px",
@@ -365,43 +418,36 @@ export default function DailyScheduleVisual({
 						<div style={{ fontSize: 10, opacity: 0.65, marginBottom: 4, textAlign: "center" }}>
 							{formatClock(viewStartMin)}
 						</div>
-						<div
-							style={{
-								flex: 1,
-								overflowY: "auto",
-								minHeight: 0,
-							}}
-						>
+						<div style={{ flex: 1, overflowY: "auto", minHeight: 0 }}>
 							<div
 								style={{
 									position: "relative",
-									height: timelineHeight,
+									height: totalHeight,
 									borderRadius: 10,
 									overflow: "hidden",
 									border: "1px solid #CFD8DC",
 									background: "#ECEFF1",
 								}}
 							>
-								{barSlices.map(slice => {
-									const top = timeToTop(slice.startMin, viewStartMin, pxPerMin);
-									const height = timeToHeight(slice.startMin, slice.endMin, pxPerMin);
-									return (
-										<div
-											key={slice.id}
-											style={{
-												position: "absolute",
-												left: 0,
-												right: 0,
-												top,
-												height,
-												background: slice.color,
-												boxSizing: "border-box",
-												borderBottom: "1px solid rgba(255,255,255,0.45)",
-											}}
-											title={`${formatClock(slice.startMin)} – ${formatClock(slice.endMin)}`}
-										/>
-									);
-								})}
+								{blocks.map((block, index) => (
+									<div
+										key={block.id}
+										style={{
+											position: "absolute",
+											left: 0,
+											right: 0,
+											top: block.topPx,
+											height: block.heightPx,
+											background: block.color,
+											boxSizing: "border-box",
+											borderBottom:
+												index < blocks.length - 1
+													? "1px solid rgba(255,255,255,0.45)"
+													: "none",
+										}}
+										title={`${periodLabel(block.periodId, locale)} · ${formatClock(block.startMin)} – ${formatClock(block.endMin)}`}
+									/>
+								))}
 
 								{nowTop != null && (
 									<>
@@ -446,8 +492,8 @@ export default function DailyScheduleVisual({
 
 			<div style={{ fontSize: 11, opacity: 0.7 }}>
 				{locale.startsWith("de")
-					? `Zeitfenster: ${formatClock(viewStartMin)} – ${formatClock(viewEndMin)} · ${sorted.length} Piktogramm${sorted.length === 1 ? "" : "e"}`
-					: `Window: ${formatClock(viewStartMin)} – ${formatClock(viewEndMin)} · ${sorted.length} pictogram${sorted.length === 1 ? "" : "s"}`}
+					? `${sorted.length} Piktogramm${sorted.length === 1 ? "" : "e"} · ${blocks.length} Tagesbereich${blocks.length === 1 ? "" : "e"}`
+					: `${sorted.length} pictogram${sorted.length === 1 ? "" : "s"} · ${blocks.length} day period${blocks.length === 1 ? "" : "s"}`}
 			</div>
 
 			<div style={{ display: "flex", flexWrap: "wrap", gap: 8, fontSize: 12 }}>

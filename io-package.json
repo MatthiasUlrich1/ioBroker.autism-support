@@ -1,8 +1,12 @@
 {
 	"common": {
 		"name": "autism-support",
-		"version": "0.1.4",
+		"version": "0.1.5",
 		"news": {
+			"0.1.5": {
+				"en": "Stretch period bar by pictogram count; now marker stays clock-accurate per period",
+				"de": "Tagesbereich-Balken nach Piktogramm-Anzahl gestreckt; Jetzt-Marker bleibt zeitlich korrekt"
+			},
 			"0.1.4": {
 				"en": "Fix schedule bar: time-proportional layout with gaps and period boundaries",
 				"de": "Zeitbalken korrigiert: zeitproportionale Anordnung inkl. Lücken und Tagesbereiche"
