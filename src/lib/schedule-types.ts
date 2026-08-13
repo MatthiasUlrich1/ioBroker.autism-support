@@ -5,13 +5,25 @@
 
 export type PictogramSource = "arasaac" | "custom";
 
+/**
+ *
+ */
 export interface ScheduleItem {
+	/**
+	 *
+	 */
 	id: string;
+	/**
+	 *
+	 */
 	label: string;
 	/** Start HH:MM */
 	start: string;
 	/** End HH:MM */
 	end: string;
+	/**
+	 *
+	 */
 	source: PictogramSource;
 	/** ARASAAC pictogram numeric id (external CDN only) */
 	arasaacId?: number;
@@ -23,8 +35,17 @@ export interface ScheduleItem {
 	customRef?: string;
 }
 
+/**
+ *
+ */
 export interface SchedulePlan {
+	/**
+	 *
+	 */
 	version: 1;
+	/**
+	 *
+	 */
 	items: ScheduleItem[];
 }
 
@@ -33,6 +54,10 @@ export const EMPTY_SCHEDULE_PLAN: SchedulePlan = {
 	items: [],
 };
 
+/**
+ *
+ * @param raw
+ */
 export function parseSchedulePlan(raw: unknown): SchedulePlan {
 	try {
 		const data = typeof raw === "string" ? JSON.parse(raw) : raw;
@@ -44,7 +69,7 @@ export function parseSchedulePlan(raw: unknown): SchedulePlan {
 			: [];
 		return {
 			version: 1,
-			items: items.map((item, index) => normalizeItem(item as ScheduleItem, index)),
+			items: items.map((item, index) => normalizeItem(item, index)),
 		};
 	} catch {
 		return { ...EMPTY_SCHEDULE_PLAN, items: [] };
@@ -67,11 +92,13 @@ function normalizeItem(item: ScheduleItem, index: number): ScheduleItem {
 	};
 }
 
-export function findCurrentItemIndex(
-	plan: SchedulePlan,
-	minutes: number,
-	parseTime: (t: string) => number,
-): number {
+/**
+ *
+ * @param plan
+ * @param minutes
+ * @param parseTime
+ */
+export function findCurrentItemIndex(plan: SchedulePlan, minutes: number, parseTime: (t: string) => number): number {
 	return plan.items.findIndex(item => {
 		const s = parseTime(item.start);
 		const e = parseTime(item.end);

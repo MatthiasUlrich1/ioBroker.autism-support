@@ -82,35 +82,6 @@
 			"0.0.6": {
 				"en": "Config widget: configurable text, border and arrow colors for hours/minutes",
 				"de": "Config-Widget: Schrift-, Rahmen- und Pfeilfarbe für Stunden/Minuten einstellbar"
-			},
-			"0.0.5": {
-				"en": "Circle starts at 12 o'clock; hour bars show only complete hours beyond the circle",
-				"de": "Kreis beginnt bei 12 Uhr; Stundenbalken nur für volle Stunden zusätzlich zum Kreis"
-			},
-			"0.0.4": {
-				"en": "Fix circle hour fragment (white again); configurable digital time color",
-				"de": "Kreis zeigt wieder Stundenfragment (weiß); Digitalfarbe konfigurierbar"
-			},
-			"0.0.3": {
-				"en": "Fix install: remove postinstall that required widget source tree",
-				"de": "Installationsfix: postinstall entfernt, das den Widget-Quellbaum benötigte"
-			},
-			"0.0.2": {
-				"en": "Visual Countdown: circle always shows one hour; hours/minutes input; config widget fixes",
-				"de": "Visual Countdown: Kreis zeigt immer eine Stunde; Stunden/Minuten-Eingabe; Config-Widget-Fixes"
-			},
-			"0.0.1": {
-				"en": "initial release",
-				"de": "Erstveröffentlichung",
-				"ru": "Начальная версия",
-				"pt": "lançamento inicial",
-				"nl": "Eerste uitgave",
-				"fr": "Première version",
-				"it": "Versione iniziale",
-				"es": "Versión inicial",
-				"pl": "Pierwsze wydanie",
-				"uk": "Початкова версія",
-				"zh-cn": "首次出版"
 			}
 		},
 		"titleLang": {

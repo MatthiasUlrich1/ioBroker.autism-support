@@ -5,24 +5,29 @@
 
 export type DayPeriodId = "morning" | "forenoon" | "noon" | "afternoon" | "evening" | "night";
 
+/**
+ *
+ */
 export interface DayPeriodDefinition {
+	/**
+	 *
+	 */
 	id: DayPeriodId;
+	/**
+	 *
+	 */
 	enabled: boolean;
 	/** Start time HH:MM (inclusive) */
 	start: string;
 	/** End time HH:MM (exclusive), may be earlier than start if wraps midnight */
 	end: string;
+	/**
+	 *
+	 */
 	color: string;
 }
 
-export const DAY_PERIOD_IDS: DayPeriodId[] = [
-	"morning",
-	"forenoon",
-	"noon",
-	"afternoon",
-	"evening",
-	"night",
-];
+export const DAY_PERIOD_IDS: DayPeriodId[] = ["morning", "forenoon", "noon", "afternoon", "evening", "night"];
 
 export const DEFAULT_DAY_PERIODS: DayPeriodDefinition[] = [
 	{ id: "morning", enabled: true, start: "06:00", end: "09:00", color: "#FFE082" },
@@ -33,7 +38,11 @@ export const DEFAULT_DAY_PERIODS: DayPeriodDefinition[] = [
 	{ id: "night", enabled: true, start: "21:00", end: "06:00", color: "#5C6BC0" },
 ];
 
-/** Parse HH:MM to minutes since midnight (0–1440). */
+/**
+ * Parse HH:MM to minutes since midnight (0–1440).
+ *
+ * @param value
+ */
 export function parseTimeToMinutes(value: string): number {
 	const match = /^(\d{1,2}):(\d{2})$/.exec(String(value || "").trim());
 	if (!match) {
@@ -44,6 +53,10 @@ export function parseTimeToMinutes(value: string): number {
 	return h * 60 + m;
 }
 
+/**
+ *
+ * @param total
+ */
 export function minutesToTime(total: number): string {
 	const safe = ((Math.round(total) % 1440) + 1440) % 1440;
 	const h = Math.floor(safe / 60);
@@ -51,7 +64,13 @@ export function minutesToTime(total: number): string {
 	return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
 }
 
-/** Whether `minutes` lies in [start, end) supporting midnight wrap. */
+/**
+ * Whether `minutes` lies in [start, end) supporting midnight wrap.
+ *
+ * @param minutes
+ * @param start
+ * @param end
+ */
 export function isMinutesInPeriod(minutes: number, start: string, end: string): boolean {
 	const s = parseTimeToMinutes(start);
 	const e = parseTimeToMinutes(end);
@@ -66,10 +85,12 @@ export function isMinutesInPeriod(minutes: number, start: string, end: string): 
 	return t >= s || t < e;
 }
 
-export function findCurrentPeriod(
-	minutes: number,
-	periods: DayPeriodDefinition[],
-): DayPeriodDefinition | null {
+/**
+ *
+ * @param minutes
+ * @param periods
+ */
+export function findCurrentPeriod(minutes: number, periods: DayPeriodDefinition[]): DayPeriodDefinition | null {
 	for (const period of periods) {
 		if (period.enabled && isMinutesInPeriod(minutes, period.start, period.end)) {
 			return period;
@@ -81,6 +102,8 @@ export function findCurrentPeriod(
 /**
  * Expand periods into non-wrapping segments for a 0–1440 timeline bar.
  * Night 21:00–06:00 → [21:00–1440) and [0–06:00).
+ *
+ * @param period
  */
 export function periodToSegments(
 	period: DayPeriodDefinition,
@@ -102,6 +125,10 @@ export function periodToSegments(
 	];
 }
 
+/**
+ *
+ * @param config
+ */
 export function dayPeriodsFromConfig(config: ioBroker.AdapterConfig): DayPeriodDefinition[] {
 	return DAY_PERIOD_IDS.map(id => {
 		const cap = id.charAt(0).toUpperCase() + id.slice(1);

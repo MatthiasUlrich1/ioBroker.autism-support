@@ -366,8 +366,7 @@ class AutismSupport extends utils.Adapter {
 			} else if (localId === "periodOverrides") {
 				try {
 					const raw = typeof state.val === "string" ? JSON.parse(String(state.val)) : state.val;
-					const cleaned =
-						raw && typeof raw === "object" ? (raw as Record<string, boolean>) : {};
+					const cleaned = raw && typeof raw === "object" ? (raw as Record<string, boolean>) : {};
 					await this.setState(`${SCHEDULE_CHANNEL}.periodOverrides`, JSON.stringify(cleaned), true);
 					await this.publishScheduleRuntime();
 				} catch (error) {
@@ -438,6 +437,8 @@ class AutismSupport extends utils.Adapter {
 	/**
 	 * Custom pictogram upload (user-owned images only).
 	 * ARASAAC images must never be uploaded here – use external IDs only.
+	 *
+	 * @param obj
 	 */
 	private async onMessage(obj: ioBroker.Message): Promise<void> {
 		if (!obj?.command) {
@@ -473,12 +474,7 @@ class AutismSupport extends utils.Adapter {
 				}
 			} catch (error) {
 				if (obj.callback) {
-					this.sendTo(
-						obj.from,
-						obj.command,
-						{ ok: false, error: (error as Error).message },
-						obj.callback,
-					);
+					this.sendTo(obj.from, obj.command, { ok: false, error: (error as Error).message }, obj.callback);
 				}
 			}
 			return;
@@ -487,9 +483,7 @@ class AutismSupport extends utils.Adapter {
 		if (obj.command === "listPictograms") {
 			try {
 				const result = await this.readDirAsync(this.namespace, "pictograms");
-				const files = (result || [])
-					.filter(entry => !entry.isDir)
-					.map(entry => entry.file);
+				const files = (result || []).filter(entry => !entry.isDir).map(entry => entry.file);
 				if (obj.callback) {
 					this.sendTo(obj.from, obj.command, { ok: true, files }, obj.callback);
 				}

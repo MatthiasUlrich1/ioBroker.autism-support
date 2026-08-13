@@ -3,6 +3,7 @@
  * This adapter never ships, copies, or redistributes ARASAAC image files.
  *
  * License: Creative Commons BY-NC-SA (author Sergio Palao, owner Government of Aragon).
+ *
  * @see https://arasaac.org
  * @see https://creativecommons.org/licenses/by-nc-sa/4.0/
  */
@@ -22,6 +23,9 @@ export const ARASAAC_ATTRIBUTION_DE =
  * Build external image URL for an ARASAAC pictogram id.
  * Images are hotlinked from static.arasaac.org – not stored in this package.
  * Official CDN sizes are typically 300 and 500 (100 often 404).
+ *
+ * @param pictogramId
+ * @param size
  */
 export function arasaacImageUrl(pictogramId: number, size: 300 | 500 = 500): string {
 	const id = Math.max(1, Math.floor(Number(pictogramId) || 0));
@@ -29,6 +33,11 @@ export function arasaacImageUrl(pictogramId: number, size: 300 | 500 = 500): str
 	return `${ARASAAC_STATIC_BASE}/${id}/${id}_${safeSize}.png`;
 }
 
+/**
+ *
+ * @param language
+ * @param query
+ */
 export function arasaacSearchUrl(language: string, query: string): string {
 	const lang = encodeURIComponent(language || "de");
 	const q = encodeURIComponent(query.trim());

@@ -28,14 +28,7 @@ __export(day_periods_exports, {
   periodToSegments: () => periodToSegments
 });
 module.exports = __toCommonJS(day_periods_exports);
-const DAY_PERIOD_IDS = [
-  "morning",
-  "forenoon",
-  "noon",
-  "afternoon",
-  "evening",
-  "night"
-];
+const DAY_PERIOD_IDS = ["morning", "forenoon", "noon", "afternoon", "evening", "night"];
 const DEFAULT_DAY_PERIODS = [
   { id: "morning", enabled: true, start: "06:00", end: "09:00", color: "#FFE082" },
   { id: "forenoon", enabled: true, start: "09:00", end: "12:00", color: "#FFCC80" },

@@ -400,6 +400,8 @@ class AutismSupport extends utils.Adapter {
   /**
    * Custom pictogram upload (user-owned images only).
    * ARASAAC images must never be uploaded here – use external IDs only.
+   *
+   * @param obj
    */
   async onMessage(obj) {
     if (!(obj == null ? void 0 : obj.command)) {
@@ -428,12 +430,7 @@ class AutismSupport extends utils.Adapter {
         }
       } catch (error) {
         if (obj.callback) {
-          this.sendTo(
-            obj.from,
-            obj.command,
-            { ok: false, error: error.message },
-            obj.callback
-          );
+          this.sendTo(obj.from, obj.command, { ok: false, error: error.message }, obj.callback);
         }
       }
       return;
