@@ -33,6 +33,7 @@ interface DailyScheduleConfigRxData {
 	oidPlan: string;
 	oidPeriods: string;
 	oidPeriodOverrides: string;
+	oidClearAfterLast: string;
 	oidNowMinutes: string;
 	oidCurrentItemIndex: string;
 	adapterInstance: string;
@@ -99,6 +100,12 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 							type: "id",
 							label: "oid_schedule_period_overrides",
 							default: "autism-support.0.schedule.periodOverrides",
+						},
+						{
+							name: "oidClearAfterLast",
+							type: "id",
+							label: "oid_schedule_clear_after_last",
+							default: "autism-support.0.schedule.clearAfterLast",
 						},
 						{
 							name: "oidNowMinutes",
@@ -222,6 +229,44 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 			await this.props.context.socket.setState(oid, JSON.stringify(this.state.draft), false);
 		} finally {
 			this.setState({ busy: false });
+		}
+	}
+
+	private getClearAfterLastOid(): string {
+		return (
+			this.state.rxData.oidClearAfterLast ||
+			`${this.state.rxData.adapterInstance || "autism-support.0"}.schedule.clearAfterLast`
+		);
+	}
+
+	private async resetPlan(): Promise<void> {
+		const lang = this.props.context?.lang || "de";
+		const message = lang.startsWith("de")
+			? "Tagesplan wirklich löschen? Alle Piktogramme werden entfernt."
+			: "Really delete the daily schedule? All pictograms will be removed.";
+		if (!window.confirm(message)) {
+			return;
+		}
+		const empty: SchedulePlan = { version: 1, items: [] };
+		const oid = this.state.rxData.oidPlan;
+		this.setState({ busy: true, draft: empty, selectedIndex: -1 });
+		try {
+			if (oid) {
+				await this.props.context.socket.setState(oid, JSON.stringify(empty), false);
+			}
+		} finally {
+			this.setState({ busy: false });
+		}
+	}
+
+	private async setClearAfterLast(enabled: boolean): Promise<void> {
+		const oid = this.getClearAfterLastOid();
+		try {
+			await this.props.context.socket.setState(oid, enabled, false);
+		} catch (error) {
+			this.setState({
+				searchError: (error as Error).message || "Option konnte nicht gespeichert werden",
+			});
 		}
 	}
 
@@ -365,7 +410,34 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 							>
 								Save
 							</Button>
+							<Button
+								size="small"
+								variant="outlined"
+								color="warning"
+								disabled={this.state.busy || this.state.draft.items.length === 0}
+								onClick={() => void this.resetPlan()}
+							>
+								Reset
+							</Button>
 						</Stack>
+
+						<FormControlLabel
+							sx={{ mb: 1 }}
+							control={
+								<Checkbox
+									size="small"
+									checked={Boolean(
+										this.state.values[`${this.getClearAfterLastOid()}.val`],
+									)}
+									onChange={(_, checked) => void this.setClearAfterLast(checked)}
+								/>
+							}
+							label={
+								(this.props.context?.lang || "de").startsWith("de")
+									? "Plan nach Ablauf löschen"
+									: "Clear plan after last pictogram"
+							}
+						/>
 
 						<Typography variant="subtitle2" sx={{ mt: 1, mb: 0.5, fontWeight: 700 }}>
 							Tagesbereiche

@@ -10,7 +10,7 @@ import {
 	parseTimeToMinutes,
 	type DayPeriodDefinition,
 } from "./lib/day-periods";
-import { findCurrentItemIndex, parseSchedulePlan, type SchedulePlan } from "./lib/schedule-types";
+import { findCurrentItemIndex, isPlanFullyExpired, parseSchedulePlan, type SchedulePlan } from "./lib/schedule-types";
 
 const TIMER_CHANNEL = "timer";
 const SCHEDULE_CHANNEL = "schedule";
@@ -286,6 +286,19 @@ class AutismSupport extends utils.Adapter {
 			native: {},
 		});
 
+		await this.setObjectNotExistsAsync(`${SCHEDULE_CHANNEL}.clearAfterLast`, {
+			type: "state",
+			common: {
+				name: "Clear plan automatically after last pictogram ends",
+				type: "boolean",
+				role: "switch",
+				read: true,
+				write: true,
+				def: false,
+			},
+			native: {},
+		});
+
 		const planState = await this.getStateAsync(`${SCHEDULE_CHANNEL}.plan`);
 		if (planState?.val == null || planState.val === "") {
 			await this.setState(`${SCHEDULE_CHANNEL}.plan`, JSON.stringify({ version: 1, items: [] }), true);
@@ -293,6 +306,10 @@ class AutismSupport extends utils.Adapter {
 		const overridesState = await this.getStateAsync(`${SCHEDULE_CHANNEL}.periodOverrides`);
 		if (overridesState?.val == null || overridesState.val === "") {
 			await this.setState(`${SCHEDULE_CHANNEL}.periodOverrides`, "{}", true);
+		}
+		const clearAfterState = await this.getStateAsync(`${SCHEDULE_CHANNEL}.clearAfterLast`);
+		if (clearAfterState?.val == null) {
+			await this.setState(`${SCHEDULE_CHANNEL}.clearAfterLast`, false, true);
 		}
 		// Publish admin period definitions once at start (times/colors); overrides stay separate.
 		await this.setState(`${SCHEDULE_CHANNEL}.periods`, JSON.stringify(this.dayPeriods), true);
@@ -342,7 +359,16 @@ class AutismSupport extends utils.Adapter {
 		const minutes = now.getHours() * 60 + now.getMinutes();
 		const periods = await this.getEffectivePeriods();
 		const period = findCurrentPeriod(minutes, periods);
-		const plan = await this.getPlan();
+		let plan = await this.getPlan();
+
+		const clearAfterState = await this.getStateAsync(`${SCHEDULE_CHANNEL}.clearAfterLast`);
+		const clearAfterLast = Boolean(clearAfterState?.val);
+		if (clearAfterLast && isPlanFullyExpired(plan, minutes, parseTimeToMinutes)) {
+			plan = { version: 1, items: [] };
+			await this.setState(`${SCHEDULE_CHANNEL}.plan`, JSON.stringify(plan), true);
+			this.log.info("Schedule plan cleared automatically after last pictogram ended");
+		}
+
 		const itemIndex = findCurrentItemIndex(plan, minutes, parseTimeToMinutes);
 
 		// Keep admin period metadata available; do not wipe Config overrides.
@@ -372,6 +398,9 @@ class AutismSupport extends utils.Adapter {
 				} catch (error) {
 					this.log.error(`Invalid periodOverrides: ${(error as Error).message}`);
 				}
+			} else if (localId === "clearAfterLast") {
+				await this.setState(`${SCHEDULE_CHANNEL}.clearAfterLast`, Boolean(state.val), true);
+				await this.publishScheduleRuntime();
 			}
 			return;
 		}

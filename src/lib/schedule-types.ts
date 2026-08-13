@@ -93,6 +93,57 @@ function normalizeItem(item: ScheduleItem, index: number): ScheduleItem {
 }
 
 /**
+ * Absolute end minute on a linear timeline (wrap past midnight → +1440).
+ *
+ * @param item Schedule item
+ * @param parseTime HH:MM → minutes
+ */
+export function itemEndAbsoluteMinutes(item: ScheduleItem, parseTime: (t: string) => number): number {
+	const s = parseTime(item.start);
+	const e = parseTime(item.end);
+	if (e > s) {
+		return e;
+	}
+	if (e < s) {
+		return e + 1440;
+	}
+	return s + 30;
+}
+
+/**
+ * Latest absolute end among all plan items, or null if empty.
+ *
+ * @param plan Schedule plan
+ * @param parseTime HH:MM → minutes
+ */
+export function getLatestItemEndMinutes(plan: SchedulePlan, parseTime: (t: string) => number): number | null {
+	if (!plan.items.length) {
+		return null;
+	}
+	return Math.max(...plan.items.map(item => itemEndAbsoluteMinutes(item, parseTime)));
+}
+
+/**
+ * True when now is at/after the end of the chronologically last pictogram.
+ *
+ * @param plan Schedule plan
+ * @param minutes Now minutes since midnight
+ * @param parseTime HH:MM → minutes
+ */
+export function isPlanFullyExpired(plan: SchedulePlan, minutes: number, parseTime: (t: string) => number): boolean {
+	const lastEnd = getLatestItemEndMinutes(plan, parseTime);
+	if (lastEnd == null) {
+		return false;
+	}
+	let nowAbs = ((minutes % 1440) + 1440) % 1440;
+	// Overnight schedules: after midnight, compare on the +1440 continuum.
+	if (lastEnd > 1440 && nowAbs < 12 * 60) {
+		nowAbs += 1440;
+	}
+	return nowAbs >= lastEnd;
+}
+
+/**
  *
  * @param plan
  * @param minutes

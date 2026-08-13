@@ -39,6 +39,7 @@ Im Admin-Tab **Tagesbereiche** lassen sich Start/Ende (HH:MM) und Farbe je Berei
 | `plan` | JSON-Plan mit Einträgen (Label, Start/Ende, Piktogramm-Quelle) |
 | `periods` | Tagesbereiche aus der Admin-Konfiguration (JSON, nur lesen) |
 | `periodOverrides` | Ein/Aus der Tagesbereiche aus dem Config-Widget (JSON, schreibbar) |
+| `clearAfterLast` | Plan nach Ende des letzten Piktogramms automatisch leeren (Boolean) |
 | `nowMinutes` | Aktuelle Minuten seit Mitternacht (lokal) |
 | `currentPeriod` | ID des aktuellen Tagesbereichs |
 | `currentItemIndex` | Index des aktiven Planeintrags (`-1` = keiner) |
@@ -48,7 +49,7 @@ Im Admin-Tab **Tagesbereiche** lassen sich Start/Ende (HH:MM) und Farbe je Berei
 | Widget | Zweck |
 |--------|--------|
 | **Tagesplan (Live)** | Anzeige Piktogramme + Zeitbalken |
-| **Tagesplan (Konfiguration)** | Einträge, Tagesbereiche ein/aus, ARASAAC-Suche, eigener Upload |
+| **Tagesplan (Konfiguration)** | Einträge, Reset, Plan nach Ablauf löschen, Tagesbereiche ein/aus, ARASAAC, Upload |
 
 ### Piktogramm-Quellen
 

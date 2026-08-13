@@ -268,6 +268,18 @@ class AutismSupport extends utils.Adapter {
       },
       native: {}
     });
+    await this.setObjectNotExistsAsync(`${SCHEDULE_CHANNEL}.clearAfterLast`, {
+      type: "state",
+      common: {
+        name: "Clear plan automatically after last pictogram ends",
+        type: "boolean",
+        role: "switch",
+        read: true,
+        write: true,
+        def: false
+      },
+      native: {}
+    });
     const planState = await this.getStateAsync(`${SCHEDULE_CHANNEL}.plan`);
     if ((planState == null ? void 0 : planState.val) == null || planState.val === "") {
       await this.setState(`${SCHEDULE_CHANNEL}.plan`, JSON.stringify({ version: 1, items: [] }), true);
@@ -275,6 +287,10 @@ class AutismSupport extends utils.Adapter {
     const overridesState = await this.getStateAsync(`${SCHEDULE_CHANNEL}.periodOverrides`);
     if ((overridesState == null ? void 0 : overridesState.val) == null || overridesState.val === "") {
       await this.setState(`${SCHEDULE_CHANNEL}.periodOverrides`, "{}", true);
+    }
+    const clearAfterState = await this.getStateAsync(`${SCHEDULE_CHANNEL}.clearAfterLast`);
+    if ((clearAfterState == null ? void 0 : clearAfterState.val) == null) {
+      await this.setState(`${SCHEDULE_CHANNEL}.clearAfterLast`, false, true);
     }
     await this.setState(`${SCHEDULE_CHANNEL}.periods`, JSON.stringify(this.dayPeriods), true);
   }
@@ -312,7 +328,14 @@ class AutismSupport extends utils.Adapter {
     const minutes = now.getHours() * 60 + now.getMinutes();
     const periods = await this.getEffectivePeriods();
     const period = (0, import_day_periods.findCurrentPeriod)(minutes, periods);
-    const plan = await this.getPlan();
+    let plan = await this.getPlan();
+    const clearAfterState = await this.getStateAsync(`${SCHEDULE_CHANNEL}.clearAfterLast`);
+    const clearAfterLast = Boolean(clearAfterState == null ? void 0 : clearAfterState.val);
+    if (clearAfterLast && (0, import_schedule_types.isPlanFullyExpired)(plan, minutes, import_day_periods.parseTimeToMinutes)) {
+      plan = { version: 1, items: [] };
+      await this.setState(`${SCHEDULE_CHANNEL}.plan`, JSON.stringify(plan), true);
+      this.log.info("Schedule plan cleared automatically after last pictogram ended");
+    }
     const itemIndex = (0, import_schedule_types.findCurrentItemIndex)(plan, minutes, import_day_periods.parseTimeToMinutes);
     await this.setState(`${SCHEDULE_CHANNEL}.periods`, JSON.stringify(this.dayPeriods), true);
     await this.setState(`${SCHEDULE_CHANNEL}.nowMinutes`, minutes, true);
@@ -339,6 +362,9 @@ class AutismSupport extends utils.Adapter {
         } catch (error) {
           this.log.error(`Invalid periodOverrides: ${error.message}`);
         }
+      } else if (localId2 === "clearAfterLast") {
+        await this.setState(`${SCHEDULE_CHANNEL}.clearAfterLast`, Boolean(state.val), true);
+        await this.publishScheduleRuntime();
       }
       return;
     }

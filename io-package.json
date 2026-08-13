@@ -1,8 +1,12 @@
 {
 	"common": {
 		"name": "autism-support",
-		"version": "0.1.8",
+		"version": "0.1.9",
 		"news": {
+			"0.1.9": {
+				"en": "Schedule reset with confirm; optional auto-clear after last pictogram",
+				"de": "Tagesplan-Reset mit Bestätigung; optional automatisch nach letztem Piktogramm löschen"
+			},
 			"0.1.8": {
 				"en": "Log-compress empty lead/trail on the time bar past first/last pictogram",
 				"de": "Leere Vor-/Nachlaufzeiten am Zeitbalken logarithmisch komprimiert"
@@ -78,10 +82,6 @@
 			"0.0.7": {
 				"en": "Replace hour bars with small full-hour circle diagrams",
 				"de": "Stundenbalken durch kleine volle Stunden-Kreisdiagramme ersetzt"
-			},
-			"0.0.6": {
-				"en": "Config widget: configurable text, border and arrow colors for hours/minutes",
-				"de": "Config-Widget: Schrift-, Rahmen- und Pfeilfarbe für Stunden/Minuten einstellbar"
 			}
 		},
 		"titleLang": {

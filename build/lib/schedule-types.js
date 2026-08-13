@@ -20,6 +20,9 @@ var schedule_types_exports = {};
 __export(schedule_types_exports, {
   EMPTY_SCHEDULE_PLAN: () => EMPTY_SCHEDULE_PLAN,
   findCurrentItemIndex: () => findCurrentItemIndex,
+  getLatestItemEndMinutes: () => getLatestItemEndMinutes,
+  isPlanFullyExpired: () => isPlanFullyExpired,
+  itemEndAbsoluteMinutes: () => itemEndAbsoluteMinutes,
   parseSchedulePlan: () => parseSchedulePlan
 });
 module.exports = __toCommonJS(schedule_types_exports);
@@ -54,6 +57,34 @@ function normalizeItem(item, index) {
     customRef: source === "custom" ? String(item.customRef || "") : void 0
   };
 }
+function itemEndAbsoluteMinutes(item, parseTime) {
+  const s = parseTime(item.start);
+  const e = parseTime(item.end);
+  if (e > s) {
+    return e;
+  }
+  if (e < s) {
+    return e + 1440;
+  }
+  return s + 30;
+}
+function getLatestItemEndMinutes(plan, parseTime) {
+  if (!plan.items.length) {
+    return null;
+  }
+  return Math.max(...plan.items.map((item) => itemEndAbsoluteMinutes(item, parseTime)));
+}
+function isPlanFullyExpired(plan, minutes, parseTime) {
+  const lastEnd = getLatestItemEndMinutes(plan, parseTime);
+  if (lastEnd == null) {
+    return false;
+  }
+  let nowAbs = (minutes % 1440 + 1440) % 1440;
+  if (lastEnd > 1440 && nowAbs < 12 * 60) {
+    nowAbs += 1440;
+  }
+  return nowAbs >= lastEnd;
+}
 function findCurrentItemIndex(plan, minutes, parseTime) {
   return plan.items.findIndex((item) => {
     const s = parseTime(item.start);
@@ -72,6 +103,9 @@ function findCurrentItemIndex(plan, minutes, parseTime) {
 0 && (module.exports = {
   EMPTY_SCHEDULE_PLAN,
   findCurrentItemIndex,
+  getLatestItemEndMinutes,
+  isPlanFullyExpired,
+  itemEndAbsoluteMinutes,
   parseSchedulePlan
 });
 //# sourceMappingURL=schedule-types.js.map
