@@ -1,8 +1,12 @@
 {
 	"common": {
 		"name": "autism-support",
-		"version": "0.1.5",
+		"version": "0.1.6",
 		"news": {
+			"0.1.6": {
+				"en": "Shared scroll; no duplicate pictograms; thin time border; 2-column overlaps",
+				"de": "Gemeinsames Scrollen; keine doppelten Piktogramme; dünner Zeitrahmen; 2 Spalten bei Überlappung"
+			},
 			"0.1.5": {
 				"en": "Stretch period bar by pictogram count; now marker stays clock-accurate per period",
 				"de": "Tagesbereich-Balken nach Piktogramm-Anzahl gestreckt; Jetzt-Marker bleibt zeitlich korrekt"

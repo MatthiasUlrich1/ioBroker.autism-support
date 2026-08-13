@@ -23,22 +23,6 @@ export interface DailyScheduleVisualProps {
 	pictogramSize?: number;
 }
 
-interface ItemClip {
-	item: ScheduleItem;
-	itemIndex: number;
-	startMin: number;
-	endMin: number;
-}
-
-interface LayoutRow {
-	kind: "item" | "gap";
-	startMin: number;
-	endMin: number;
-	topPx: number;
-	heightPx: number;
-	clip?: ItemClip;
-}
-
 interface PeriodBlockLayout {
 	id: string;
 	periodId: string;
@@ -47,10 +31,18 @@ interface PeriodBlockLayout {
 	endMin: number;
 	topPx: number;
 	heightPx: number;
-	rows: LayoutRow[];
+	itemCount: number;
 }
 
-const PERIOD_BLOCK_GAP_PX = 4;
+interface ItemPlacement {
+	item: ScheduleItem;
+	itemIndex: number;
+	startMin: number;
+	endMin: number;
+	topPx: number;
+	heightPx: number;
+	lane: number;
+}
 
 function clamp(n: number, min: number, max: number): number {
 	return Math.max(min, Math.min(max, n));
@@ -104,110 +96,107 @@ function formatClock(minutes: number): string {
 	return `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}`;
 }
 
-function getClipsInSegment(
-	items: ScheduleItem[],
-	segStart: number,
-	segEnd: number,
-): ItemClip[] {
-	const clips: ItemClip[] = [];
-	items.forEach((item, itemIndex) => {
-		const itemStart = itemStartMin(item);
-		const itemEnd = itemEndMin(item);
-		const clipStart = Math.max(itemStart, segStart);
-		const clipEnd = Math.min(itemEnd, segEnd);
-		if (clipEnd > clipStart) {
-			clips.push({ item, itemIndex, startMin: clipStart, endMin: clipEnd });
-		}
-	});
-	return clips.sort((a, b) => a.startMin - b.startMin);
-}
-
 function isNowInSegment(nowMinutes: number, segStart: number, segEnd: number): boolean {
 	return nowMinutes >= segStart && nowMinutes < segEnd;
 }
 
-/** Build ordered item + gap slots inside a period segment (gaps include tail until period end). */
-function buildSegmentSlots(
-	clips: ItemClip[],
-	segStart: number,
-	segEnd: number,
-): Array<{ kind: "item" | "gap"; startMin: number; endMin: number; clip?: ItemClip }> {
-	if (!clips.length) {
-		return [{ kind: "gap", startMin: segStart, endMin: segEnd }];
+function countItemsInSegment(items: ScheduleItem[], segStart: number, segEnd: number): number {
+	return items.reduce((count, item) => {
+		const s = itemStartMin(item);
+		const e = itemEndMin(item);
+		return e > segStart && s < segEnd ? count + 1 : count;
+	}, 0);
+}
+
+/** Map clock minutes onto stretched period blocks (clock-linear within each period). */
+export function minutesToY(minutes: number, blocks: PeriodBlockLayout[]): number {
+	if (!blocks.length) {
+		return 0;
 	}
-
-	const slots: Array<{ kind: "item" | "gap"; startMin: number; endMin: number; clip?: ItemClip }> =
-		[];
-	let cursor = segStart;
-
-	for (const clip of clips) {
-		if (clip.startMin > cursor) {
-			slots.push({ kind: "gap", startMin: cursor, endMin: clip.startMin });
+	if (minutes <= blocks[0].startMin) {
+		return blocks[0].topPx;
+	}
+	for (const block of blocks) {
+		if (minutes <= block.endMin) {
+			if (minutes >= block.startMin) {
+				const span = Math.max(1, block.endMin - block.startMin);
+				const frac = clamp((minutes - block.startMin) / span, 0, 1);
+				return block.topPx + frac * block.heightPx;
+			}
 		}
-		slots.push({
-			kind: "item",
-			startMin: clip.startMin,
-			endMin: clip.endMin,
-			clip,
-		});
-		cursor = Math.max(cursor, clip.endMin);
+	}
+	const last = blocks[blocks.length - 1];
+	return last.topPx + last.heightPx;
+}
+
+export function computeNowMarkerTop(
+	blocks: PeriodBlockLayout[],
+	nowMinutes: number,
+): number | null {
+	for (const block of blocks) {
+		if (isNowInSegment(nowMinutes, block.startMin, block.endMin)) {
+			return minutesToY(nowMinutes, blocks);
+		}
+	}
+	return null;
+}
+
+/** Greedy lane packing for overlaps; at most 2 columns (extra overlaps share column 2). */
+export function assignLanes(
+	placements: Array<{ startMin: number; endMin: number }>,
+	maxLanes = 2,
+): number[] {
+	const order = placements
+		.map((p, index) => ({ index, startMin: p.startMin, endMin: p.endMin }))
+		.sort((a, b) => a.startMin - b.startMin || b.endMin - a.endMin);
+
+	const laneEnds: number[] = [];
+	const lanes = new Array(placements.length).fill(0);
+
+	for (const entry of order) {
+		let lane = 0;
+		while (lane < maxLanes && lane < laneEnds.length && laneEnds[lane] > entry.startMin) {
+			lane += 1;
+		}
+		if (lane >= maxLanes) {
+			lane = maxLanes - 1;
+			laneEnds[lane] = Math.max(laneEnds[lane] ?? 0, entry.endMin);
+		} else if (lane === laneEnds.length) {
+			laneEnds.push(entry.endMin);
+		} else {
+			laneEnds[lane] = entry.endMin;
+		}
+		lanes[entry.index] = lane;
 	}
 
-	if (cursor < segEnd) {
-		slots.push({ kind: "gap", startMin: cursor, endMin: segEnd });
-	}
-
-	return slots;
+	return lanes;
 }
 
 /**
- * Period blocks stretch with pictogram count and gaps; only the now marker
- * uses real clock position within each period segment.
+ * Period blocks stretch by pictogram count; items are placed once across the full span.
  */
-export function buildPeriodBlockLayout(
+export function buildScheduleLayout(
 	items: ScheduleItem[],
 	periods: DayPeriodDefinition[],
 	nowMinutes: number,
 	pictoPx: number,
-): PeriodBlockLayout[] {
+): { blocks: PeriodBlockLayout[]; placements: ItemPlacement[]; laneCount: number; totalHeight: number } {
 	const enabled = periods.filter(p => p.enabled);
-	const minItemH = pictoPx + 16;
-	const minGapH = 10;
-	const pxPerMin = 1.8;
+	const rowUnit = pictoPx + 24;
+	const minPeriodH = Math.max(48, pictoPx + 8);
 	const blocks: PeriodBlockLayout[] = [];
 	let topPx = 0;
 
 	for (const period of enabled) {
 		for (const seg of periodToSegments(period)) {
-			const clips = getClipsInSegment(items, seg.startMin, seg.endMin);
+			const itemCount = countItemsInSegment(items, seg.startMin, seg.endMin);
 			const hasNow = isNowInSegment(nowMinutes, seg.startMin, seg.endMin);
-			if (!clips.length && !hasNow) {
+			if (!itemCount && !hasNow) {
 				continue;
 			}
 
-			const slotDefs = buildSegmentSlots(clips, seg.startMin, seg.endMin);
-			const weights = slotDefs.map(slot => {
-				const duration = Math.max(1, slot.endMin - slot.startMin);
-				if (slot.kind === "item") {
-					return Math.max(minItemH, duration * pxPerMin);
-				}
-				return Math.max(minGapH, duration * pxPerMin);
-			});
-			const blockHeight = weights.reduce((sum, w) => sum + w, 0) || minItemH;
-
-			let rowTop = 0;
-			const rows: LayoutRow[] = slotDefs.map((slot, index) => {
-				const row: LayoutRow = {
-					kind: slot.kind,
-					startMin: slot.startMin,
-					endMin: slot.endMin,
-					topPx: rowTop,
-					heightPx: weights[index],
-					clip: slot.clip,
-				};
-				rowTop += weights[index];
-				return row;
-			});
+			// Stretch by count (not linear clock height between periods).
+			const heightPx = Math.max(minPeriodH, Math.max(1, itemCount) * rowUnit);
 
 			blocks.push({
 				id: `${period.id}-${seg.startMin}`,
@@ -216,64 +205,83 @@ export function buildPeriodBlockLayout(
 				startMin: seg.startMin,
 				endMin: seg.endMin,
 				topPx,
-				heightPx: blockHeight,
-				rows,
+				heightPx,
+				itemCount,
 			});
-			topPx += blockHeight + PERIOD_BLOCK_GAP_PX;
+			topPx += heightPx;
 		}
 	}
 
-	return blocks;
-}
+	const totalHeight = topPx;
+	const indexed = items.map((item, itemIndex) => ({
+		item,
+		itemIndex,
+		startMin: itemStartMin(item),
+		endMin: itemEndMin(item),
+	}));
 
-/** Real-clock position of the now marker within stretched period blocks. */
-export function computeNowMarkerTop(
-	blocks: PeriodBlockLayout[],
-	nowMinutes: number,
-): number | null {
-	for (const block of blocks) {
-		if (isNowInSegment(nowMinutes, block.startMin, block.endMin)) {
-			const span = Math.max(1, block.endMin - block.startMin);
-			const frac = clamp((nowMinutes - block.startMin) / span, 0, 1);
-			return block.topPx + frac * block.heightPx;
+	const visible = indexed.filter(entry => {
+		if (!blocks.length) {
+			return false;
 		}
-	}
-	return null;
+		const viewStart = blocks[0].startMin;
+		const viewEnd = blocks[blocks.length - 1].endMin;
+		return entry.endMin > viewStart && entry.startMin < viewEnd;
+	});
+
+	const laneAssignments = assignLanes(visible);
+	const laneCount = laneAssignments.length
+		? Math.max(...laneAssignments) + 1
+		: 1;
+
+	const placements: ItemPlacement[] = visible.map((entry, i) => {
+		const top = minutesToY(entry.startMin, blocks);
+		const bottom = minutesToY(entry.endMin, blocks);
+		return {
+			...entry,
+			topPx: top,
+			heightPx: Math.max(pictoPx * 0.55, bottom - top),
+			lane: laneAssignments[i] ?? 0,
+		};
+	});
+
+	return { blocks, placements, laneCount, totalHeight };
 }
 
-function renderPictogramRow(
-	row: LayoutRow,
+function renderItemCard(
+	placement: ItemPlacement,
+	laneCount: number,
 	currentItemIndex: number,
 	adapterInstance: string,
 	pictoPx: number,
-): React.JSX.Element | null {
-	if (row.kind !== "item" || !row.clip) {
-		return null;
-	}
-
-	const { item, itemIndex } = row.clip;
+): React.JSX.Element {
+	const { item, itemIndex, topPx, heightPx, lane } = placement;
 	const active = itemIndex === currentItemIndex;
 	const img = resolveItemImageUrl(item, adapterInstance);
-	const slotPicto = Math.min(pictoPx, Math.max(28, row.heightPx - 12));
+	const slotPicto = Math.min(pictoPx, Math.max(28, Math.min(pictoPx, heightPx - 10)));
+	const widthPct = 100 / laneCount;
+	const leftPct = lane * widthPct;
 
 	return (
 		<div
 			style={{
 				position: "absolute",
-				left: 0,
-				right: 0,
-				top: row.topPx,
-				height: row.heightPx,
-				display: "flex",
-				alignItems: "center",
-				gap: 10,
-				padding: "4px 10px",
+				top: topPx,
+				left: `calc(${leftPct}% + 2px)`,
+				width: `calc(${widthPct}% - 4px)`,
+				height: heightPx,
 				boxSizing: "border-box",
 				borderRadius: 10,
-				background: active ? "rgba(255,138,0,0.15)" : "rgba(0,0,0,0.04)",
-				outline: active ? "2px solid #FF8A00" : "1px solid transparent",
+				border: active ? "2px solid #FF8A00" : "1.5px solid rgba(0,0,0,0.28)",
+				background: active ? "rgba(255,138,0,0.12)" : "rgba(255,255,255,0.55)",
+				display: "flex",
+				alignItems: "center",
+				gap: 8,
+				padding: "4px 8px",
 				overflow: "hidden",
+				zIndex: active ? 2 : 1,
 			}}
+			title={`${item.label || "—"} · ${item.start} – ${item.end}`}
 		>
 			<div
 				style={{
@@ -303,7 +311,7 @@ function renderPictogramRow(
 				<div
 					style={{
 						fontWeight: 700,
-						fontSize: Math.max(12, Math.min(18, slotPicto * 0.22)),
+						fontSize: Math.max(12, Math.min(16, slotPicto * 0.22)),
 						lineHeight: 1.2,
 						overflow: "hidden",
 						textOverflow: "ellipsis",
@@ -312,7 +320,7 @@ function renderPictogramRow(
 				>
 					{item.label || "—"}
 				</div>
-				<div style={{ fontSize: 12, opacity: 0.75, lineHeight: 1.2 }}>
+				<div style={{ fontSize: 11, opacity: 0.75, lineHeight: 1.2 }}>
 					{item.start} – {item.end}
 				</div>
 			</div>
@@ -321,7 +329,8 @@ function renderPictogramRow(
 }
 
 /**
- * Stretched period blocks (by pictogram count); now marker is clock-accurate inside each period.
+ * Stretched period bar + single pictogram cards (border spans full time; overlaps use a 2nd column).
+ * Pictograms and bar share one scroll container.
  */
 export default function DailyScheduleVisual({
 	plan,
@@ -334,11 +343,12 @@ export default function DailyScheduleVisual({
 }: DailyScheduleVisualProps): React.JSX.Element {
 	const pictoPx = Math.max(32, Math.min(200, Number(pictogramSize) || 64));
 	const sorted = [...plan.items].sort((a, b) => itemStartMin(a) - itemStartMin(b));
-	const blocks = buildPeriodBlockLayout(sorted, periods, nowMinutes, pictoPx);
-	const totalHeight =
-		blocks.length > 0
-			? blocks[blocks.length - 1].topPx + blocks[blocks.length - 1].heightPx
-			: 0;
+	const { blocks, placements, laneCount, totalHeight } = buildScheduleLayout(
+		sorted,
+		periods,
+		nowMinutes,
+		pictoPx,
+	);
 	const nowTop = computeNowMarkerTop(blocks, nowMinutes);
 
 	const usesArasaac = plan.items.some(item => item.source === "arasaac" && item.arasaacId);
@@ -361,21 +371,54 @@ export default function DailyScheduleVisual({
 				fontFamily: "Segoe UI, system-ui, sans-serif",
 			}}
 		>
+			{/* Single scroll: pictograms + bar move together */}
 			<div
 				style={{
-					display: "flex",
-					gap: 10,
 					flex: 1,
 					minHeight: 0,
-					alignItems: "stretch",
+					overflowY: "auto",
+					overflowX: "hidden",
 				}}
 			>
-				<div style={{ flex: 1, overflowY: "auto", minWidth: 0 }}>
-					{blocks.length === 0 ? (
-						<div style={{ opacity: 0.7, padding: 12 }}>—</div>
-					) : (
-						<div style={{ position: "relative", height: totalHeight, minHeight: "100%" }}>
-							{blocks.map(block => (
+				{blocks.length === 0 ? (
+					<div style={{ opacity: 0.7, padding: 12 }}>—</div>
+				) : (
+					<div style={{ display: "flex", gap: 10, height: totalHeight }}>
+						<div
+							style={{
+								flex: 1,
+								position: "relative",
+								height: totalHeight,
+								minWidth: 0,
+							}}
+						>
+							{placements.map(placement => (
+								<React.Fragment key={placement.item.id || placement.itemIndex}>
+									{renderItemCard(
+										placement,
+										laneCount,
+										currentItemIndex,
+										adapterInstance,
+										pictoPx,
+									)}
+								</React.Fragment>
+							))}
+						</div>
+
+						<div
+							style={{
+								flex: "0 0 88px",
+								width: 88,
+								position: "relative",
+								height: totalHeight,
+								borderRadius: 10,
+								overflow: "hidden",
+								border: "1px solid #CFD8DC",
+								background: "#ECEFF1",
+							}}
+							title={`${formatClock(viewStartMin)} – ${formatClock(viewEndMin)}`}
+						>
+							{blocks.map((block, index) => (
 								<div
 									key={block.id}
 									style={{
@@ -384,107 +427,49 @@ export default function DailyScheduleVisual({
 										right: 0,
 										top: block.topPx,
 										height: block.heightPx,
+										background: block.color,
+										boxSizing: "border-box",
+										borderBottom:
+											index < blocks.length - 1
+												? "1px solid rgba(255,255,255,0.55)"
+												: "none",
 									}}
-								>
-									{block.rows.map(row =>
-										row.kind === "item" ? (
-											<React.Fragment key={`${block.id}-item-${row.clip?.item.id}-${row.startMin}`}>
-												{renderPictogramRow(
-													row,
-													currentItemIndex,
-													adapterInstance,
-													pictoPx,
-												)}
-											</React.Fragment>
-										) : null,
-									)}
-								</div>
+									title={`${periodLabel(block.periodId, locale)} · ${formatClock(block.startMin)} – ${formatClock(block.endMin)}`}
+								/>
 							))}
-						</div>
-					)}
-				</div>
 
-				{blocks.length > 0 && (
-					<div
-						style={{
-							flex: "0 0 88px",
-							width: 88,
-							display: "flex",
-							flexDirection: "column",
-							alignSelf: "stretch",
-							minHeight: 0,
-						}}
-					>
-						<div style={{ fontSize: 10, opacity: 0.65, marginBottom: 4, textAlign: "center" }}>
-							{formatClock(viewStartMin)}
-						</div>
-						<div style={{ flex: 1, overflowY: "auto", minHeight: 0 }}>
-							<div
-								style={{
-									position: "relative",
-									height: totalHeight,
-									borderRadius: 10,
-									overflow: "hidden",
-									border: "1px solid #CFD8DC",
-									background: "#ECEFF1",
-								}}
-							>
-								{blocks.map((block, index) => (
+							{nowTop != null && (
+								<>
 									<div
-										key={block.id}
 										style={{
 											position: "absolute",
 											left: 0,
 											right: 0,
-											top: block.topPx,
-											height: block.heightPx,
-											background: block.color,
-											boxSizing: "border-box",
-											borderBottom:
-												index < blocks.length - 1
-													? "1px solid rgba(255,255,255,0.45)"
-													: "none",
+											top: nowTop,
+											height: 3,
+											background: "#D32F2F",
+											boxShadow: "0 0 0 1px rgba(255,255,255,0.85)",
+											zIndex: 2,
+											pointerEvents: "none",
 										}}
-										title={`${periodLabel(block.periodId, locale)} · ${formatClock(block.startMin)} – ${formatClock(block.endMin)}`}
 									/>
-								))}
-
-								{nowTop != null && (
-									<>
-										<div
-											style={{
-												position: "absolute",
-												left: 0,
-												right: 0,
-												top: nowTop,
-												height: 3,
-												background: "#D32F2F",
-												boxShadow: "0 0 0 1px rgba(255,255,255,0.85)",
-												zIndex: 2,
-												pointerEvents: "none",
-											}}
-										/>
-										<div
-											style={{
-												position: "absolute",
-												left: "50%",
-												marginLeft: -7,
-												top: nowTop - 7,
-												width: 14,
-												height: 14,
-												borderRadius: "50%",
-												background: "#D32F2F",
-												border: "2px solid #fff",
-												zIndex: 3,
-												pointerEvents: "none",
-											}}
-										/>
-									</>
-								)}
-							</div>
-						</div>
-						<div style={{ fontSize: 10, opacity: 0.65, marginTop: 4, textAlign: "center" }}>
-							{formatClock(viewEndMin)}
+									<div
+										style={{
+											position: "absolute",
+											left: "50%",
+											marginLeft: -7,
+											top: nowTop - 7,
+											width: 14,
+											height: 14,
+											borderRadius: "50%",
+											background: "#D32F2F",
+											border: "2px solid #fff",
+											zIndex: 3,
+											pointerEvents: "none",
+										}}
+									/>
+								</>
+							)}
 						</div>
 					</div>
 				)}
@@ -492,8 +477,8 @@ export default function DailyScheduleVisual({
 
 			<div style={{ fontSize: 11, opacity: 0.7 }}>
 				{locale.startsWith("de")
-					? `${sorted.length} Piktogramm${sorted.length === 1 ? "" : "e"} · ${blocks.length} Tagesbereich${blocks.length === 1 ? "" : "e"}`
-					: `${sorted.length} pictogram${sorted.length === 1 ? "" : "s"} · ${blocks.length} day period${blocks.length === 1 ? "" : "s"}`}
+					? `${sorted.length} Piktogramm${sorted.length === 1 ? "" : "e"} · ${blocks.length} Tagesbereich${blocks.length === 1 ? "" : "e"}${laneCount > 1 ? " · 2 Spalten" : ""}`
+					: `${sorted.length} pictogram${sorted.length === 1 ? "" : "s"} · ${blocks.length} day period${blocks.length === 1 ? "" : "s"}${laneCount > 1 ? " · 2 columns" : ""}`}
 			</div>
 
 			<div style={{ display: "flex", flexWrap: "wrap", gap: 8, fontSize: 12 }}>
