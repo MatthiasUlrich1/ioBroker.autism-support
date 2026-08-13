@@ -2,7 +2,10 @@ import React from "react";
 import {
 	Box,
 	Button,
+	Checkbox,
 	FormControl,
+	FormControlLabel,
+	FormGroup,
 	InputLabel,
 	MenuItem,
 	Select,
@@ -17,8 +20,11 @@ import type VisRxWidget from "@iobroker/types-vis-2/visRxWidget";
 import DailyScheduleVisual from "./components/DailyScheduleVisual";
 import { arasaacImageUrl, searchArasaac, type ArasaacSearchHit } from "./lib/arasaac";
 import {
+	applyPeriodOverrides,
 	parseDayPeriods,
+	parsePeriodOverrides,
 	parseSchedulePlan,
+	type DayPeriodDefinition,
 	type ScheduleItem,
 	type SchedulePlan,
 } from "./lib/schedule";
@@ -26,6 +32,7 @@ import {
 interface DailyScheduleConfigRxData {
 	oidPlan: string;
 	oidPeriods: string;
+	oidPeriodOverrides: string;
 	oidNowMinutes: string;
 	oidCurrentItemIndex: string;
 	adapterInstance: string;
@@ -84,6 +91,12 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 							type: "id",
 							label: "oid_schedule_periods",
 							default: "autism-support.0.schedule.periods",
+						},
+						{
+							name: "oidPeriodOverrides",
+							type: "id",
+							label: "oid_schedule_period_overrides",
+							default: "autism-support.0.schedule.periodOverrides",
 						},
 						{
 							name: "oidNowMinutes",
@@ -182,6 +195,33 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 		}
 	}
 
+	private async setPeriodEnabled(periodId: string, enabled: boolean): Promise<void> {
+		const oid = this.state.rxData.oidPeriodOverrides;
+		if (!oid) {
+			return;
+		}
+		const current = parsePeriodOverrides(this.state.values[`${oid}.val`]);
+		const next = { ...current, [periodId]: enabled };
+		this.setState({ busy: true });
+		try {
+			await this.props.context.socket.setState(oid, JSON.stringify(next), false);
+		} finally {
+			this.setState({ busy: false });
+		}
+	}
+
+	private periodLabel(id: string): string {
+		const de: Record<string, string> = {
+			morning: "Morgens",
+			forenoon: "Vormittag",
+			noon: "Mittag",
+			afternoon: "Nachmittag",
+			evening: "Abend",
+			night: "Nacht",
+		};
+		return de[id] || id;
+	}
+
 	private async runSearch(): Promise<void> {
 		this.setState({ busy: true, searchError: "" });
 		try {
@@ -232,7 +272,11 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 	renderWidgetBody(props: RxRenderWidgetProps): React.JSX.Element {
 		super.renderWidgetBody(props);
 
-		const periods = parseDayPeriods(this.state.values[`${this.state.rxData.oidPeriods}.val`]);
+		const basePeriods = parseDayPeriods(this.state.values[`${this.state.rxData.oidPeriods}.val`]);
+		const overrides = parsePeriodOverrides(
+			this.state.values[`${this.state.rxData.oidPeriodOverrides}.val`],
+		);
+		const periods = applyPeriodOverrides(basePeriods, overrides);
 		const nowMinutes = Number(this.state.values[`${this.state.rxData.oidNowMinutes}.val`] ?? 0);
 		const currentItemIndex = Number(
 			this.state.values[`${this.state.rxData.oidCurrentItemIndex}.val`] ?? -1,
@@ -287,6 +331,39 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 								Save
 							</Button>
 						</Stack>
+
+						<Typography variant="subtitle2" sx={{ mt: 1, mb: 0.5, fontWeight: 700 }}>
+							Tagesbereiche
+						</Typography>
+						<FormGroup row sx={{ mb: 2 }}>
+							{basePeriods.map((period: DayPeriodDefinition) => (
+								<FormControlLabel
+									key={period.id}
+									control={
+										<Checkbox
+											size="small"
+											checked={periods.find(p => p.id === period.id)?.enabled !== false}
+											disabled={this.state.busy}
+											onChange={(_, checked) => void this.setPeriodEnabled(period.id, checked)}
+										/>
+									}
+									label={
+										<span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+											<span
+												style={{
+													width: 10,
+													height: 10,
+													borderRadius: 2,
+													background: period.color,
+													display: "inline-block",
+												}}
+											/>
+											{this.periodLabel(period.id)}
+										</span>
+									}
+								/>
+							))}
+						</FormGroup>
 
 						<Stack spacing={1} sx={{ mb: 2 }}>
 							{this.state.draft.items.map((item, index) => (

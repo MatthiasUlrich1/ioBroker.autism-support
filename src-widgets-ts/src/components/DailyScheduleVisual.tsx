@@ -21,10 +21,6 @@ export interface DailyScheduleVisualProps {
 	locale?: string;
 	/** Pictogram display size in px (default 64). */
 	pictogramSize?: number;
-	/** Visible window start (minutes), default 0 */
-	viewStartMin?: number;
-	/** Visible window end (minutes), default 1440 */
-	viewEndMin?: number;
 }
 
 function clamp(n: number, min: number, max: number): number {
@@ -51,18 +47,110 @@ function periodLabel(id: string, locale: string): string {
 	return (locale.startsWith("de") ? de : en)[id] || id;
 }
 
-function itemDurationMin(item: ScheduleItem): number {
+export function itemDurationMin(item: ScheduleItem): number {
 	const s = parseTimeToMinutes(item.start);
 	const e = parseTimeToMinutes(item.end);
 	if (e > s) {
-		return e - s;
+		return Math.max(1, e - s);
 	}
 	if (e < s) {
-		return 1440 - s + e;
+		return Math.max(1, 1440 - s + e);
 	}
 	return 30;
 }
 
+export function itemStartMin(item: ScheduleItem): number {
+	return parseTimeToMinutes(item.start);
+}
+
+/** Inclusive end on timeline (handles wrap as start+duration). */
+export function itemEndMin(item: ScheduleItem): number {
+	return itemStartMin(item) + itemDurationMin(item);
+}
+
+/**
+ * Visible window from earliest pictogram start to latest end, with padding.
+ * Falls back to full day when plan is empty.
+ */
+export function computeViewWindow(items: ScheduleItem[]): { viewStartMin: number; viewEndMin: number } {
+	if (!items.length) {
+		return { viewStartMin: 0, viewEndMin: 1440 };
+	}
+	let minStart = Infinity;
+	let maxEnd = -Infinity;
+	for (const item of items) {
+		const s = itemStartMin(item);
+		const e = itemEndMin(item);
+		minStart = Math.min(minStart, s);
+		maxEnd = Math.max(maxEnd, Math.min(1440, e));
+	}
+	const pad = 15;
+	const viewStartMin = clamp(minStart - pad, 0, 1439);
+	const viewEndMin = clamp(Math.max(maxEnd + pad, viewStartMin + 60), viewStartMin + 60, 1440);
+	return { viewStartMin, viewEndMin };
+}
+
+function periodColorAt(minutes: number, periods: DayPeriodDefinition[]): string {
+	const enabled = periods.filter(p => p.enabled);
+	for (const period of enabled) {
+		const segs = periodToSegments(period);
+		if (segs.some(seg => minutes >= seg.startMin && minutes < seg.endMin)) {
+			return period.color;
+		}
+	}
+	return "#CFD8DC";
+}
+
+/** Colors along an item's time span (splits if it crosses day periods). */
+function itemBarSlices(
+	item: ScheduleItem,
+	periods: DayPeriodDefinition[],
+): Array<{ weight: number; color: string; id: string }> {
+	const start = itemStartMin(item);
+	const duration = itemDurationMin(item);
+	const end = Math.min(1440, start + duration);
+	const enabled = periods.filter(p => p.enabled);
+	const cuts = new Set<number>([start, end]);
+	for (const period of enabled) {
+		for (const seg of periodToSegments(period)) {
+			if (seg.endMin > start && seg.startMin < end) {
+				cuts.add(clamp(seg.startMin, start, end));
+				cuts.add(clamp(seg.endMin, start, end));
+			}
+		}
+	}
+	const points = [...cuts].sort((a, b) => a - b);
+	const slices: Array<{ weight: number; color: string; id: string }> = [];
+	for (let i = 0; i < points.length - 1; i++) {
+		const a = points[i];
+		const b = points[i + 1];
+		if (b <= a) {
+			continue;
+		}
+		const mid = (a + b) / 2;
+		slices.push({
+			weight: b - a,
+			color: periodColorAt(mid, periods),
+			id: `${item.id}-${a}-${b}`,
+		});
+	}
+	if (!slices.length) {
+		slices.push({ weight: duration, color: periodColorAt(start, periods), id: `${item.id}-full` });
+	}
+	return slices;
+}
+
+function formatClock(minutes: number): string {
+	const m = clamp(Math.round(minutes), 0, 1440);
+	const hh = Math.floor(m / 60) % 24;
+	const mm = m % 60;
+	return `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}`;
+}
+
+/**
+ * Row-aligned schedule: one continuous bar divided by pictogram count/duration;
+ * time window and colors follow pictogram times and enabled day periods.
+ */
 export default function DailyScheduleVisual({
 	plan,
 	periods,
@@ -71,21 +159,42 @@ export default function DailyScheduleVisual({
 	adapterInstance = "autism-support.0",
 	locale = "de",
 	pictogramSize = 64,
-	viewStartMin = 0,
-	viewEndMin = 1440,
 }: DailyScheduleVisualProps): React.JSX.Element {
-	const span = Math.max(60, viewEndMin - viewStartMin);
-	const nowPct = clamp(((nowMinutes - viewStartMin) / span) * 100, 0, 100);
 	const pictoPx = Math.max(32, Math.min(200, Number(pictogramSize) || 64));
-	const sorted = [...plan.items].sort(
-		(a, b) => parseTimeToMinutes(a.start) - parseTimeToMinutes(b.start),
-	);
+	const sorted = [...plan.items].sort((a, b) => itemStartMin(a) - itemStartMin(b));
+	const { viewStartMin, viewEndMin } = computeViewWindow(sorted);
+	const viewSpan = Math.max(60, viewEndMin - viewStartMin);
+
 	const usesArasaac = plan.items.some(item => item.source === "arasaac" && item.arasaacId);
 	const attribution = locale.startsWith("de") ? ARASAAC_ATTRIBUTION_DE : ARASAAC_ATTRIBUTION_EN;
+	const activePeriods = periods.filter(p => p.enabled);
 
-	const segments = periods.flatMap(periodToSegments).filter(seg => {
-		return seg.endMin > viewStartMin && seg.startMin < viewEndMin;
-	});
+	const totalWeight = sorted.reduce((sum, item) => sum + itemDurationMin(item), 0) || 1;
+	const avgWeight = totalWeight / Math.max(1, sorted.length);
+
+	let nowFrac: number | null = null;
+	if (sorted.length && nowMinutes >= viewStartMin && nowMinutes < viewEndMin) {
+		let acc = 0;
+		for (const item of sorted) {
+			const s = itemStartMin(item);
+			const d = itemDurationMin(item);
+			const e = s + d;
+			if (nowMinutes >= s && nowMinutes < e) {
+				nowFrac = (acc + (nowMinutes - s)) / totalWeight;
+				break;
+			}
+			if (nowMinutes < s) {
+				nowFrac = acc / totalWeight;
+				break;
+			}
+			acc += d;
+		}
+		if (nowFrac == null && nowMinutes >= itemEndMin(sorted[sorted.length - 1])) {
+			nowFrac = 1;
+		}
+	} else if (!sorted.length) {
+		nowFrac = clamp((nowMinutes - viewStartMin) / viewSpan, 0, 1);
+	}
 
 	return (
 		<div
@@ -100,15 +209,24 @@ export default function DailyScheduleVisual({
 				fontFamily: "Segoe UI, system-ui, sans-serif",
 			}}
 		>
-			<div style={{ display: "flex", gap: 12, flex: 1, minHeight: 0 }}>
-				{/* Pictogram column */}
+			<div
+				style={{
+					display: "flex",
+					gap: 10,
+					flex: 1,
+					minHeight: 0,
+					alignItems: "stretch",
+				}}
+			>
+				{/* Pictogram rows — flex share matches bar segments */}
 				<div
 					style={{
-						flex: "1 1 58%",
+						flex: 1,
 						overflowY: "auto",
 						display: "flex",
 						flexDirection: "column",
-						gap: 8,
+						gap: 6,
+						minWidth: 0,
 					}}
 				>
 					{sorted.length === 0 ? (
@@ -118,7 +236,9 @@ export default function DailyScheduleVisual({
 							const originalIndex = plan.items.findIndex(p => p.id === item.id);
 							const active = originalIndex === currentItemIndex;
 							const img = resolveItemImageUrl(item, adapterInstance);
-							const height = Math.max(pictoPx + 16, Math.min(pictoPx + 80, itemDurationMin(item) * 0.9));
+							const weight = itemDurationMin(item);
+							const flexGrow = Math.max(0.4, weight / avgWeight);
+
 							return (
 								<div
 									key={item.id || index}
@@ -126,11 +246,13 @@ export default function DailyScheduleVisual({
 										display: "flex",
 										alignItems: "center",
 										gap: 10,
-										minHeight: height,
+										flex: `${flexGrow} 1 0`,
+										minHeight: pictoPx + 16,
 										padding: "6px 10px",
 										borderRadius: 10,
 										background: active ? "rgba(255,138,0,0.15)" : "rgba(0,0,0,0.04)",
 										outline: active ? "2px solid #FF8A00" : "1px solid transparent",
+										minWidth: 0,
 									}}
 								>
 									<div
@@ -171,115 +293,129 @@ export default function DailyScheduleVisual({
 					)}
 				</div>
 
-				{/* Time bar */}
-				<div
-					style={{
-						flex: "0 0 28%",
-						minWidth: 72,
-						maxWidth: 140,
-						position: "relative",
-						borderRadius: 10,
-						overflow: "hidden",
-						background: "#ECEFF1",
-						border: "1px solid #CFD8DC",
-					}}
-				>
-					{segments.map((seg, i) => {
-						const top = ((Math.max(seg.startMin, viewStartMin) - viewStartMin) / span) * 100;
-						const bottom = ((Math.min(seg.endMin, viewEndMin) - viewStartMin) / span) * 100;
-						const height = Math.max(0, bottom - top);
-						return (
-							<div
-								key={`${seg.id}-${i}`}
-								title={seg.id}
-								style={{
-									position: "absolute",
-									left: 0,
-									right: 0,
-									top: `${top}%`,
-									height: `${height}%`,
-									background: seg.color,
-									opacity: 0.92,
-								}}
-							/>
-						);
-					})}
-
-					{/* Item markers on the bar */}
-					{sorted.map(item => {
-						const s = parseTimeToMinutes(item.start);
-						const e = parseTimeToMinutes(item.end);
-						const start = s < e ? s : s;
-						const end = s < e ? e : s + itemDurationMin(item);
-						const top = ((clamp(start, viewStartMin, viewEndMin) - viewStartMin) / span) * 100;
-						const height =
-							((clamp(end, viewStartMin, viewEndMin) - clamp(start, viewStartMin, viewEndMin)) /
-								span) *
-							100;
-						return (
-							<div
-								key={`mark-${item.id}`}
-								style={{
-									position: "absolute",
-									left: 8,
-									right: 8,
-									top: `${top}%`,
-									height: `${Math.max(2, height)}%`,
-									borderRadius: 4,
-									background: "rgba(0,0,0,0.22)",
-									pointerEvents: "none",
-								}}
-							/>
-						);
-					})}
-
-					{/* Now indicator */}
+				{/* Continuous bar: one segment per pictogram, height ∝ duration */}
+				{sorted.length > 0 && (
 					<div
 						style={{
-							position: "absolute",
-							left: 0,
-							right: 0,
-							top: `${nowPct}%`,
-							height: 3,
-							background: "#D32F2F",
-							boxShadow: "0 0 0 1px rgba(255,255,255,0.8)",
-							zIndex: 2,
+							flex: "0 0 88px",
+							width: 88,
+							display: "flex",
+							flexDirection: "column",
+							alignSelf: "stretch",
+							minHeight: 0,
 						}}
-					/>
-					<div
-						style={{
-							position: "absolute",
-							right: 4,
-							top: `calc(${nowPct}% - 7px)`,
-							width: 14,
-							height: 14,
-							borderRadius: "50%",
-							background: "#D32F2F",
-							border: "2px solid #fff",
-							zIndex: 3,
-						}}
-					/>
-				</div>
+					>
+						<div style={{ fontSize: 10, opacity: 0.65, marginBottom: 4, textAlign: "center" }}>
+							{formatClock(viewStartMin)}
+						</div>
+						<div
+							style={{
+								flex: 1,
+								display: "flex",
+								flexDirection: "column",
+								borderRadius: 10,
+								overflow: "hidden",
+								border: "1px solid #CFD8DC",
+								position: "relative",
+								background: "#ECEFF1",
+								minHeight: 0,
+							}}
+						>
+							{sorted.map((item, index) => {
+								const weight = itemDurationMin(item);
+								const flexGrow = Math.max(0.4, weight / avgWeight);
+								const slices = itemBarSlices(item, periods);
+								const sliceTotal = slices.reduce((s, x) => s + x.weight, 0) || 1;
+								const isLast = index === sorted.length - 1;
+
+								return (
+									<div
+										key={item.id || index}
+										style={{
+											flex: `${flexGrow} 1 0`,
+											minHeight: 8,
+											display: "flex",
+											flexDirection: "column",
+											borderBottom: isLast ? "none" : "1px solid rgba(255,255,255,0.55)",
+											boxSizing: "border-box",
+										}}
+										title={`${item.label || "—"} · ${item.start}–${item.end}`}
+									>
+										{slices.map(slice => (
+											<div
+												key={slice.id}
+												style={{
+													flex: `${slice.weight / sliceTotal} 1 0`,
+													background: slice.color,
+													minHeight: 2,
+												}}
+											/>
+										))}
+									</div>
+								);
+							})}
+
+							{nowFrac != null && (
+								<>
+									<div
+										style={{
+											position: "absolute",
+											left: 0,
+											right: 0,
+											top: `${nowFrac * 100}%`,
+											height: 3,
+											background: "#D32F2F",
+											boxShadow: "0 0 0 1px rgba(255,255,255,0.85)",
+											zIndex: 2,
+											pointerEvents: "none",
+										}}
+									/>
+									<div
+										style={{
+											position: "absolute",
+											left: "50%",
+											marginLeft: -7,
+											top: `calc(${nowFrac * 100}% - 7px)`,
+											width: 14,
+											height: 14,
+											borderRadius: "50%",
+											background: "#D32F2F",
+											border: "2px solid #fff",
+											zIndex: 3,
+											pointerEvents: "none",
+										}}
+									/>
+								</>
+							)}
+						</div>
+						<div style={{ fontSize: 10, opacity: 0.65, marginTop: 4, textAlign: "center" }}>
+							{formatClock(viewEndMin)}
+						</div>
+					</div>
+				)}
 			</div>
 
-			{/* Period legend */}
+			<div style={{ fontSize: 11, opacity: 0.7 }}>
+				{locale.startsWith("de")
+					? `Zeitfenster: ${formatClock(viewStartMin)} – ${formatClock(viewEndMin)} · ${sorted.length} Piktogramm${sorted.length === 1 ? "" : "e"}`
+					: `Window: ${formatClock(viewStartMin)} – ${formatClock(viewEndMin)} · ${sorted.length} pictogram${sorted.length === 1 ? "" : "s"}`}
+			</div>
+
 			<div style={{ display: "flex", flexWrap: "wrap", gap: 8, fontSize: 12 }}>
-				{periods
-					.filter(p => p.enabled)
-					.map(p => (
-						<span key={p.id} style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
-							<span
-								style={{
-									width: 12,
-									height: 12,
-									borderRadius: 2,
-									background: p.color,
-									display: "inline-block",
-								}}
-							/>
-							{periodLabel(p.id, locale)}
-						</span>
-					))}
+				{activePeriods.map(p => (
+					<span key={p.id} style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+						<span
+							style={{
+								width: 12,
+								height: 12,
+								borderRadius: 2,
+								background: p.color,
+								display: "inline-block",
+							}}
+						/>
+						{periodLabel(p.id, locale)}
+					</span>
+				))}
 				<span style={{ display: "inline-flex", alignItems: "center", gap: 4, marginLeft: 4 }}>
 					<span style={{ width: 12, height: 3, background: "#D32F2F", display: "inline-block" }} />
 					{locale.startsWith("de") ? "jetzt" : "now"}

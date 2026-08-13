@@ -41,6 +41,7 @@
 	"schedule_states": "Tagesplan-Datenpunkte",
 	"oid_schedule_plan": "Plan (JSON)",
 	"oid_schedule_periods": "Tagesbereiche (JSON)",
+	"oid_schedule_period_overrides": "Tagesbereiche ein/aus (JSON)",
 	"oid_schedule_now": "Aktuelle Minuten",
 	"oid_schedule_current_item": "Aktueller Eintrag (Index)",
 	"adapter_instance": "Adapter-Instanz",

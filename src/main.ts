@@ -224,11 +224,24 @@ class AutismSupport extends utils.Adapter {
 		await this.setObjectNotExistsAsync(`${SCHEDULE_CHANNEL}.periods`, {
 			type: "state",
 			common: {
-				name: "Day periods from admin (JSON, read-only)",
+				name: "Day periods from admin (JSON)",
 				type: "string",
 				role: "json",
 				read: true,
 				write: false,
+			},
+			native: {},
+		});
+
+		await this.setObjectNotExistsAsync(`${SCHEDULE_CHANNEL}.periodOverrides`, {
+			type: "state",
+			common: {
+				name: "Day period on/off overrides from schedule config (JSON)",
+				type: "string",
+				role: "json",
+				read: true,
+				write: true,
+				def: "{}",
 			},
 			native: {},
 		});
@@ -277,6 +290,12 @@ class AutismSupport extends utils.Adapter {
 		if (planState?.val == null || planState.val === "") {
 			await this.setState(`${SCHEDULE_CHANNEL}.plan`, JSON.stringify({ version: 1, items: [] }), true);
 		}
+		const overridesState = await this.getStateAsync(`${SCHEDULE_CHANNEL}.periodOverrides`);
+		if (overridesState?.val == null || overridesState.val === "") {
+			await this.setState(`${SCHEDULE_CHANNEL}.periodOverrides`, "{}", true);
+		}
+		// Publish admin period definitions once at start (times/colors); overrides stay separate.
+		await this.setState(`${SCHEDULE_CHANNEL}.periods`, JSON.stringify(this.dayPeriods), true);
 	}
 
 	private async publishTimerSnapshot(snapshot: {
@@ -300,13 +319,33 @@ class AutismSupport extends utils.Adapter {
 		return parseSchedulePlan(state?.val);
 	}
 
+	private async getPeriodOverrides(): Promise<Record<string, boolean>> {
+		const state = await this.getStateAsync(`${SCHEDULE_CHANNEL}.periodOverrides`);
+		try {
+			const raw = typeof state?.val === "string" ? JSON.parse(state.val) : state?.val;
+			return raw && typeof raw === "object" ? (raw as Record<string, boolean>) : {};
+		} catch {
+			return {};
+		}
+	}
+
+	private async getEffectivePeriods(): Promise<DayPeriodDefinition[]> {
+		const overrides = await this.getPeriodOverrides();
+		return this.dayPeriods.map(period => ({
+			...period,
+			enabled: overrides[period.id] === undefined ? period.enabled : Boolean(overrides[period.id]),
+		}));
+	}
+
 	private async publishScheduleRuntime(): Promise<void> {
 		const now = new Date();
 		const minutes = now.getHours() * 60 + now.getMinutes();
-		const period = findCurrentPeriod(minutes, this.dayPeriods);
+		const periods = await this.getEffectivePeriods();
+		const period = findCurrentPeriod(minutes, periods);
 		const plan = await this.getPlan();
 		const itemIndex = findCurrentItemIndex(plan, minutes, parseTimeToMinutes);
 
+		// Keep admin period metadata available; do not wipe Config overrides.
 		await this.setState(`${SCHEDULE_CHANNEL}.periods`, JSON.stringify(this.dayPeriods), true);
 		await this.setState(`${SCHEDULE_CHANNEL}.nowMinutes`, minutes, true);
 		await this.setState(`${SCHEDULE_CHANNEL}.currentPeriod`, period?.id ?? "", true);
@@ -324,6 +363,16 @@ class AutismSupport extends utils.Adapter {
 				const plan = parseSchedulePlan(state.val);
 				await this.setState(`${SCHEDULE_CHANNEL}.plan`, JSON.stringify(plan), true);
 				await this.publishScheduleRuntime();
+			} else if (localId === "periodOverrides") {
+				try {
+					const raw = typeof state.val === "string" ? JSON.parse(String(state.val)) : state.val;
+					const cleaned =
+						raw && typeof raw === "object" ? (raw as Record<string, boolean>) : {};
+					await this.setState(`${SCHEDULE_CHANNEL}.periodOverrides`, JSON.stringify(cleaned), true);
+					await this.publishScheduleRuntime();
+				} catch (error) {
+					this.log.error(`Invalid periodOverrides: ${(error as Error).message}`);
+				}
 			}
 			return;
 		}

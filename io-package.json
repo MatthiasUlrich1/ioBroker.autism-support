@@ -1,8 +1,12 @@
 {
 	"common": {
 		"name": "autism-support",
-		"version": "0.1.2",
+		"version": "0.1.3",
 		"news": {
+			"0.1.3": {
+				"en": "Time bar follows pictogram times/count; toggle day periods in Config",
+				"de": "Zeitbalken folgt Piktogramm-Zeiten/Anzahl; Tagesbereiche im Config ein/aus"
+			},
 			"0.1.2": {
 				"en": "Fix ARASAAC search thumbnails; configurable pictogram size",
 				"de": "ARASAAC-Suchvorschaubilder repariert; Piktogramm-Größe einstellbar"

@@ -26,11 +26,11 @@ Visueller Countdown als Geometrie-Rahmen (Standard: Quadrat) mit kreisförmigem 
 
 ## Tagesplan mit Zeitbalken
 
-Flexible Liste von Piktogrammen mit jeweils eigener Zeitspanne. Rechts daneben ein **farbiger Tagesbereich-Balken** (Morgens, Vormittag, Mittag, Nachmittag, Abend, Nacht) und ein **Balken für die aktuelle Uhrzeit**.
+Flexible Liste von Piktogrammen mit jeweils eigener Zeitspanne. Rechts daneben ein **farbiger Tagesbereich-Balken**, der sich an **Anzahl und Dauer der Piktogramme** anpasst (Zeitfenster vom ersten bis zum letzten Eintrag), plus **Jetzt**-Markierung.
 
 ### Admin: Tagesbereiche
 
-Im Admin-Tab **Tagesbereiche** lassen sich Start/Ende (HH:MM) und Farbe je Bereich einstellen. Nacht darf über Mitternacht gehen (z. B. 21:00–06:00).
+Im Admin-Tab **Tagesbereiche** lassen sich Start/Ende (HH:MM) und Farbe je Bereich einstellen. Nacht darf über Mitternacht gehen (z. B. 21:00–06:00). Im **Tagesplan (Konfiguration)**-Widget können Bereiche zusätzlich ein- und ausgeschaltet werden.
 
 ### Datenpunkte (`autism-support.0.schedule.*`)
 
@@ -38,6 +38,7 @@ Im Admin-Tab **Tagesbereiche** lassen sich Start/Ende (HH:MM) und Farbe je Berei
 |-------|--------------|
 | `plan` | JSON-Plan mit Einträgen (Label, Start/Ende, Piktogramm-Quelle) |
 | `periods` | Tagesbereiche aus der Admin-Konfiguration (JSON, nur lesen) |
+| `periodOverrides` | Ein/Aus der Tagesbereiche aus dem Config-Widget (JSON, schreibbar) |
 | `nowMinutes` | Aktuelle Minuten seit Mitternacht (lokal) |
 | `currentPeriod` | ID des aktuellen Tagesbereichs |
 | `currentItemIndex` | Index des aktiven Planeintrags (`-1` = keiner) |
@@ -47,7 +48,7 @@ Im Admin-Tab **Tagesbereiche** lassen sich Start/Ende (HH:MM) und Farbe je Berei
 | Widget | Zweck |
 |--------|--------|
 | **Tagesplan (Live)** | Anzeige Piktogramme + Zeitbalken |
-| **Tagesplan (Konfiguration)** | Einträge hinzufügen/bearbeiten, ARASAAC-Suche, eigener Upload |
+| **Tagesplan (Konfiguration)** | Einträge, Tagesbereiche ein/aus, ARASAAC-Suche, eigener Upload |
 
 ### Piktogramm-Quellen
 

@@ -41,6 +41,7 @@
 	"schedule_states": "Schedule states",
 	"oid_schedule_plan": "Plan (JSON)",
 	"oid_schedule_periods": "Day periods (JSON)",
+	"oid_schedule_period_overrides": "Day period on/off (JSON)",
 	"oid_schedule_now": "Current minutes",
 	"oid_schedule_current_item": "Current item index",
 	"adapter_instance": "Adapter instance",

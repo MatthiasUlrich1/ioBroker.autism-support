@@ -5,11 +5,12 @@ import type { RxRenderWidgetProps, RxWidgetInfo, VisRxWidgetProps, VisRxWidgetSt
 import type VisRxWidget from "@iobroker/types-vis-2/visRxWidget";
 
 import DailyScheduleVisual from "./components/DailyScheduleVisual";
-import { parseDayPeriods, parseSchedulePlan } from "./lib/schedule";
+import { applyPeriodOverrides, parseDayPeriods, parsePeriodOverrides, parseSchedulePlan } from "./lib/schedule";
 
 interface DailyScheduleLiveRxData {
 	oidPlan: string;
 	oidPeriods: string;
+	oidPeriodOverrides: string;
 	oidNowMinutes: string;
 	oidCurrentItemIndex: string;
 	adapterInstance: string;
@@ -46,6 +47,12 @@ export default class DailyScheduleLiveWidget extends (window.visRxWidget as type
 							type: "id",
 							label: "oid_schedule_periods",
 							default: "autism-support.0.schedule.periods",
+						},
+						{
+							name: "oidPeriodOverrides",
+							type: "id",
+							label: "oid_schedule_period_overrides",
+							default: "autism-support.0.schedule.periodOverrides",
 						},
 						{
 							name: "oidNowMinutes",
@@ -97,7 +104,11 @@ export default class DailyScheduleLiveWidget extends (window.visRxWidget as type
 		super.renderWidgetBody(props);
 
 		const plan = parseSchedulePlan(this.state.values[`${this.state.rxData.oidPlan}.val`]);
-		const periods = parseDayPeriods(this.state.values[`${this.state.rxData.oidPeriods}.val`]);
+		const basePeriods = parseDayPeriods(this.state.values[`${this.state.rxData.oidPeriods}.val`]);
+		const overrides = parsePeriodOverrides(
+			this.state.values[`${this.state.rxData.oidPeriodOverrides}.val`],
+		);
+		const periods = applyPeriodOverrides(basePeriods, overrides);
 		const nowMinutes = Number(this.state.values[`${this.state.rxData.oidNowMinutes}.val`] ?? 0);
 		const currentItemIndex = Number(
 			this.state.values[`${this.state.rxData.oidCurrentItemIndex}.val`] ?? -1,

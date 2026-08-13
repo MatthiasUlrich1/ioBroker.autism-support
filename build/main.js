@@ -211,11 +211,23 @@ class AutismSupport extends utils.Adapter {
     await this.setObjectNotExistsAsync(`${SCHEDULE_CHANNEL}.periods`, {
       type: "state",
       common: {
-        name: "Day periods from admin (JSON, read-only)",
+        name: "Day periods from admin (JSON)",
         type: "string",
         role: "json",
         read: true,
         write: false
+      },
+      native: {}
+    });
+    await this.setObjectNotExistsAsync(`${SCHEDULE_CHANNEL}.periodOverrides`, {
+      type: "state",
+      common: {
+        name: "Day period on/off overrides from schedule config (JSON)",
+        type: "string",
+        role: "json",
+        read: true,
+        write: true,
+        def: "{}"
       },
       native: {}
     });
@@ -260,6 +272,11 @@ class AutismSupport extends utils.Adapter {
     if ((planState == null ? void 0 : planState.val) == null || planState.val === "") {
       await this.setState(`${SCHEDULE_CHANNEL}.plan`, JSON.stringify({ version: 1, items: [] }), true);
     }
+    const overridesState = await this.getStateAsync(`${SCHEDULE_CHANNEL}.periodOverrides`);
+    if ((overridesState == null ? void 0 : overridesState.val) == null || overridesState.val === "") {
+      await this.setState(`${SCHEDULE_CHANNEL}.periodOverrides`, "{}", true);
+    }
+    await this.setState(`${SCHEDULE_CHANNEL}.periods`, JSON.stringify(this.dayPeriods), true);
   }
   async publishTimerSnapshot(snapshot) {
     await this.setState(`${TIMER_CHANNEL}.duration`, snapshot.duration, true);
@@ -273,11 +290,28 @@ class AutismSupport extends utils.Adapter {
     const state = await this.getStateAsync(`${SCHEDULE_CHANNEL}.plan`);
     return (0, import_schedule_types.parseSchedulePlan)(state == null ? void 0 : state.val);
   }
+  async getPeriodOverrides() {
+    const state = await this.getStateAsync(`${SCHEDULE_CHANNEL}.periodOverrides`);
+    try {
+      const raw = typeof (state == null ? void 0 : state.val) === "string" ? JSON.parse(state.val) : state == null ? void 0 : state.val;
+      return raw && typeof raw === "object" ? raw : {};
+    } catch {
+      return {};
+    }
+  }
+  async getEffectivePeriods() {
+    const overrides = await this.getPeriodOverrides();
+    return this.dayPeriods.map((period) => ({
+      ...period,
+      enabled: overrides[period.id] === void 0 ? period.enabled : Boolean(overrides[period.id])
+    }));
+  }
   async publishScheduleRuntime() {
     var _a;
     const now = /* @__PURE__ */ new Date();
     const minutes = now.getHours() * 60 + now.getMinutes();
-    const period = (0, import_day_periods.findCurrentPeriod)(minutes, this.dayPeriods);
+    const periods = await this.getEffectivePeriods();
+    const period = (0, import_day_periods.findCurrentPeriod)(minutes, periods);
     const plan = await this.getPlan();
     const itemIndex = (0, import_schedule_types.findCurrentItemIndex)(plan, minutes, import_day_periods.parseTimeToMinutes);
     await this.setState(`${SCHEDULE_CHANNEL}.periods`, JSON.stringify(this.dayPeriods), true);
@@ -296,6 +330,15 @@ class AutismSupport extends utils.Adapter {
         const plan = (0, import_schedule_types.parseSchedulePlan)(state.val);
         await this.setState(`${SCHEDULE_CHANNEL}.plan`, JSON.stringify(plan), true);
         await this.publishScheduleRuntime();
+      } else if (localId2 === "periodOverrides") {
+        try {
+          const raw = typeof state.val === "string" ? JSON.parse(String(state.val)) : state.val;
+          const cleaned = raw && typeof raw === "object" ? raw : {};
+          await this.setState(`${SCHEDULE_CHANNEL}.periodOverrides`, JSON.stringify(cleaned), true);
+          await this.publishScheduleRuntime();
+        } catch (error) {
+          this.log.error(`Invalid periodOverrides: ${error.message}`);
+        }
       }
       return;
     }

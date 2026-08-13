@@ -81,6 +81,29 @@ export function parseDayPeriods(raw: unknown): DayPeriodDefinition[] {
 	}
 }
 
+export function parsePeriodOverrides(raw: unknown): Record<string, boolean> {
+	try {
+		const data = typeof raw === "string" ? JSON.parse(raw) : raw;
+		if (!data || typeof data !== "object" || Array.isArray(data)) {
+			return {};
+		}
+		return data as Record<string, boolean>;
+	} catch {
+		return {};
+	}
+}
+
+/** Merge admin periods with Config on/off overrides. */
+export function applyPeriodOverrides(
+	periods: DayPeriodDefinition[],
+	overrides: Record<string, boolean>,
+): DayPeriodDefinition[] {
+	return periods.map(period => ({
+		...period,
+		enabled: overrides[period.id] === undefined ? period.enabled : Boolean(overrides[period.id]),
+	}));
+}
+
 export function periodToSegments(
 	period: DayPeriodDefinition,
 ): Array<{ startMin: number; endMin: number; color: string; id: DayPeriodId }> {
