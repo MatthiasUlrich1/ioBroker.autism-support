@@ -32,6 +32,8 @@ interface PeriodBlockLayout {
 	topPx: number;
 	heightPx: number;
 	itemCount: number;
+	/** Piecewise clock→Y map: empty head/tail compressed, content linear. */
+	zones: Array<{ startMin: number; endMin: number; topPx: number; heightPx: number }>;
 }
 
 interface ItemPlacement {
@@ -49,6 +51,21 @@ const ITEM_FRAME_PAD = 16;
 
 function clamp(n: number, min: number, max: number): number {
 	return Math.max(min, Math.min(max, n));
+}
+
+/**
+ * Compress empty lead/trail minutes so the bar barely extends past pictograms.
+ * Edge of day (first/last period) compresses more aggressively.
+ */
+export function compressEmptyHeight(minutes: number, edge: boolean, minItemH: number): number {
+	if (minutes <= 0) {
+		return 0;
+	}
+	const scale = edge ? 10 : 16;
+	const ref = edge ? 15 : 25;
+	const raw = scale * Math.log2(1 + minutes / ref);
+	const cap = edge ? minItemH * 0.55 : minItemH * 0.9;
+	return Math.min(cap, Math.max(edge ? 6 : 8, raw));
 }
 
 function periodLabel(id: string, locale: string): string {
@@ -139,7 +156,7 @@ function clipsInSegment(
 	return clips;
 }
 
-/** Map clock minutes onto stretched period blocks (clock-linear within each period). */
+/** Map clock minutes onto piecewise period zones. */
 export function minutesToY(minutes: number, blocks: PeriodBlockLayout[]): number {
 	if (!blocks.length) {
 		return 0;
@@ -148,10 +165,25 @@ export function minutesToY(minutes: number, blocks: PeriodBlockLayout[]): number
 		return blocks[0].topPx;
 	}
 	for (const block of blocks) {
-		if (minutes <= block.endMin && minutes >= block.startMin) {
+		if (minutes < block.startMin || minutes > block.endMin) {
+			continue;
+		}
+		if (!block.zones.length) {
 			const span = Math.max(1, block.endMin - block.startMin);
 			const frac = clamp((minutes - block.startMin) / span, 0, 1);
 			return block.topPx + frac * block.heightPx;
+		}
+		for (const zone of block.zones) {
+			if (minutes <= zone.endMin && minutes >= zone.startMin) {
+				const span = Math.max(1, zone.endMin - zone.startMin);
+				const frac = clamp((minutes - zone.startMin) / span, 0, 1);
+				return zone.topPx + frac * zone.heightPx;
+			}
+		}
+		// Exact end of block
+		if (minutes === block.endMin) {
+			const last = block.zones[block.zones.length - 1];
+			return last.topPx + last.heightPx;
 		}
 	}
 	const last = blocks[blocks.length - 1];
@@ -201,10 +233,17 @@ export function assignLanes(
 	return lanes;
 }
 
+type DraftBlock = {
+	period: DayPeriodDefinition;
+	segStart: number;
+	segEnd: number;
+	clips: Array<{ startMin: number; endMin: number }>;
+	hasNow: boolean;
+};
+
 /**
- * Period height grows so every pictogram keeps its configured size;
- * short time spans enlarge the day-period block instead of shrinking icons.
- * Disabled periods stay in the layout (neutral) when they contain items, but without period color.
+ * Period content stays linear (pictogram-sized); empty lead/trail is log-compressed
+ * so the bar does not extend far past the first/last pictogram.
  */
 export function buildScheduleLayout(
 	items: ScheduleItem[],
@@ -214,46 +253,88 @@ export function buildScheduleLayout(
 ): { blocks: PeriodBlockLayout[]; placements: ItemPlacement[]; laneCount: number; totalHeight: number } {
 	const minItemH = pictoPx + ITEM_FRAME_PAD;
 	const minPeriodH = minItemH;
-	const blocks: PeriodBlockLayout[] = [];
-	let topPx = 0;
+	const drafts: DraftBlock[] = [];
 
 	for (const period of periods) {
 		for (const seg of periodSegmentsRaw(period)) {
 			const clips = clipsInSegment(items, seg.startMin, seg.endMin);
 			const hasNow = isNowInSegment(nowMinutes, seg.startMin, seg.endMin);
-
-			// Unused periods stay hidden. Disabled periods with content stay as neutral spacers.
 			if (!clips.length && !hasNow) {
 				continue;
 			}
-
-			const span = Math.max(1, seg.endMin - seg.startMin);
-			let heightFromClips = clips.length ? clips.length * minItemH : minPeriodH;
-			for (const clip of clips) {
-				const dur = Math.max(1, clip.endMin - clip.startMin);
-				// Enlarge period until this clip maps to at least minItemH.
-				heightFromClips = Math.max(heightFromClips, (minItemH * span) / dur);
-			}
-			if (!clips.length && hasNow) {
-				heightFromClips = minPeriodH;
-			}
-
-			const heightPx = Math.max(minPeriodH, heightFromClips);
-
-			blocks.push({
-				id: `${period.id}-${seg.startMin}`,
-				periodId: period.id,
-				color: period.enabled ? period.color : DISABLED_PERIOD_COLOR,
-				enabled: period.enabled,
-				startMin: seg.startMin,
-				endMin: seg.endMin,
-				topPx,
-				heightPx,
-				itemCount: clips.length,
+			drafts.push({
+				period,
+				segStart: seg.startMin,
+				segEnd: seg.endMin,
+				clips,
+				hasNow,
 			});
-			topPx += heightPx;
 		}
 	}
+
+	const blocks: PeriodBlockLayout[] = [];
+	let topPx = 0;
+
+	drafts.forEach((draft, draftIndex) => {
+		const isFirst = draftIndex === 0;
+		const isLast = draftIndex === drafts.length - 1;
+		const { period, segStart, segEnd, clips, hasNow } = draft;
+
+		let zones: PeriodBlockLayout["zones"] = [];
+		let heightPx = minPeriodH;
+
+		if (!clips.length) {
+			heightPx = minPeriodH;
+			zones = [{ startMin: segStart, endMin: segEnd, topPx, heightPx }];
+		} else {
+			const contentStart = Math.min(...clips.map(c => c.startMin));
+			const contentEnd = Math.max(...clips.map(c => c.endMin));
+			const contentDur = Math.max(1, contentEnd - contentStart);
+			const headDur = Math.max(0, contentStart - segStart);
+			const tailDur = Math.max(0, segEnd - contentEnd);
+
+			let contentH = clips.length * minItemH;
+			for (const clip of clips) {
+				const dur = Math.max(1, clip.endMin - clip.startMin);
+				// Size from content window only (not full period incl. empty margins).
+				contentH = Math.max(contentH, (minItemH * contentDur) / dur);
+			}
+
+			const headH = compressEmptyHeight(headDur, isFirst, minItemH);
+			const tailH = compressEmptyHeight(tailDur, isLast, minItemH);
+			heightPx = Math.max(minPeriodH, headH + contentH + tailH);
+
+			let y = topPx;
+			if (headH > 0 && headDur > 0) {
+				zones.push({ startMin: segStart, endMin: contentStart, topPx: y, heightPx: headH });
+				y += headH;
+			}
+			zones.push({
+				startMin: contentStart,
+				endMin: contentEnd,
+				topPx: y,
+				heightPx: contentH,
+			});
+			y += contentH;
+			if (tailH > 0 && tailDur > 0) {
+				zones.push({ startMin: contentEnd, endMin: segEnd, topPx: y, heightPx: tailH });
+			}
+		}
+
+		blocks.push({
+			id: `${period.id}-${segStart}`,
+			periodId: period.id,
+			color: period.enabled ? period.color : DISABLED_PERIOD_COLOR,
+			enabled: period.enabled,
+			startMin: segStart,
+			endMin: segEnd,
+			topPx,
+			heightPx,
+			itemCount: clips.length,
+			zones,
+		});
+		topPx += heightPx;
+	});
 
 	const totalHeight = topPx;
 	const indexed = items.map((item, itemIndex) => ({

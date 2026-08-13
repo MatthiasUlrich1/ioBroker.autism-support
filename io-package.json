@@ -1,8 +1,12 @@
 {
 	"common": {
 		"name": "autism-support",
-		"version": "0.1.7",
+		"version": "0.1.8",
 		"news": {
+			"0.1.8": {
+				"en": "Log-compress empty lead/trail on the time bar past first/last pictogram",
+				"de": "Leere Vor-/Nachlaufzeiten am Zeitbalken logarithmisch komprimiert"
+			},
 			"0.1.7": {
 				"en": "Fix period toggles; keep fixed pictogram size and grow period bar instead",
 				"de": "Tagesbereich-Schalter repariert; feste Piktogramm-Größe, Balken wächst bei kurzen Zeiten"
