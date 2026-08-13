@@ -19,6 +19,8 @@ export interface DailyScheduleVisualProps {
 	currentItemIndex: number;
 	adapterInstance?: string;
 	locale?: string;
+	/** Pictogram display size in px (default 64). */
+	pictogramSize?: number;
 	/** Visible window start (minutes), default 0 */
 	viewStartMin?: number;
 	/** Visible window end (minutes), default 1440 */
@@ -68,11 +70,13 @@ export default function DailyScheduleVisual({
 	currentItemIndex,
 	adapterInstance = "autism-support.0",
 	locale = "de",
+	pictogramSize = 64,
 	viewStartMin = 0,
 	viewEndMin = 1440,
 }: DailyScheduleVisualProps): React.JSX.Element {
 	const span = Math.max(60, viewEndMin - viewStartMin);
 	const nowPct = clamp(((nowMinutes - viewStartMin) / span) * 100, 0, 100);
+	const pictoPx = Math.max(32, Math.min(200, Number(pictogramSize) || 64));
 	const sorted = [...plan.items].sort(
 		(a, b) => parseTimeToMinutes(a.start) - parseTimeToMinutes(b.start),
 	);
@@ -114,7 +118,7 @@ export default function DailyScheduleVisual({
 							const originalIndex = plan.items.findIndex(p => p.id === item.id);
 							const active = originalIndex === currentItemIndex;
 							const img = resolveItemImageUrl(item, adapterInstance);
-							const height = Math.max(56, Math.min(120, itemDurationMin(item) * 0.9));
+							const height = Math.max(pictoPx + 16, Math.min(pictoPx + 80, itemDurationMin(item) * 0.9));
 							return (
 								<div
 									key={item.id || index}
@@ -131,8 +135,8 @@ export default function DailyScheduleVisual({
 								>
 									<div
 										style={{
-											width: 64,
-											height: 64,
+											width: pictoPx,
+											height: pictoPx,
 											flexShrink: 0,
 											borderRadius: 8,
 											background: "#fff",
@@ -145,7 +149,7 @@ export default function DailyScheduleVisual({
 										{img ? (
 											<img
 												src={img}
-												alt={item.label || "pictogram"}
+												alt=""
 												style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }}
 												referrerPolicy="no-referrer"
 											/>
@@ -154,7 +158,9 @@ export default function DailyScheduleVisual({
 										)}
 									</div>
 									<div style={{ flex: 1, minWidth: 0 }}>
-										<div style={{ fontWeight: 700, fontSize: 16 }}>{item.label || "—"}</div>
+										<div style={{ fontWeight: 700, fontSize: Math.max(14, pictoPx * 0.22) }}>
+											{item.label || "—"}
+										</div>
 										<div style={{ fontSize: 13, opacity: 0.75 }}>
 											{item.start} – {item.end}
 										</div>

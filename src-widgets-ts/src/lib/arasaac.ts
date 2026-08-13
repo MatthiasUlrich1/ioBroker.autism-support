@@ -13,9 +13,10 @@ export const ARASAAC_ATTRIBUTION_DE =
 export const ARASAAC_ATTRIBUTION_EN =
 	"Pictograms: property of the Government of Aragon, created by Sergio Palao for ARASAAC (https://arasaac.org), license CC BY-NC-SA.";
 
-export function arasaacImageUrl(pictogramId: number, size: 100 | 300 | 500 = 300): string {
+export function arasaacImageUrl(pictogramId: number, size: 300 | 500 = 500): string {
 	const id = Math.max(1, Math.floor(Number(pictogramId) || 0));
-	return `${ARASAAC_STATIC_BASE}/${id}/${id}_${size}.png`;
+	const safeSize = size === 300 ? 300 : 500;
+	return `${ARASAAC_STATIC_BASE}/${id}/${id}_${safeSize}.png`;
 }
 
 export function arasaacSearchUrl(language: string, query: string): string {

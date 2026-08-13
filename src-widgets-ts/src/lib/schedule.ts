@@ -107,7 +107,7 @@ export function resolveItemImageUrl(
 	adapterInstance = "autism-support.0",
 ): string | null {
 	if (item.source === "arasaac" && item.arasaacId) {
-		return arasaacImageUrl(item.arasaacId, 300);
+		return arasaacImageUrl(item.arasaacId, 500);
 	}
 	if (item.source === "custom" && item.customRef) {
 		const ref = item.customRef.trim();

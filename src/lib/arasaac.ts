@@ -21,10 +21,12 @@ export const ARASAAC_ATTRIBUTION_DE =
 /**
  * Build external image URL for an ARASAAC pictogram id.
  * Images are hotlinked from static.arasaac.org – not stored in this package.
+ * Official CDN sizes are typically 300 and 500 (100 often 404).
  */
-export function arasaacImageUrl(pictogramId: number, size: 100 | 300 | 500 = 300): string {
+export function arasaacImageUrl(pictogramId: number, size: 300 | 500 = 500): string {
 	const id = Math.max(1, Math.floor(Number(pictogramId) || 0));
-	return `${ARASAAC_STATIC_BASE}/${id}/${id}_${size}.png`;
+	const safeSize = size === 300 ? 300 : 500;
+	return `${ARASAAC_STATIC_BASE}/${id}/${id}_${safeSize}.png`;
 }
 
 export function arasaacSearchUrl(language: string, query: string): string {

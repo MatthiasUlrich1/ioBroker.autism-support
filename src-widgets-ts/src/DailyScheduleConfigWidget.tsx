@@ -30,6 +30,7 @@ interface DailyScheduleConfigRxData {
 	oidCurrentItemIndex: string;
 	adapterInstance: string;
 	arasaacLanguage: string;
+	pictogramSize: number;
 }
 
 interface DailyScheduleConfigState extends VisRxWidgetState {
@@ -107,6 +108,15 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 							type: "text",
 							label: "arasaac_language",
 							default: "de",
+						},
+						{
+							name: "pictogramSize",
+							type: "number",
+							label: "pictogram_size",
+							default: 64,
+							min: 32,
+							max: 200,
+							step: 8,
 						},
 					],
 				},
@@ -364,31 +374,61 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 												{this.state.searchError}
 											</Typography>
 										) : null}
-										<Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-											{this.state.searchHits.map(hit => (
-												<Button
-													key={hit.id}
-													size="small"
-													variant="outlined"
-													sx={{ p: 0.5, minWidth: 0 }}
-													title={hit.keyword}
-													onClick={() =>
-														this.updateItem(this.state.selectedIndex, {
-															source: "arasaac",
-															arasaacId: hit.id,
-															label: selected.label || hit.keyword,
-														})
-													}
-												>
-													<img
-														src={arasaacImageUrl(hit.id, 100)}
-														alt={hit.keyword}
-														width={48}
-														height={48}
-														referrerPolicy="no-referrer"
-													/>
-												</Button>
-											))}
+										<Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, maxHeight: 220, overflowY: "auto" }}>
+											{this.state.searchHits.map(hit => {
+												const thumb = Math.max(48, Math.min(96, Number(this.state.rxData.pictogramSize) || 64));
+												return (
+													<Box
+														key={hit.id}
+														component="button"
+														type="button"
+														title={hit.keyword}
+														onClick={() =>
+															this.updateItem(this.state.selectedIndex, {
+																source: "arasaac",
+																arasaacId: hit.id,
+																label: selected.label || hit.keyword,
+															})
+														}
+														sx={{
+															width: thumb + 16,
+															p: 0.5,
+															border: "1px solid",
+															borderColor: "divider",
+															borderRadius: 1,
+															background: "#fff",
+															cursor: "pointer",
+															display: "flex",
+															flexDirection: "column",
+															alignItems: "center",
+															gap: 0.5,
+															"&:hover": { borderColor: "primary.main" },
+														}}
+													>
+														<img
+															src={arasaacImageUrl(hit.id, 500)}
+															alt=""
+															width={thumb}
+															height={thumb}
+															style={{ objectFit: "contain", display: "block" }}
+															referrerPolicy="no-referrer"
+															loading="lazy"
+														/>
+														<Typography
+															variant="caption"
+															sx={{
+																maxWidth: thumb + 8,
+																overflow: "hidden",
+																textOverflow: "ellipsis",
+																whiteSpace: "nowrap",
+																lineHeight: 1.2,
+															}}
+														>
+															{hit.keyword}
+														</Typography>
+													</Box>
+												);
+											})}
 										</Box>
 										<Typography variant="caption" sx={{ opacity: 0.75 }}>
 											ARASAAC images are loaded from static.arasaac.org only (CC BY-NC-SA).
@@ -436,6 +476,7 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 							nowMinutes={nowMinutes}
 							currentItemIndex={currentItemIndex}
 							adapterInstance={this.state.rxData.adapterInstance || "autism-support.0"}
+							pictogramSize={Number(this.state.rxData.pictogramSize) || 64}
 							locale={this.props.context?.lang || "de"}
 						/>
 					</Box>

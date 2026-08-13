@@ -13,6 +13,7 @@ interface DailyScheduleLiveRxData {
 	oidNowMinutes: string;
 	oidCurrentItemIndex: string;
 	adapterInstance: string;
+	pictogramSize: number;
 }
 
 export default class DailyScheduleLiveWidget extends (window.visRxWidget as typeof VisRxWidget)<
@@ -64,6 +65,15 @@ export default class DailyScheduleLiveWidget extends (window.visRxWidget as type
 							label: "adapter_instance",
 							default: "autism-support.0",
 						},
+						{
+							name: "pictogramSize",
+							type: "number",
+							label: "pictogram_size",
+							default: 64,
+							min: 32,
+							max: 200,
+							step: 8,
+						},
 					],
 				},
 			],
@@ -101,6 +111,7 @@ export default class DailyScheduleLiveWidget extends (window.visRxWidget as type
 					nowMinutes={nowMinutes}
 					currentItemIndex={currentItemIndex}
 					adapterInstance={this.state.rxData.adapterInstance || "autism-support.0"}
+					pictogramSize={Number(this.state.rxData.pictogramSize) || 64}
 					locale={this.props.context?.lang || "de"}
 				/>
 			</Box>

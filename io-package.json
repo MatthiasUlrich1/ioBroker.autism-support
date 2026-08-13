@@ -1,8 +1,12 @@
 {
 	"common": {
 		"name": "autism-support",
-		"version": "0.1.1",
+		"version": "0.1.2",
 		"news": {
+			"0.1.2": {
+				"en": "Fix ARASAAC search thumbnails; configurable pictogram size",
+				"de": "ARASAAC-Suchvorschaubilder repariert; Piktogramm-Größe einstellbar"
+			},
 			"0.1.1": {
 				"en": "Daily schedule with time bar, day periods, ARASAAC (external) + custom pictograms",
 				"de": "Tagesplan mit Zeitbalken, Tagesbereiche, ARASAAC (extern) + eigene Piktogramme"

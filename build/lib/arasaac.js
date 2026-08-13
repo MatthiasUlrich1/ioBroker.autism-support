@@ -32,9 +32,10 @@ const ARASAAC_API_BASE = "https://api.arasaac.org/v1";
 const ARASAAC_STATIC_BASE = "https://static.arasaac.org/pictograms";
 const ARASAAC_ATTRIBUTION = "The pictographic symbols used are the property of the Government of Aragon and have been created by Sergio Palao for ARASAAC (https://arasaac.org), which distributes them under a Creative Commons license (BY-NC-SA).";
 const ARASAAC_ATTRIBUTION_DE = "Die verwendeten Piktogramme sind Eigentum der Regierung von Arag\xF3n und wurden von Sergio Palao f\xFCr ARASAAC (https://arasaac.org) erstellt; sie werden unter der Creative-Commons-Lizenz BY-NC-SA bereitgestellt.";
-function arasaacImageUrl(pictogramId, size = 300) {
+function arasaacImageUrl(pictogramId, size = 500) {
   const id = Math.max(1, Math.floor(Number(pictogramId) || 0));
-  return `${ARASAAC_STATIC_BASE}/${id}/${id}_${size}.png`;
+  const safeSize = size === 300 ? 300 : 500;
+  return `${ARASAAC_STATIC_BASE}/${id}/${id}_${safeSize}.png`;
 }
 function arasaacSearchUrl(language, query) {
   const lang = encodeURIComponent(language || "de");

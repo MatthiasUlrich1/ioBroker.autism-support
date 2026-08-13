@@ -44,5 +44,6 @@
 	"oid_schedule_now": "Aktuelle Minuten",
 	"oid_schedule_current_item": "Aktueller Eintrag (Index)",
 	"adapter_instance": "Adapter-Instanz",
-	"arasaac_language": "ARASAAC-Suchsprache"
+	"arasaac_language": "ARASAAC-Suchsprache",
+	"pictogram_size": "Piktogramm-Größe (px)"
 }
