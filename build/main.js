@@ -23,7 +23,10 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 ));
 var utils = __toESM(require("@iobroker/adapter-core"));
 var import_timer_manager = require("./lib/timer-manager");
+var import_day_periods = require("./lib/day-periods");
+var import_schedule_types = require("./lib/schedule-types");
 const TIMER_CHANNEL = "timer";
+const SCHEDULE_CHANNEL = "schedule";
 function secondsToParts(totalSeconds) {
   const safe = Math.max(0, Math.round(totalSeconds));
   return {
@@ -33,6 +36,8 @@ function secondsToParts(totalSeconds) {
 }
 class AutismSupport extends utils.Adapter {
   timerManager = null;
+  scheduleTick = null;
+  dayPeriods = [];
   constructor(options = {}) {
     super({
       ...options,
@@ -40,20 +45,28 @@ class AutismSupport extends utils.Adapter {
     });
     this.on("ready", this.onReady.bind(this));
     this.on("stateChange", this.onStateChange.bind(this));
+    this.on("message", this.onMessage.bind(this));
     this.on("unload", this.onUnload.bind(this));
   }
   async onReady() {
     var _a;
     const maxHours = (_a = this.config.maxDurationHours) != null ? _a : 24;
     const defaultSeconds = this.getDefaultDurationSeconds(maxHours);
+    this.dayPeriods = (0, import_day_periods.dayPeriodsFromConfig)(this.config);
     await this.createTimerStates();
+    await this.createScheduleStates();
     this.timerManager = new import_timer_manager.TimerManager(async (snapshot) => {
       await this.publishTimerSnapshot(snapshot);
     });
     await this.timerManager.setDuration(defaultSeconds, maxHours);
     await this.publishTimerSnapshot(this.timerManager.getSnapshot());
+    await this.publishScheduleRuntime();
     this.subscribeStates(`${this.namespace}.${TIMER_CHANNEL}.*`);
-    this.log.info("Autism Support adapter ready \u2013 Visual Countdown initialized");
+    this.subscribeStates(`${this.namespace}.${SCHEDULE_CHANNEL}.*`);
+    this.scheduleTick = setInterval(() => {
+      void this.publishScheduleRuntime();
+    }, 3e4);
+    this.log.info("Autism Support adapter ready \u2013 Visual Countdown + Daily Schedule");
   }
   getDefaultDurationSeconds(maxHours) {
     var _a, _b;
@@ -177,6 +190,77 @@ class AutismSupport extends utils.Adapter {
       });
     }
   }
+  async createScheduleStates() {
+    await this.setObjectNotExistsAsync(SCHEDULE_CHANNEL, {
+      type: "channel",
+      common: { name: "Daily schedule" },
+      native: {}
+    });
+    await this.setObjectNotExistsAsync(`${SCHEDULE_CHANNEL}.plan`, {
+      type: "state",
+      common: {
+        name: "Schedule plan (JSON)",
+        type: "string",
+        role: "json",
+        read: true,
+        write: true,
+        def: JSON.stringify({ version: 1, items: [] })
+      },
+      native: {}
+    });
+    await this.setObjectNotExistsAsync(`${SCHEDULE_CHANNEL}.periods`, {
+      type: "state",
+      common: {
+        name: "Day periods from admin (JSON, read-only)",
+        type: "string",
+        role: "json",
+        read: true,
+        write: false
+      },
+      native: {}
+    });
+    await this.setObjectNotExistsAsync(`${SCHEDULE_CHANNEL}.nowMinutes`, {
+      type: "state",
+      common: {
+        name: "Minutes since midnight (local)",
+        type: "number",
+        role: "value",
+        read: true,
+        write: false,
+        unit: "min",
+        min: 0,
+        max: 1439
+      },
+      native: {}
+    });
+    await this.setObjectNotExistsAsync(`${SCHEDULE_CHANNEL}.currentPeriod`, {
+      type: "state",
+      common: {
+        name: "Current day period id",
+        type: "string",
+        role: "text",
+        read: true,
+        write: false
+      },
+      native: {}
+    });
+    await this.setObjectNotExistsAsync(`${SCHEDULE_CHANNEL}.currentItemIndex`, {
+      type: "state",
+      common: {
+        name: "Index of active schedule item (-1 = none)",
+        type: "number",
+        role: "value",
+        read: true,
+        write: false,
+        min: -1
+      },
+      native: {}
+    });
+    const planState = await this.getStateAsync(`${SCHEDULE_CHANNEL}.plan`);
+    if ((planState == null ? void 0 : planState.val) == null || planState.val === "") {
+      await this.setState(`${SCHEDULE_CHANNEL}.plan`, JSON.stringify({ version: 1, items: [] }), true);
+    }
+  }
   async publishTimerSnapshot(snapshot) {
     await this.setState(`${TIMER_CHANNEL}.duration`, snapshot.duration, true);
     await this.setState(`${TIMER_CHANNEL}.remaining`, snapshot.remaining, true);
@@ -185,9 +269,37 @@ class AutismSupport extends utils.Adapter {
     await this.setState(`${TIMER_CHANNEL}.paused`, snapshot.paused, true);
     await this.setState(`${TIMER_CHANNEL}.finished`, snapshot.finished, true);
   }
+  async getPlan() {
+    const state = await this.getStateAsync(`${SCHEDULE_CHANNEL}.plan`);
+    return (0, import_schedule_types.parseSchedulePlan)(state == null ? void 0 : state.val);
+  }
+  async publishScheduleRuntime() {
+    var _a;
+    const now = /* @__PURE__ */ new Date();
+    const minutes = now.getHours() * 60 + now.getMinutes();
+    const period = (0, import_day_periods.findCurrentPeriod)(minutes, this.dayPeriods);
+    const plan = await this.getPlan();
+    const itemIndex = (0, import_schedule_types.findCurrentItemIndex)(plan, minutes, import_day_periods.parseTimeToMinutes);
+    await this.setState(`${SCHEDULE_CHANNEL}.periods`, JSON.stringify(this.dayPeriods), true);
+    await this.setState(`${SCHEDULE_CHANNEL}.nowMinutes`, minutes, true);
+    await this.setState(`${SCHEDULE_CHANNEL}.currentPeriod`, (_a = period == null ? void 0 : period.id) != null ? _a : "", true);
+    await this.setState(`${SCHEDULE_CHANNEL}.currentItemIndex`, itemIndex, true);
+  }
   async onStateChange(id, state) {
     var _a;
-    if (!state || state.ack || !this.timerManager) {
+    if (!state || state.ack) {
+      return;
+    }
+    if (id.startsWith(`${this.namespace}.${SCHEDULE_CHANNEL}.`)) {
+      const localId2 = id.replace(`${this.namespace}.${SCHEDULE_CHANNEL}.`, "");
+      if (localId2 === "plan") {
+        const plan = (0, import_schedule_types.parseSchedulePlan)(state.val);
+        await this.setState(`${SCHEDULE_CHANNEL}.plan`, JSON.stringify(plan), true);
+        await this.publishScheduleRuntime();
+      }
+      return;
+    }
+    if (!this.timerManager || !id.startsWith(`${this.namespace}.${TIMER_CHANNEL}.`)) {
       return;
     }
     const localId = id.replace(`${this.namespace}.${TIMER_CHANNEL}.`, "");
@@ -242,6 +354,61 @@ class AutismSupport extends utils.Adapter {
       this.log.error(`Timer command failed (${localId}): ${error.message}`);
     }
   }
+  /**
+   * Custom pictogram upload (user-owned images only).
+   * ARASAAC images must never be uploaded here – use external IDs only.
+   */
+  async onMessage(obj) {
+    if (!(obj == null ? void 0 : obj.command)) {
+      return;
+    }
+    if (obj.command === "uploadPictogram") {
+      try {
+        const payload = obj.message;
+        const filename = String((payload == null ? void 0 : payload.filename) || "").replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 120);
+        const base64 = String((payload == null ? void 0 : payload.base64) || "");
+        if (!filename || !base64) {
+          throw new Error("filename and base64 required");
+        }
+        const lower = filename.toLowerCase();
+        if (!/\.(png|jpe?g|gif|webp|svg)$/.test(lower)) {
+          throw new Error("unsupported file type");
+        }
+        const buffer = Buffer.from(base64.replace(/^data:[^;]+;base64,/, ""), "base64");
+        if (buffer.length > 5 * 1024 * 1024) {
+          throw new Error("file too large (max 5 MB)");
+        }
+        const path = `pictograms/${filename}`;
+        await this.writeFileAsync(this.namespace, path, buffer);
+        if (obj.callback) {
+          this.sendTo(obj.from, obj.command, { ok: true, path, namespace: this.namespace }, obj.callback);
+        }
+      } catch (error) {
+        if (obj.callback) {
+          this.sendTo(
+            obj.from,
+            obj.command,
+            { ok: false, error: error.message },
+            obj.callback
+          );
+        }
+      }
+      return;
+    }
+    if (obj.command === "listPictograms") {
+      try {
+        const result = await this.readDirAsync(this.namespace, "pictograms");
+        const files = (result || []).filter((entry) => !entry.isDir).map((entry) => entry.file);
+        if (obj.callback) {
+          this.sendTo(obj.from, obj.command, { ok: true, files }, obj.callback);
+        }
+      } catch {
+        if (obj.callback) {
+          this.sendTo(obj.from, obj.command, { ok: true, files: [] }, obj.callback);
+        }
+      }
+    }
+  }
   async applyDurationParts(hours, minutes, maxHours) {
     if (!this.timerManager) {
       return;
@@ -255,6 +422,10 @@ class AutismSupport extends utils.Adapter {
   }
   onUnload(callback) {
     var _a;
+    if (this.scheduleTick) {
+      clearInterval(this.scheduleTick);
+      this.scheduleTick = null;
+    }
     (_a = this.timerManager) == null ? void 0 : _a.destroy();
     this.timerManager = null;
     callback();

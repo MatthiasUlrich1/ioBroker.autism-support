@@ -35,5 +35,14 @@
 	"start": "Start",
 	"pause": "Pause",
 	"resume": "Resume",
-	"stop": "Stop"
+	"stop": "Stop",
+	"DailyScheduleLive": "Daily Schedule (Live)",
+	"DailyScheduleConfig": "Daily Schedule (Config)",
+	"schedule_states": "Schedule states",
+	"oid_schedule_plan": "Plan (JSON)",
+	"oid_schedule_periods": "Day periods (JSON)",
+	"oid_schedule_now": "Current minutes",
+	"oid_schedule_current_item": "Current item index",
+	"adapter_instance": "Adapter instance",
+	"arasaac_language": "ARASAAC search language"
 }

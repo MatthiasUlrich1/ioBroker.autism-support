@@ -4,6 +4,36 @@ declare global {
 			defaultDurationHours: number;
 			defaultDurationMinutes: number;
 			maxDurationHours: number;
+
+			periodMorningEnabled: boolean;
+			periodMorningStart: string;
+			periodMorningEnd: string;
+			periodMorningColor: string;
+
+			periodForenoonEnabled: boolean;
+			periodForenoonStart: string;
+			periodForenoonEnd: string;
+			periodForenoonColor: string;
+
+			periodNoonEnabled: boolean;
+			periodNoonStart: string;
+			periodNoonEnd: string;
+			periodNoonColor: string;
+
+			periodAfternoonEnabled: boolean;
+			periodAfternoonStart: string;
+			periodAfternoonEnd: string;
+			periodAfternoonColor: string;
+
+			periodEveningEnabled: boolean;
+			periodEveningStart: string;
+			periodEveningEnd: string;
+			periodEveningColor: string;
+
+			periodNightEnabled: boolean;
+			periodNightStart: string;
+			periodNightEnd: string;
+			periodNightColor: string;
 		}
 	}
 }

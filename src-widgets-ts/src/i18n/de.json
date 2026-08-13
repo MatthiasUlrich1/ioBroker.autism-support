@@ -35,5 +35,14 @@
 	"start": "Start",
 	"pause": "Pause",
 	"resume": "Fortsetzen",
-	"stop": "Stopp"
+	"stop": "Stopp",
+	"DailyScheduleLive": "Tagesplan (Live)",
+	"DailyScheduleConfig": "Tagesplan (Konfiguration)",
+	"schedule_states": "Tagesplan-Datenpunkte",
+	"oid_schedule_plan": "Plan (JSON)",
+	"oid_schedule_periods": "Tagesbereiche (JSON)",
+	"oid_schedule_now": "Aktuelle Minuten",
+	"oid_schedule_current_item": "Aktueller Eintrag (Index)",
+	"adapter_instance": "Adapter-Instanz",
+	"arasaac_language": "ARASAAC-Suchsprache"
 }

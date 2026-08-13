@@ -1,11 +1,19 @@
 /*
- * ioBroker.autism-support – Visual Countdown (MVP)
+ * ioBroker.autism-support – Visual Countdown + Daily Schedule
  */
 
 import * as utils from "@iobroker/adapter-core";
 import { TimerManager } from "./lib/timer-manager";
+import {
+	dayPeriodsFromConfig,
+	findCurrentPeriod,
+	parseTimeToMinutes,
+	type DayPeriodDefinition,
+} from "./lib/day-periods";
+import { findCurrentItemIndex, parseSchedulePlan, type SchedulePlan } from "./lib/schedule-types";
 
 const TIMER_CHANNEL = "timer";
+const SCHEDULE_CHANNEL = "schedule";
 
 function secondsToParts(totalSeconds: number): { hours: number; minutes: number } {
 	const safe = Math.max(0, Math.round(totalSeconds));
@@ -17,6 +25,8 @@ function secondsToParts(totalSeconds: number): { hours: number; minutes: number 
 
 class AutismSupport extends utils.Adapter {
 	private timerManager: TimerManager | null = null;
+	private scheduleTick: ReturnType<typeof setInterval> | null = null;
+	private dayPeriods: DayPeriodDefinition[] = [];
 
 	public constructor(options: Partial<utils.AdapterOptions> = {}) {
 		super({
@@ -25,23 +35,34 @@ class AutismSupport extends utils.Adapter {
 		});
 		this.on("ready", this.onReady.bind(this));
 		this.on("stateChange", this.onStateChange.bind(this));
+		this.on("message", this.onMessage.bind(this));
 		this.on("unload", this.onUnload.bind(this));
 	}
 
 	private async onReady(): Promise<void> {
 		const maxHours = this.config.maxDurationHours ?? 24;
 		const defaultSeconds = this.getDefaultDurationSeconds(maxHours);
+		this.dayPeriods = dayPeriodsFromConfig(this.config);
 
 		await this.createTimerStates();
+		await this.createScheduleStates();
+
 		this.timerManager = new TimerManager(async snapshot => {
 			await this.publishTimerSnapshot(snapshot);
 		});
 
 		await this.timerManager.setDuration(defaultSeconds, maxHours);
 		await this.publishTimerSnapshot(this.timerManager.getSnapshot());
+		await this.publishScheduleRuntime();
 
 		this.subscribeStates(`${this.namespace}.${TIMER_CHANNEL}.*`);
-		this.log.info("Autism Support adapter ready – Visual Countdown initialized");
+		this.subscribeStates(`${this.namespace}.${SCHEDULE_CHANNEL}.*`);
+
+		this.scheduleTick = setInterval(() => {
+			void this.publishScheduleRuntime();
+		}, 30_000);
+
+		this.log.info("Autism Support adapter ready – Visual Countdown + Daily Schedule");
 	}
 
 	private getDefaultDurationSeconds(maxHours: number): number {
@@ -180,6 +201,84 @@ class AutismSupport extends utils.Adapter {
 		}
 	}
 
+	private async createScheduleStates(): Promise<void> {
+		await this.setObjectNotExistsAsync(SCHEDULE_CHANNEL, {
+			type: "channel",
+			common: { name: "Daily schedule" },
+			native: {},
+		});
+
+		await this.setObjectNotExistsAsync(`${SCHEDULE_CHANNEL}.plan`, {
+			type: "state",
+			common: {
+				name: "Schedule plan (JSON)",
+				type: "string",
+				role: "json",
+				read: true,
+				write: true,
+				def: JSON.stringify({ version: 1, items: [] }),
+			},
+			native: {},
+		});
+
+		await this.setObjectNotExistsAsync(`${SCHEDULE_CHANNEL}.periods`, {
+			type: "state",
+			common: {
+				name: "Day periods from admin (JSON, read-only)",
+				type: "string",
+				role: "json",
+				read: true,
+				write: false,
+			},
+			native: {},
+		});
+
+		await this.setObjectNotExistsAsync(`${SCHEDULE_CHANNEL}.nowMinutes`, {
+			type: "state",
+			common: {
+				name: "Minutes since midnight (local)",
+				type: "number",
+				role: "value",
+				read: true,
+				write: false,
+				unit: "min",
+				min: 0,
+				max: 1439,
+			},
+			native: {},
+		});
+
+		await this.setObjectNotExistsAsync(`${SCHEDULE_CHANNEL}.currentPeriod`, {
+			type: "state",
+			common: {
+				name: "Current day period id",
+				type: "string",
+				role: "text",
+				read: true,
+				write: false,
+			},
+			native: {},
+		});
+
+		await this.setObjectNotExistsAsync(`${SCHEDULE_CHANNEL}.currentItemIndex`, {
+			type: "state",
+			common: {
+				name: "Index of active schedule item (-1 = none)",
+				type: "number",
+				role: "value",
+				read: true,
+				write: false,
+				min: -1,
+			},
+			native: {},
+		});
+
+		const planState = await this.getStateAsync(`${SCHEDULE_CHANNEL}.plan`);
+		if (planState?.val == null || planState.val === "") {
+			await this.setState(`${SCHEDULE_CHANNEL}.plan`, JSON.stringify({ version: 1, items: [] }), true);
+		}
+	}
+
 	private async publishTimerSnapshot(snapshot: {
 		duration: number;
 		remaining: number;
@@ -196,8 +295,40 @@ class AutismSupport extends utils.Adapter {
 		await this.setState(`${TIMER_CHANNEL}.finished`, snapshot.finished, true);
 	}
 
+	private async getPlan(): Promise<SchedulePlan> {
+		const state = await this.getStateAsync(`${SCHEDULE_CHANNEL}.plan`);
+		return parseSchedulePlan(state?.val);
+	}
+
+	private async publishScheduleRuntime(): Promise<void> {
+		const now = new Date();
+		const minutes = now.getHours() * 60 + now.getMinutes();
+		const period = findCurrentPeriod(minutes, this.dayPeriods);
+		const plan = await this.getPlan();
+		const itemIndex = findCurrentItemIndex(plan, minutes, parseTimeToMinutes);
+
+		await this.setState(`${SCHEDULE_CHANNEL}.periods`, JSON.stringify(this.dayPeriods), true);
+		await this.setState(`${SCHEDULE_CHANNEL}.nowMinutes`, minutes, true);
+		await this.setState(`${SCHEDULE_CHANNEL}.currentPeriod`, period?.id ?? "", true);
+		await this.setState(`${SCHEDULE_CHANNEL}.currentItemIndex`, itemIndex, true);
+	}
+
 	private async onStateChange(id: string, state: ioBroker.State | null | undefined): Promise<void> {
-		if (!state || state.ack || !this.timerManager) {
+		if (!state || state.ack) {
+			return;
+		}
+
+		if (id.startsWith(`${this.namespace}.${SCHEDULE_CHANNEL}.`)) {
+			const localId = id.replace(`${this.namespace}.${SCHEDULE_CHANNEL}.`, "");
+			if (localId === "plan") {
+				const plan = parseSchedulePlan(state.val);
+				await this.setState(`${SCHEDULE_CHANNEL}.plan`, JSON.stringify(plan), true);
+				await this.publishScheduleRuntime();
+			}
+			return;
+		}
+
+		if (!this.timerManager || !id.startsWith(`${this.namespace}.${TIMER_CHANNEL}.`)) {
 			return;
 		}
 
@@ -255,6 +386,72 @@ class AutismSupport extends utils.Adapter {
 		}
 	}
 
+	/**
+	 * Custom pictogram upload (user-owned images only).
+	 * ARASAAC images must never be uploaded here – use external IDs only.
+	 */
+	private async onMessage(obj: ioBroker.Message): Promise<void> {
+		if (!obj?.command) {
+			return;
+		}
+
+		if (obj.command === "uploadPictogram") {
+			try {
+				const payload = obj.message as {
+					filename?: string;
+					base64?: string;
+					mime?: string;
+				};
+				const filename = String(payload?.filename || "")
+					.replace(/[^a-zA-Z0-9._-]/g, "_")
+					.slice(0, 120);
+				const base64 = String(payload?.base64 || "");
+				if (!filename || !base64) {
+					throw new Error("filename and base64 required");
+				}
+				const lower = filename.toLowerCase();
+				if (!/\.(png|jpe?g|gif|webp|svg)$/.test(lower)) {
+					throw new Error("unsupported file type");
+				}
+				const buffer = Buffer.from(base64.replace(/^data:[^;]+;base64,/, ""), "base64");
+				if (buffer.length > 5 * 1024 * 1024) {
+					throw new Error("file too large (max 5 MB)");
+				}
+				const path = `pictograms/${filename}`;
+				await this.writeFileAsync(this.namespace, path, buffer);
+				if (obj.callback) {
+					this.sendTo(obj.from, obj.command, { ok: true, path, namespace: this.namespace }, obj.callback);
+				}
+			} catch (error) {
+				if (obj.callback) {
+					this.sendTo(
+						obj.from,
+						obj.command,
+						{ ok: false, error: (error as Error).message },
+						obj.callback,
+					);
+				}
+			}
+			return;
+		}
+
+		if (obj.command === "listPictograms") {
+			try {
+				const result = await this.readDirAsync(this.namespace, "pictograms");
+				const files = (result || [])
+					.filter(entry => !entry.isDir)
+					.map(entry => entry.file);
+				if (obj.callback) {
+					this.sendTo(obj.from, obj.command, { ok: true, files }, obj.callback);
+				}
+			} catch {
+				if (obj.callback) {
+					this.sendTo(obj.from, obj.command, { ok: true, files: [] }, obj.callback);
+				}
+			}
+		}
+	}
+
 	private async applyDurationParts(
 		hours: number | undefined,
 		minutes: number | undefined,
@@ -272,6 +469,10 @@ class AutismSupport extends utils.Adapter {
 	}
 
 	private onUnload(callback: () => void): void {
+		if (this.scheduleTick) {
+			clearInterval(this.scheduleTick);
+			this.scheduleTick = null;
+		}
 		this.timerManager?.destroy();
 		this.timerManager = null;
 		callback();

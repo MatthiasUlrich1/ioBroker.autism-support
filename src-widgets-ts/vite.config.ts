@@ -16,6 +16,8 @@ const config = {
 			exposes: {
 				"./VisualCountdownLiveWidget": "./src/VisualCountdownLiveWidget",
 				"./VisualCountdownConfigWidget": "./src/VisualCountdownConfigWidget",
+				"./DailyScheduleLiveWidget": "./src/DailyScheduleLiveWidget",
+				"./DailyScheduleConfigWidget": "./src/DailyScheduleConfigWidget",
 				"./translations": "./src/translations",
 			},
 			remotes: {},

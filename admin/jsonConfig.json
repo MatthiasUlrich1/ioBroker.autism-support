@@ -9,11 +9,7 @@
 				"_timerHeader": {
 					"type": "header",
 					"text": "timer_settings_header",
-					"xs": 12,
-					"sm": 12,
-					"md": 12,
-					"lg": 12,
-					"xl": 12
+					"xs": 12
 				},
 				"defaultDurationHours": {
 					"type": "number",
@@ -23,21 +19,16 @@
 					"newLine": true,
 					"xs": 12,
 					"sm": 6,
-					"md": 4,
-					"lg": 3,
-					"xl": 3
+					"md": 4
 				},
 				"defaultDurationMinutes": {
 					"type": "number",
 					"label": "default_duration_minutes",
 					"min": 0,
 					"max": 59,
-					"newLine": true,
 					"xs": 12,
 					"sm": 6,
-					"md": 4,
-					"lg": 3,
-					"xl": 3
+					"md": 4
 				},
 				"maxDurationHours": {
 					"type": "number",
@@ -47,23 +38,278 @@
 					"newLine": true,
 					"xs": 12,
 					"sm": 6,
-					"md": 4,
-					"lg": 3,
-					"xl": 3
+					"md": 4
 				},
 				"_timerHint": {
 					"type": "staticText",
 					"text": "timer_settings_hint",
-					"style": {
-						"fontSize": "0.9em",
-						"opacity": 0.85
-					},
+					"style": { "fontSize": "0.9em", "opacity": 0.85 },
 					"newLine": true,
+					"xs": 12
+				}
+			}
+		},
+		"_dayPeriodsTab": {
+			"type": "panel",
+			"label": "day_periods_tab",
+			"items": {
+				"_dayPeriodsHeader": {
+					"type": "header",
+					"text": "day_periods_header",
+					"xs": 12
+				},
+				"_dayPeriodsHint": {
+					"type": "staticText",
+					"text": "day_periods_hint",
+					"style": { "fontSize": "0.9em", "opacity": 0.85 },
+					"xs": 12
+				},
+
+				"_morningHeader": {
+					"type": "header",
+					"text": "period_morning",
+					"size": 14,
+					"newLine": true,
+					"xs": 12
+				},
+				"periodMorningEnabled": {
+					"type": "checkbox",
+					"label": "period_enabled",
+					"default": true,
 					"xs": 12,
-					"sm": 12,
-					"md": 12,
-					"lg": 12,
-					"xl": 12
+					"sm": 3
+				},
+				"periodMorningStart": {
+					"type": "text",
+					"label": "period_start",
+					"default": "06:00",
+					"xs": 6,
+					"sm": 3
+				},
+				"periodMorningEnd": {
+					"type": "text",
+					"label": "period_end",
+					"default": "09:00",
+					"xs": 6,
+					"sm": 3
+				},
+				"periodMorningColor": {
+					"type": "color",
+					"label": "period_color",
+					"default": "#FFE082",
+					"xs": 12,
+					"sm": 3
+				},
+
+				"_forenoonHeader": {
+					"type": "header",
+					"text": "period_forenoon",
+					"size": 14,
+					"newLine": true,
+					"xs": 12
+				},
+				"periodForenoonEnabled": {
+					"type": "checkbox",
+					"label": "period_enabled",
+					"default": true,
+					"xs": 12,
+					"sm": 3
+				},
+				"periodForenoonStart": {
+					"type": "text",
+					"label": "period_start",
+					"default": "09:00",
+					"xs": 6,
+					"sm": 3
+				},
+				"periodForenoonEnd": {
+					"type": "text",
+					"label": "period_end",
+					"default": "12:00",
+					"xs": 6,
+					"sm": 3
+				},
+				"periodForenoonColor": {
+					"type": "color",
+					"label": "period_color",
+					"default": "#FFCC80",
+					"xs": 12,
+					"sm": 3
+				},
+
+				"_noonHeader": {
+					"type": "header",
+					"text": "period_noon",
+					"size": 14,
+					"newLine": true,
+					"xs": 12
+				},
+				"periodNoonEnabled": {
+					"type": "checkbox",
+					"label": "period_enabled",
+					"default": true,
+					"xs": 12,
+					"sm": 3
+				},
+				"periodNoonStart": {
+					"type": "text",
+					"label": "period_start",
+					"default": "12:00",
+					"xs": 6,
+					"sm": 3
+				},
+				"periodNoonEnd": {
+					"type": "text",
+					"label": "period_end",
+					"default": "14:00",
+					"xs": 6,
+					"sm": 3
+				},
+				"periodNoonColor": {
+					"type": "color",
+					"label": "period_color",
+					"default": "#FFAB91",
+					"xs": 12,
+					"sm": 3
+				},
+
+				"_afternoonHeader": {
+					"type": "header",
+					"text": "period_afternoon",
+					"size": 14,
+					"newLine": true,
+					"xs": 12
+				},
+				"periodAfternoonEnabled": {
+					"type": "checkbox",
+					"label": "period_enabled",
+					"default": true,
+					"xs": 12,
+					"sm": 3
+				},
+				"periodAfternoonStart": {
+					"type": "text",
+					"label": "period_start",
+					"default": "14:00",
+					"xs": 6,
+					"sm": 3
+				},
+				"periodAfternoonEnd": {
+					"type": "text",
+					"label": "period_end",
+					"default": "17:00",
+					"xs": 6,
+					"sm": 3
+				},
+				"periodAfternoonColor": {
+					"type": "color",
+					"label": "period_color",
+					"default": "#81C784",
+					"xs": 12,
+					"sm": 3
+				},
+
+				"_eveningHeader": {
+					"type": "header",
+					"text": "period_evening",
+					"size": 14,
+					"newLine": true,
+					"xs": 12
+				},
+				"periodEveningEnabled": {
+					"type": "checkbox",
+					"label": "period_enabled",
+					"default": true,
+					"xs": 12,
+					"sm": 3
+				},
+				"periodEveningStart": {
+					"type": "text",
+					"label": "period_start",
+					"default": "17:00",
+					"xs": 6,
+					"sm": 3
+				},
+				"periodEveningEnd": {
+					"type": "text",
+					"label": "period_end",
+					"default": "21:00",
+					"xs": 6,
+					"sm": 3
+				},
+				"periodEveningColor": {
+					"type": "color",
+					"label": "period_color",
+					"default": "#7986CB",
+					"xs": 12,
+					"sm": 3
+				},
+
+				"_nightHeader": {
+					"type": "header",
+					"text": "period_night",
+					"size": 14,
+					"newLine": true,
+					"xs": 12
+				},
+				"periodNightEnabled": {
+					"type": "checkbox",
+					"label": "period_enabled",
+					"default": true,
+					"xs": 12,
+					"sm": 3
+				},
+				"periodNightStart": {
+					"type": "text",
+					"label": "period_start",
+					"default": "21:00",
+					"xs": 6,
+					"sm": 3
+				},
+				"periodNightEnd": {
+					"type": "text",
+					"label": "period_end",
+					"default": "06:00",
+					"xs": 6,
+					"sm": 3
+				},
+				"periodNightColor": {
+					"type": "color",
+					"label": "period_color",
+					"default": "#5C6BC0",
+					"xs": 12,
+					"sm": 3
+				},
+				"_nightWrapHint": {
+					"type": "staticText",
+					"text": "period_night_wrap_hint",
+					"style": { "fontSize": "0.85em", "opacity": 0.8 },
+					"newLine": true,
+					"xs": 12
+				}
+			}
+		},
+		"_pictogramsTab": {
+			"type": "panel",
+			"label": "pictograms_tab",
+			"items": {
+				"_pictogramsHeader": {
+					"type": "header",
+					"text": "pictograms_header",
+					"xs": 12
+				},
+				"_arasaacInfo": {
+					"type": "staticText",
+					"text": "arasaac_license_info",
+					"style": { "fontSize": "0.9em" },
+					"xs": 12
+				},
+				"_customInfo": {
+					"type": "staticText",
+					"text": "custom_pictogram_info",
+					"style": { "fontSize": "0.9em", "opacity": 0.9 },
+					"newLine": true,
+					"xs": 12
 				}
 			}
 		}

@@ -1,8 +1,12 @@
 {
 	"common": {
 		"name": "autism-support",
-		"version": "0.0.17",
+		"version": "0.1.1",
 		"news": {
+			"0.1.1": {
+				"en": "Daily schedule with time bar, day periods, ARASAAC (external) + custom pictograms",
+				"de": "Tagesplan mit Zeitbalken, Tagesbereiche, ARASAAC (extern) + eigene Piktogramme"
+			},
 			"0.0.17": {
 				"en": "Geometry-aligned segment ticks; optional colored border",
 				"de": "Segmentstriche an Geometrie; optionaler farbiger Rahmen"
@@ -136,6 +140,7 @@
 		"mode": "daemon",
 		"type": "general",
 		"compact": true,
+		"messagebox": true,
 		"adminUI": {
 			"config": "json",
 			"tab": "materialize"
@@ -176,6 +181,24 @@
 				"components": [
 					"VisualCountdownConfigWidget"
 				]
+			},
+			"asDailyScheduleLive": {
+				"i18n": "component",
+				"name": "asDailyScheduleLive",
+				"url": "autism-support/customWidgets.js",
+				"bundlerType": "module",
+				"components": [
+					"DailyScheduleLiveWidget"
+				]
+			},
+			"asDailyScheduleConfig": {
+				"i18n": "component",
+				"name": "asDailyScheduleConfig",
+				"url": "autism-support/customWidgets.js",
+				"bundlerType": "module",
+				"components": [
+					"DailyScheduleConfigWidget"
+				]
 			}
 		},
 		"dependencies": [
@@ -193,7 +216,31 @@
 	"native": {
 		"defaultDurationHours": 1,
 		"defaultDurationMinutes": 0,
-		"maxDurationHours": 24
+		"maxDurationHours": 24,
+		"periodMorningEnabled": true,
+		"periodMorningStart": "06:00",
+		"periodMorningEnd": "09:00",
+		"periodMorningColor": "#FFE082",
+		"periodForenoonEnabled": true,
+		"periodForenoonStart": "09:00",
+		"periodForenoonEnd": "12:00",
+		"periodForenoonColor": "#FFCC80",
+		"periodNoonEnabled": true,
+		"periodNoonStart": "12:00",
+		"periodNoonEnd": "14:00",
+		"periodNoonColor": "#FFAB91",
+		"periodAfternoonEnabled": true,
+		"periodAfternoonStart": "14:00",
+		"periodAfternoonEnd": "17:00",
+		"periodAfternoonColor": "#81C784",
+		"periodEveningEnabled": true,
+		"periodEveningStart": "17:00",
+		"periodEveningEnd": "21:00",
+		"periodEveningColor": "#7986CB",
+		"periodNightEnabled": true,
+		"periodNightStart": "21:00",
+		"periodNightEnd": "06:00",
+		"periodNightColor": "#5C6BC0"
 	},
 	"objects": [],
 	"instanceObjects": []
