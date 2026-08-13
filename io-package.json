@@ -1,8 +1,12 @@
 {
 	"common": {
 		"name": "autism-support",
-		"version": "0.1.6",
+		"version": "0.1.7",
 		"news": {
+			"0.1.7": {
+				"en": "Fix period toggles; keep fixed pictogram size and grow period bar instead",
+				"de": "Tagesbereich-Schalter repariert; feste Piktogramm-Größe, Balken wächst bei kurzen Zeiten"
+			},
 			"0.1.6": {
 				"en": "Shared scroll; no duplicate pictograms; thin time border; 2-column overlaps",
 				"de": "Gemeinsames Scrollen; keine doppelten Piktogramme; dünner Zeitrahmen; 2 Spalten bei Überlappung"

@@ -100,14 +100,20 @@ export default class DailyScheduleLiveWidget extends (window.visRxWidget as type
 		return `${DailyScheduleLiveWidget.adapter}_`;
 	}
 
+	private getPeriodOverridesOid(): string {
+		return (
+			this.state.rxData.oidPeriodOverrides ||
+			`${this.state.rxData.adapterInstance || "autism-support.0"}.schedule.periodOverrides`
+		);
+	}
+
 	renderWidgetBody(props: RxRenderWidgetProps): React.JSX.Element {
 		super.renderWidgetBody(props);
 
 		const plan = parseSchedulePlan(this.state.values[`${this.state.rxData.oidPlan}.val`]);
 		const basePeriods = parseDayPeriods(this.state.values[`${this.state.rxData.oidPeriods}.val`]);
-		const overrides = parsePeriodOverrides(
-			this.state.values[`${this.state.rxData.oidPeriodOverrides}.val`],
-		);
+		const overridesOid = this.getPeriodOverridesOid();
+		const overrides = parsePeriodOverrides(this.state.values[`${overridesOid}.val`]);
 		const periods = applyPeriodOverrides(basePeriods, overrides);
 		const nowMinutes = Number(this.state.values[`${this.state.rxData.oidNowMinutes}.val`] ?? 0);
 		const currentItemIndex = Number(

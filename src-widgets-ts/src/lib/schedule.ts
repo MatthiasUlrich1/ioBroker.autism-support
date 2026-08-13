@@ -75,7 +75,10 @@ export function parseDayPeriods(raw: unknown): DayPeriodDefinition[] {
 		if (!Array.isArray(data) || data.length === 0) {
 			return DEFAULT_DAY_PERIODS;
 		}
-		return data as DayPeriodDefinition[];
+		return (data as DayPeriodDefinition[]).map(period => ({
+			...period,
+			enabled: period.enabled !== false,
+		}));
 	} catch {
 		return DEFAULT_DAY_PERIODS;
 	}
@@ -100,7 +103,10 @@ export function applyPeriodOverrides(
 ): DayPeriodDefinition[] {
 	return periods.map(period => ({
 		...period,
-		enabled: overrides[period.id] === undefined ? period.enabled : Boolean(overrides[period.id]),
+		enabled:
+			overrides[period.id] === undefined
+				? period.enabled !== false
+				: Boolean(overrides[period.id]),
 	}));
 }
 

@@ -47,6 +47,8 @@ interface DailyScheduleConfigState extends VisRxWidgetState {
 	searchHits: ArasaacSearchHit[];
 	searchError: string;
 	busy: boolean;
+	/** Optimistic day-period on/off until ioBroker state catches up. */
+	localPeriodOverrides: Record<string, boolean>;
 }
 
 function newItem(): ScheduleItem {
@@ -148,6 +150,7 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 			searchHits: [],
 			searchError: "",
 			busy: false,
+			localPeriodOverrides: {},
 		};
 	}
 
@@ -168,6 +171,33 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 		if (id === this.state.rxData.oidPlan) {
 			this.syncDraftFromState();
 		}
+		const overridesOid = this.getPeriodOverridesOid();
+		if (id === overridesOid) {
+			// Server state is source of truth; drop optimistic keys that match.
+			const server = parsePeriodOverrides(this.state.values[`${overridesOid}.val`]);
+			this.setState(prev => {
+				const nextLocal = { ...prev.localPeriodOverrides };
+				for (const key of Object.keys(nextLocal)) {
+					if (server[key] === nextLocal[key]) {
+						delete nextLocal[key];
+					}
+				}
+				return { localPeriodOverrides: nextLocal };
+			});
+		}
+	}
+
+	private getPeriodOverridesOid(): string {
+		return (
+			this.state.rxData.oidPeriodOverrides ||
+			`${this.state.rxData.adapterInstance || "autism-support.0"}.schedule.periodOverrides`
+		);
+	}
+
+	private getMergedPeriodOverrides(): Record<string, boolean> {
+		const oid = this.getPeriodOverridesOid();
+		const fromState = parsePeriodOverrides(this.state.values[`${oid}.val`]);
+		return { ...fromState, ...this.state.localPeriodOverrides };
 	}
 
 	private syncDraftFromState(): void {
@@ -196,17 +226,24 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 	}
 
 	private async setPeriodEnabled(periodId: string, enabled: boolean): Promise<void> {
-		const oid = this.state.rxData.oidPeriodOverrides;
-		if (!oid) {
-			return;
-		}
-		const current = parsePeriodOverrides(this.state.values[`${oid}.val`]);
+		const oid = this.getPeriodOverridesOid();
+		const current = this.getMergedPeriodOverrides();
 		const next = { ...current, [periodId]: enabled };
-		this.setState({ busy: true });
+		// Optimistic UI so the preview updates immediately (do not block checkboxes with busy).
+		this.setState(prev => ({
+			localPeriodOverrides: { ...prev.localPeriodOverrides, [periodId]: enabled },
+		}));
 		try {
 			await this.props.context.socket.setState(oid, JSON.stringify(next), false);
-		} finally {
-			this.setState({ busy: false });
+		} catch (error) {
+			this.setState(prev => {
+				const local = { ...prev.localPeriodOverrides };
+				delete local[periodId];
+				return {
+					localPeriodOverrides: local,
+					searchError: (error as Error).message || "Tagesbereich konnte nicht gespeichert werden",
+				};
+			});
 		}
 	}
 
@@ -273,9 +310,7 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 		super.renderWidgetBody(props);
 
 		const basePeriods = parseDayPeriods(this.state.values[`${this.state.rxData.oidPeriods}.val`]);
-		const overrides = parsePeriodOverrides(
-			this.state.values[`${this.state.rxData.oidPeriodOverrides}.val`],
-		);
+		const overrides = this.getMergedPeriodOverrides();
 		const periods = applyPeriodOverrides(basePeriods, overrides);
 		const nowMinutes = Number(this.state.values[`${this.state.rxData.oidNowMinutes}.val`] ?? 0);
 		const currentItemIndex = Number(
@@ -343,7 +378,6 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 										<Checkbox
 											size="small"
 											checked={periods.find(p => p.id === period.id)?.enabled !== false}
-											disabled={this.state.busy}
 											onChange={(_, checked) => void this.setPeriodEnabled(period.id, checked)}
 										/>
 									}

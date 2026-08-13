@@ -8,7 +8,6 @@ import {
 	type ScheduleItem,
 	type SchedulePlan,
 	parseTimeToMinutes,
-	periodToSegments,
 	resolveItemImageUrl,
 } from "../lib/schedule";
 
@@ -27,6 +26,7 @@ interface PeriodBlockLayout {
 	id: string;
 	periodId: string;
 	color: string;
+	enabled: boolean;
 	startMin: number;
 	endMin: number;
 	topPx: number;
@@ -43,6 +43,9 @@ interface ItemPlacement {
 	heightPx: number;
 	lane: number;
 }
+
+const DISABLED_PERIOD_COLOR = "#ECEFF1";
+const ITEM_FRAME_PAD = 16;
 
 function clamp(n: number, min: number, max: number): number {
 	return Math.max(min, Math.min(max, n));
@@ -100,12 +103,40 @@ function isNowInSegment(nowMinutes: number, segStart: number, segEnd: number): b
 	return nowMinutes >= segStart && nowMinutes < segEnd;
 }
 
-function countItemsInSegment(items: ScheduleItem[], segStart: number, segEnd: number): number {
-	return items.reduce((count, item) => {
+/** Segments ignoring the period.enabled flag (caller decides visibility). */
+function periodSegmentsRaw(
+	period: DayPeriodDefinition,
+): Array<{ startMin: number; endMin: number }> {
+	const s = parseTimeToMinutes(period.start);
+	const e = parseTimeToMinutes(period.end);
+	if (s === e) {
+		return [{ startMin: 0, endMin: 1440 }];
+	}
+	if (s < e) {
+		return [{ startMin: s, endMin: e }];
+	}
+	return [
+		{ startMin: s, endMin: 1440 },
+		{ startMin: 0, endMin: e },
+	];
+}
+
+function clipsInSegment(
+	items: ScheduleItem[],
+	segStart: number,
+	segEnd: number,
+): Array<{ startMin: number; endMin: number }> {
+	const clips: Array<{ startMin: number; endMin: number }> = [];
+	for (const item of items) {
 		const s = itemStartMin(item);
 		const e = itemEndMin(item);
-		return e > segStart && s < segEnd ? count + 1 : count;
-	}, 0);
+		const clipStart = Math.max(s, segStart);
+		const clipEnd = Math.min(e, segEnd);
+		if (clipEnd > clipStart) {
+			clips.push({ startMin: clipStart, endMin: clipEnd });
+		}
+	}
+	return clips;
 }
 
 /** Map clock minutes onto stretched period blocks (clock-linear within each period). */
@@ -117,12 +148,10 @@ export function minutesToY(minutes: number, blocks: PeriodBlockLayout[]): number
 		return blocks[0].topPx;
 	}
 	for (const block of blocks) {
-		if (minutes <= block.endMin) {
-			if (minutes >= block.startMin) {
-				const span = Math.max(1, block.endMin - block.startMin);
-				const frac = clamp((minutes - block.startMin) / span, 0, 1);
-				return block.topPx + frac * block.heightPx;
-			}
+		if (minutes <= block.endMin && minutes >= block.startMin) {
+			const span = Math.max(1, block.endMin - block.startMin);
+			const frac = clamp((minutes - block.startMin) / span, 0, 1);
+			return block.topPx + frac * block.heightPx;
 		}
 	}
 	const last = blocks[blocks.length - 1];
@@ -141,7 +170,7 @@ export function computeNowMarkerTop(
 	return null;
 }
 
-/** Greedy lane packing for overlaps; at most 2 columns (extra overlaps share column 2). */
+/** Greedy lane packing for overlaps; at most 2 columns. */
 export function assignLanes(
 	placements: Array<{ startMin: number; endMin: number }>,
 	maxLanes = 2,
@@ -173,7 +202,9 @@ export function assignLanes(
 }
 
 /**
- * Period blocks stretch by pictogram count; items are placed once across the full span.
+ * Period height grows so every pictogram keeps its configured size;
+ * short time spans enlarge the day-period block instead of shrinking icons.
+ * Disabled periods stay in the layout (neutral) when they contain items, but without period color.
  */
 export function buildScheduleLayout(
 	items: ScheduleItem[],
@@ -181,32 +212,44 @@ export function buildScheduleLayout(
 	nowMinutes: number,
 	pictoPx: number,
 ): { blocks: PeriodBlockLayout[]; placements: ItemPlacement[]; laneCount: number; totalHeight: number } {
-	const enabled = periods.filter(p => p.enabled);
-	const rowUnit = pictoPx + 24;
-	const minPeriodH = Math.max(48, pictoPx + 8);
+	const minItemH = pictoPx + ITEM_FRAME_PAD;
+	const minPeriodH = minItemH;
 	const blocks: PeriodBlockLayout[] = [];
 	let topPx = 0;
 
-	for (const period of enabled) {
-		for (const seg of periodToSegments(period)) {
-			const itemCount = countItemsInSegment(items, seg.startMin, seg.endMin);
+	for (const period of periods) {
+		for (const seg of periodSegmentsRaw(period)) {
+			const clips = clipsInSegment(items, seg.startMin, seg.endMin);
 			const hasNow = isNowInSegment(nowMinutes, seg.startMin, seg.endMin);
-			if (!itemCount && !hasNow) {
+
+			// Unused periods stay hidden. Disabled periods with content stay as neutral spacers.
+			if (!clips.length && !hasNow) {
 				continue;
 			}
 
-			// Stretch by count (not linear clock height between periods).
-			const heightPx = Math.max(minPeriodH, Math.max(1, itemCount) * rowUnit);
+			const span = Math.max(1, seg.endMin - seg.startMin);
+			let heightFromClips = clips.length ? clips.length * minItemH : minPeriodH;
+			for (const clip of clips) {
+				const dur = Math.max(1, clip.endMin - clip.startMin);
+				// Enlarge period until this clip maps to at least minItemH.
+				heightFromClips = Math.max(heightFromClips, (minItemH * span) / dur);
+			}
+			if (!clips.length && hasNow) {
+				heightFromClips = minPeriodH;
+			}
+
+			const heightPx = Math.max(minPeriodH, heightFromClips);
 
 			blocks.push({
 				id: `${period.id}-${seg.startMin}`,
 				periodId: period.id,
-				color: period.color,
+				color: period.enabled ? period.color : DISABLED_PERIOD_COLOR,
+				enabled: period.enabled,
 				startMin: seg.startMin,
 				endMin: seg.endMin,
 				topPx,
 				heightPx,
-				itemCount,
+				itemCount: clips.length,
 			});
 			topPx += heightPx;
 		}
@@ -230,9 +273,7 @@ export function buildScheduleLayout(
 	});
 
 	const laneAssignments = assignLanes(visible);
-	const laneCount = laneAssignments.length
-		? Math.max(...laneAssignments) + 1
-		: 1;
+	const laneCount = laneAssignments.length ? Math.max(...laneAssignments) + 1 : 1;
 
 	const placements: ItemPlacement[] = visible.map((entry, i) => {
 		const top = minutesToY(entry.startMin, blocks);
@@ -240,7 +281,7 @@ export function buildScheduleLayout(
 		return {
 			...entry,
 			topPx: top,
-			heightPx: Math.max(pictoPx * 0.55, bottom - top),
+			heightPx: Math.max(minItemH, bottom - top),
 			lane: laneAssignments[i] ?? 0,
 		};
 	});
@@ -258,7 +299,6 @@ function renderItemCard(
 	const { item, itemIndex, topPx, heightPx, lane } = placement;
 	const active = itemIndex === currentItemIndex;
 	const img = resolveItemImageUrl(item, adapterInstance);
-	const slotPicto = Math.min(pictoPx, Math.max(28, Math.min(pictoPx, heightPx - 10)));
 	const widthPct = 100 / laneCount;
 	const leftPct = lane * widthPct;
 
@@ -275,9 +315,9 @@ function renderItemCard(
 				border: active ? "2px solid #FF8A00" : "1.5px solid rgba(0,0,0,0.28)",
 				background: active ? "rgba(255,138,0,0.12)" : "rgba(255,255,255,0.55)",
 				display: "flex",
-				alignItems: "center",
+				alignItems: "flex-start",
 				gap: 8,
-				padding: "4px 8px",
+				padding: "8px",
 				overflow: "hidden",
 				zIndex: active ? 2 : 1,
 			}}
@@ -285,8 +325,8 @@ function renderItemCard(
 		>
 			<div
 				style={{
-					width: slotPicto,
-					height: slotPicto,
+					width: pictoPx,
+					height: pictoPx,
 					flexShrink: 0,
 					borderRadius: 8,
 					background: "#fff",
@@ -300,18 +340,18 @@ function renderItemCard(
 					<img
 						src={img}
 						alt=""
-						style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }}
+						style={{ width: "100%", height: "100%", objectFit: "contain" }}
 						referrerPolicy="no-referrer"
 					/>
 				) : (
 					<span style={{ fontSize: 12, opacity: 0.5 }}>?</span>
 				)}
 			</div>
-			<div style={{ flex: 1, minWidth: 0 }}>
+			<div style={{ flex: 1, minWidth: 0, paddingTop: 2 }}>
 				<div
 					style={{
 						fontWeight: 700,
-						fontSize: Math.max(12, Math.min(16, slotPicto * 0.22)),
+						fontSize: Math.max(13, Math.min(18, pictoPx * 0.22)),
 						lineHeight: 1.2,
 						overflow: "hidden",
 						textOverflow: "ellipsis",
@@ -320,7 +360,7 @@ function renderItemCard(
 				>
 					{item.label || "—"}
 				</div>
-				<div style={{ fontSize: 11, opacity: 0.75, lineHeight: 1.2 }}>
+				<div style={{ fontSize: 12, opacity: 0.75, lineHeight: 1.2 }}>
 					{item.start} – {item.end}
 				</div>
 			</div>
@@ -329,7 +369,7 @@ function renderItemCard(
 }
 
 /**
- * Stretched period bar + single pictogram cards (border spans full time; overlaps use a 2nd column).
+ * Stretched period bar + fixed-size pictograms; overlaps use a 2nd column.
  * Pictograms and bar share one scroll container.
  */
 export default function DailyScheduleVisual({
@@ -354,6 +394,7 @@ export default function DailyScheduleVisual({
 	const usesArasaac = plan.items.some(item => item.source === "arasaac" && item.arasaacId);
 	const attribution = locale.startsWith("de") ? ARASAAC_ATTRIBUTION_DE : ARASAAC_ATTRIBUTION_EN;
 	const activePeriods = periods.filter(p => p.enabled);
+	const barBlocks = blocks.filter(b => b.enabled);
 
 	const viewStartMin = blocks.length ? blocks[0].startMin : 0;
 	const viewEndMin = blocks.length ? blocks[blocks.length - 1].endMin : 1440;
@@ -371,7 +412,6 @@ export default function DailyScheduleVisual({
 				fontFamily: "Segoe UI, system-ui, sans-serif",
 			}}
 		>
-			{/* Single scroll: pictograms + bar move together */}
 			<div
 				style={{
 					flex: 1,
@@ -418,6 +458,7 @@ export default function DailyScheduleVisual({
 							}}
 							title={`${formatClock(viewStartMin)} – ${formatClock(viewEndMin)}`}
 						>
+							{/* Full stack keeps Y alignment; only enabled periods show their color */}
 							{blocks.map((block, index) => (
 								<div
 									key={block.id}
@@ -433,8 +474,13 @@ export default function DailyScheduleVisual({
 											index < blocks.length - 1
 												? "1px solid rgba(255,255,255,0.55)"
 												: "none",
+										opacity: block.enabled ? 1 : 0.35,
 									}}
-									title={`${periodLabel(block.periodId, locale)} · ${formatClock(block.startMin)} – ${formatClock(block.endMin)}`}
+									title={
+										block.enabled
+											? `${periodLabel(block.periodId, locale)} · ${formatClock(block.startMin)} – ${formatClock(block.endMin)}`
+											: `${periodLabel(block.periodId, locale)} (${locale.startsWith("de") ? "aus" : "off"})`
+									}
 								/>
 							))}
 
@@ -477,8 +523,8 @@ export default function DailyScheduleVisual({
 
 			<div style={{ fontSize: 11, opacity: 0.7 }}>
 				{locale.startsWith("de")
-					? `${sorted.length} Piktogramm${sorted.length === 1 ? "" : "e"} · ${blocks.length} Tagesbereich${blocks.length === 1 ? "" : "e"}${laneCount > 1 ? " · 2 Spalten" : ""}`
-					: `${sorted.length} pictogram${sorted.length === 1 ? "" : "s"} · ${blocks.length} day period${blocks.length === 1 ? "" : "s"}${laneCount > 1 ? " · 2 columns" : ""}`}
+					? `${sorted.length} Piktogramm${sorted.length === 1 ? "" : "e"} · ${barBlocks.length} Tagesbereich${barBlocks.length === 1 ? "" : "e"}${laneCount > 1 ? " · 2 Spalten" : ""}`
+					: `${sorted.length} pictogram${sorted.length === 1 ? "" : "s"} · ${barBlocks.length} day period${barBlocks.length === 1 ? "" : "s"}${laneCount > 1 ? " · 2 columns" : ""}`}
 			</div>
 
 			<div style={{ display: "flex", flexWrap: "wrap", gap: 8, fontSize: 12 }}>
