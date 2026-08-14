@@ -22,7 +22,7 @@ jobs:
     steps:
       - uses: ioBroker/testing-action-check@v1
         with:
-          node-version: "22.x"
+          node-version: "24.x"
           install-command: "npm ci && npm ci --prefix src-widgets-ts && npm ci --prefix src-admin"
           type-checking: true
           lint: true
