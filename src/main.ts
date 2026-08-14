@@ -15,6 +15,7 @@ import {
 	LIBRARY_FILE,
 	PICTOGRAM_DIR,
 	PICTOGRAM_FILE_ADAPTER,
+	VIS_PROJECT,
 	emptyLibrary,
 	libraryFromNativeRows,
 	matchesPictogramKey,
@@ -372,7 +373,9 @@ class AutismSupport extends utils.Adapter {
 			await this.readDirAsync(PICTOGRAM_FILE_ADAPTER, PICTOGRAM_DIR);
 		} catch {
 			await this.writeFileAsync(PICTOGRAM_FILE_ADAPTER, LIBRARY_FILE, JSON.stringify(emptyLibrary(), null, 2));
-			this.log.info(`Created vis-2 pictogram folder ${PICTOGRAM_FILE_ADAPTER}/${PICTOGRAM_DIR}`);
+			this.log.info(
+				`Created pictograms folder ${PICTOGRAM_FILE_ADAPTER}/${PICTOGRAM_DIR} (vis project: ${VIS_PROJECT})`,
+			);
 		}
 	}
 

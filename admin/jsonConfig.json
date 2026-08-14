@@ -462,7 +462,7 @@
 				"_openVisFiles": {
 					"type": "staticLink",
 					"label": "custom_pictogram_open_files",
-					"href": "#tab-files/vis-2.0/main/autism-support/pictograms",
+					"href": "#tab-files/vis-2.0/Autismus Unterstützung/pictograms",
 					"target": "_self",
 					"button": true,
 					"variant": "contained",

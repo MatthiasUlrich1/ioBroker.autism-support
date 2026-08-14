@@ -332,7 +332,9 @@ class AutismSupport extends utils.Adapter {
       await this.readDirAsync(import_pictogram_library.PICTOGRAM_FILE_ADAPTER, import_pictogram_library.PICTOGRAM_DIR);
     } catch {
       await this.writeFileAsync(import_pictogram_library.PICTOGRAM_FILE_ADAPTER, import_pictogram_library.LIBRARY_FILE, JSON.stringify((0, import_pictogram_library.emptyLibrary)(), null, 2));
-      this.log.info(`Created vis-2 pictogram folder ${import_pictogram_library.PICTOGRAM_FILE_ADAPTER}/${import_pictogram_library.PICTOGRAM_DIR}`);
+      this.log.info(
+        `Created pictograms folder ${import_pictogram_library.PICTOGRAM_FILE_ADAPTER}/${import_pictogram_library.PICTOGRAM_DIR} (vis project: ${import_pictogram_library.VIS_PROJECT})`
+      );
     }
   }
   async getPublishedPictogramLibrary() {

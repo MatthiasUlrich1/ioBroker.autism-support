@@ -56,7 +56,7 @@ In the admin tab **Day periods** you can configure start/end (HH:MM) and color p
 1. **ARASAAC (external)** – only pictogram ID is stored; image is loaded at runtime from `static.arasaac.org`. No ARASAAC files in the adapter package.
 2. **Custom uploads** – via the adapter instance settings in Admin (Pictograms tab). vis-2 widgets cannot upload files reliably.
 
-Custom images are stored in the **vis-2** file store at `vis-2.0/main/autism-support/pictograms/` (URL `/vis-2.0/main/autism-support/pictograms/...`). Upload images via Admin → **Files** (or the link in instance settings). The Pictograms tab lists all images from that folder automatically; add **name** and comma-separated **tags** in the table, then save the instance. The Daily Schedule Config widget can search by tags.
+Custom images are stored in the **vis-2** file store at `vis-2.0/Autismus Unterstützung/pictograms/` (URL `/vis-2.0/Autismus Unterstützung/pictograms/...`). The `pictograms` folder is created automatically on adapter start. Upload images via Admin → **Files** (or the link in instance settings).
 
 ## Development
 
@@ -80,6 +80,9 @@ npm run start
 ## Changelog
 
 See [CHANGELOG_OLD.md](CHANGELOG_OLD.md) for older entries.
+
+### 0.1.21
+- Pictogram path: `vis-2.0/Autismus Unterstützung/pictograms`; auto-create pictograms folder on start
 
 ### 0.1.20
 - Fix Admin GUI: link to ioBroker file manager; auto-list pictograms from vis-2 folder (no custom upload component)

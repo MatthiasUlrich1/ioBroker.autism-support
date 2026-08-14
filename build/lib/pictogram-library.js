@@ -18,6 +18,7 @@ var __copyProps = (to, from, except, desc) => {
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 var pictogram_library_exports = {};
 __export(pictogram_library_exports, {
+  LEGACY_PICTOGRAM_DIR: () => LEGACY_PICTOGRAM_DIR,
   LIBRARY_FILE: () => LIBRARY_FILE,
   PICTOGRAM_DIR: () => PICTOGRAM_DIR,
   PICTOGRAM_FILE_ADAPTER: () => PICTOGRAM_FILE_ADAPTER,
@@ -38,10 +39,11 @@ __export(pictogram_library_exports, {
 });
 module.exports = __toCommonJS(pictogram_library_exports);
 const PICTOGRAM_FILE_ADAPTER = "vis-2.0";
-const VIS_PROJECT = "main";
-const PICTOGRAM_SUBFOLDER = "autism-support/pictograms";
+const VIS_PROJECT = "Autismus Unterst\xFCtzung";
+const PICTOGRAM_SUBFOLDER = "pictograms";
 const PICTOGRAM_DIR = `${VIS_PROJECT}/${PICTOGRAM_SUBFOLDER}`;
 const LIBRARY_FILE = `${PICTOGRAM_DIR}/_library.json`;
+const LEGACY_PICTOGRAM_DIR = "main/autism-support/pictograms";
 function emptyLibrary() {
   return { version: 1, items: [] };
 }
@@ -113,15 +115,15 @@ function fileRefToPath(file) {
   if (ref.startsWith(visPrefix)) {
     return ref.slice(visPrefix.length);
   }
-  if (ref.startsWith(`${PICTOGRAM_DIR}/`)) {
-    return ref;
+  if (ref.startsWith(`${PICTOGRAM_DIR}/`) || ref === PICTOGRAM_DIR) {
+    return ref.startsWith(`${PICTOGRAM_DIR}/`) ? ref : PICTOGRAM_DIR;
+  }
+  if (ref.startsWith(`${LEGACY_PICTOGRAM_DIR}/`)) {
+    const filename2 = ref.slice(`${LEGACY_PICTOGRAM_DIR}/`.length);
+    return filename2 ? pictogramStoragePath(filename2) : "";
   }
   if (ref.includes(`${PICTOGRAM_SUBFOLDER}/`)) {
-    const tail = ref.slice(ref.indexOf(`${PICTOGRAM_SUBFOLDER}/`));
-    return `${VIS_PROJECT}/${tail}`;
-  }
-  if (ref.includes("pictograms/")) {
-    const filename2 = ref.slice(ref.indexOf("pictograms/") + "pictograms/".length);
+    const filename2 = ref.slice(ref.indexOf(`${PICTOGRAM_SUBFOLDER}/`) + `${PICTOGRAM_SUBFOLDER}/`.length);
     return filename2 ? pictogramStoragePath(filename2) : "";
   }
   const filename = ref.split("/").pop() || "";
@@ -203,6 +205,7 @@ function syncCustomPictogramRows(filenames, existingRows) {
 }
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
+  LEGACY_PICTOGRAM_DIR,
   LIBRARY_FILE,
   PICTOGRAM_DIR,
   PICTOGRAM_FILE_ADAPTER,

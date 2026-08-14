@@ -1,14 +1,17 @@
 /**
  * Metadata for user-uploaded pictograms (never ARASAAC files).
- * Image files live in the vis-2 file store: vis-2.0/main/autism-support/pictograms/
+ * Image files live in the vis-2 file store: vis-2.0/Autismus Unterstützung/pictograms/
  */
 
 export const PICTOGRAM_FILE_ADAPTER = "vis-2.0";
-export const VIS_PROJECT = "main";
-export const PICTOGRAM_SUBFOLDER = "autism-support/pictograms";
-/** Path inside vis-2.0, e.g. main/autism-support/pictograms */
+/** vis-2 project folder (created by the adapter / vis-2 setup). */
+export const VIS_PROJECT = "Autismus Unterstützung";
+export const PICTOGRAM_SUBFOLDER = "pictograms";
+/** Path inside vis-2.0, e.g. Autismus Unterstützung/pictograms */
 export const PICTOGRAM_DIR = `${VIS_PROJECT}/${PICTOGRAM_SUBFOLDER}`;
 export const LIBRARY_FILE = `${PICTOGRAM_DIR}/_library.json`;
+/** Legacy path from versions before 0.1.21. */
+export const LEGACY_PICTOGRAM_DIR = "main/autism-support/pictograms";
 
 export interface CustomPictogram {
 	id: string;
@@ -34,7 +37,7 @@ export function pictogramStoragePath(filename: string): string {
 	return `${PICTOGRAM_DIR}/${filename}`;
 }
 
-/** Public URL as used in vis-2 views, e.g. /vis-2.0/main/autism-support/pictograms/foo.png */
+/** Public URL as used in vis-2 views, e.g. /vis-2.0/Autismus Unterstützung/pictograms/foo.png */
 export function pictogramPublicUrl(storagePath: string): string {
 	const path = fileRefToPath(storagePath);
 	return path ? `/${PICTOGRAM_FILE_ADAPTER}/${path}` : "";
@@ -97,7 +100,7 @@ export function matchesPictogramQuery(item: CustomPictogram, query: string): boo
 	return q.split(/\s+/).every(part => haystack.includes(part));
 }
 
-/** Normalize admin/config references to vis-2 storage path (main/autism-support/pictograms/…). */
+/** Normalize admin/config references to vis-2 storage path (Autismus Unterstützung/pictograms/…). */
 export function fileRefToPath(file: string): string {
 	const ref = String(file || "")
 		.trim()
@@ -112,18 +115,17 @@ export function fileRefToPath(file: string): string {
 		return ref.slice(visPrefix.length);
 	}
 
-	if (ref.startsWith(`${PICTOGRAM_DIR}/`)) {
-		return ref;
+	if (ref.startsWith(`${PICTOGRAM_DIR}/`) || ref === PICTOGRAM_DIR) {
+		return ref.startsWith(`${PICTOGRAM_DIR}/`) ? ref : PICTOGRAM_DIR;
+	}
+
+	if (ref.startsWith(`${LEGACY_PICTOGRAM_DIR}/`)) {
+		const filename = ref.slice(`${LEGACY_PICTOGRAM_DIR}/`.length);
+		return filename ? pictogramStoragePath(filename) : "";
 	}
 
 	if (ref.includes(`${PICTOGRAM_SUBFOLDER}/`)) {
-		const tail = ref.slice(ref.indexOf(`${PICTOGRAM_SUBFOLDER}/`));
-		return `${VIS_PROJECT}/${tail}`;
-	}
-
-	// Legacy adapter store: pictograms/file.png or autism-support.0/pictograms/file.png
-	if (ref.includes("pictograms/")) {
-		const filename = ref.slice(ref.indexOf("pictograms/") + "pictograms/".length);
+		const filename = ref.slice(ref.indexOf(`${PICTOGRAM_SUBFOLDER}/`) + `${PICTOGRAM_SUBFOLDER}/`.length);
 		return filename ? pictogramStoragePath(filename) : "";
 	}
 

@@ -152,19 +152,23 @@ export function resolveItemImageUrl(item: ScheduleItem, adapterInstance = "autis
 			return ref;
 		}
 		const path = ref.replace(/^\/+/, "").replace(/^files\//, "");
-		// vis-2 storage: vis-2.0/main/autism-support/pictograms/… or main/autism-support/pictograms/…
+		// vis-2 storage: vis-2.0/Autismus Unterstützung/pictograms/…
 		if (path.startsWith("vis-2.0/")) {
 			return `/${path}`;
 		}
+		if (path.startsWith("Autismus Unterstützung/pictograms/")) {
+			return `/vis-2.0/${path}`;
+		}
+		// Legacy path (before 0.1.21)
 		if (path.startsWith("main/autism-support/pictograms/")) {
 			return `/vis-2.0/${path}`;
 		}
-		// Legacy adapter file store (before 0.1.19)
+		// Legacy adapter file store
 		if (path.includes("pictograms/")) {
 			const clean = path.slice(path.indexOf("pictograms/"));
 			return `/files/${adapterInstance}/${clean}`;
 		}
-		return `/vis-2.0/main/autism-support/pictograms/${path.split("/").pop() || path}`;
+		return `/vis-2.0/Autismus Unterstützung/pictograms/${path.split("/").pop() || path}`;
 	}
 	return null;
 }

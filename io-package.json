@@ -1,8 +1,21 @@
 {
 	"common": {
 		"name": "autism-support",
-		"version": "0.1.20",
+		"version": "0.1.21",
 		"news": {
+			"0.1.21": {
+				"en": "Pictogram path: vis-2.0/Autismus Unterstützung/pictograms; auto-create folder",
+				"de": "Piktogramm-Pfad: vis-2.0/Autismus Unterstützung/pictograms; Ordner wird automatisch angelegt",
+				"ru": "Путь pictogram: vis-2.0/Autismus Unterstützung/pictograms",
+				"pt": "Caminho pictogramas: vis-2.0/Autismus Unterstützung/pictograms",
+				"nl": "Pictogrampad: vis-2.0/Autismus Unterstützung/pictograms",
+				"fr": "Chemin pictogrammes: vis-2.0/Autismus Unterstützung/pictograms",
+				"it": "Percorso pittogrammi: vis-2.0/Autismus Unterstützung/pictograms",
+				"es": "Ruta pictogramas: vis-2.0/Autismus Unterstützung/pictograms",
+				"pl": "Sciezka piktogramow: vis-2.0/Autismus Unterstützung/pictograms",
+				"uk": "Шлях pictogram: vis-2.0/Autismus Unterstützung/pictograms",
+				"zh-cn": "象形图路径：vis-2.0/Autismus Unterstützung/pictograms"
+			},
 			"0.1.20": {
 				"en": "Fix Admin GUI: link to ioBroker file manager; auto-list pictograms from vis-2 folder",
 				"de": "Admin-GUI-Fix: Link zum Dateimanager; Piktogramme aus vis-2-Ordner automatisch auflisten",
