@@ -135,6 +135,8 @@ See [CHANGELOG_OLD.md](CHANGELOG_OLD.md) for older entries.
 ### 0.1.5
 - Stretch period bar by pictogram count; clock-accurate now marker
 
+[Older changelogs can be found there](CHANGELOG_OLD.md)
+
 ## Author
 
 Matthias Ulrich ([@MatthiasUlrich1](https://github.com/MatthiasUlrich1))
