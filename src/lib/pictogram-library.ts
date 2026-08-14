@@ -46,10 +46,20 @@ export function isIgnoredPictogramFile(filename: string): boolean {
 	return filename === "_library.json" || filename === PICTOGRAM_PLACEHOLDER_FILE || filename.startsWith(".");
 }
 
-/** Public URL as used in vis-2 views, e.g. /vis-2.0/Autismus Unterstützung/pictograms/foo.png */
+/** Encode each path segment so spaces/umlauts work in <img src>. */
+export function encodeIoBrokerFileUrl(urlPath: string): string {
+	return `/${urlPath
+		.replace(/^\/+/, "")
+		.split("/")
+		.filter(Boolean)
+		.map(segment => encodeURIComponent(segment))
+		.join("/")}`;
+}
+
+/** Public URL as used in vis-2 views, e.g. /vis-2.0/Autismus%20Unterst%C3%BCtzung/pictograms/foo.png */
 export function pictogramPublicUrl(storagePath: string): string {
 	const path = fileRefToPath(storagePath);
-	return path ? `/${PICTOGRAM_FILE_ADAPTER}/${path}` : "";
+	return path ? encodeIoBrokerFileUrl(`${PICTOGRAM_FILE_ADAPTER}/${path}`) : "";
 }
 
 export function normalizeTags(input: unknown): string[] {

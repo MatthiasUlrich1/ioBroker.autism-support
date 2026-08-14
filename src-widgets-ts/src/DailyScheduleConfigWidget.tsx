@@ -18,6 +18,7 @@ import type { RxRenderWidgetProps, RxWidgetInfo, VisRxWidgetProps, VisRxWidgetSt
 import type VisRxWidget from "@iobroker/types-vis-2/visRxWidget";
 
 import DailyScheduleVisual from "./components/DailyScheduleVisual";
+import VisFileImage from "./components/VisFileImage";
 import { arasaacImageUrl, searchArasaac, type ArasaacSearchHit } from "./lib/arasaac";
 import {
 	customPictogramUrl,
@@ -424,10 +425,7 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 	private async runSearch(): Promise<void> {
 		this.setState({ busy: true, searchError: "" });
 		try {
-			const hits = await searchArasaac(
-				this.state.rxData.arasaacLanguage || "de",
-				this.state.searchQuery,
-			);
+			const hits = await searchArasaac(this.state.rxData.arasaacLanguage || "de", this.state.searchQuery);
 			this.setState({ searchHits: hits });
 		} catch (error) {
 			this.setState({ searchError: (error as Error).message, searchHits: [] });
@@ -446,7 +444,10 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 		const instance = this.adapterInstance();
 		return (
 			<>
-				<Typography variant="caption" sx={{ fontWeight: 700 }}>
+				<Typography
+					variant="caption"
+					sx={{ fontWeight: 700 }}
+				>
 					{this.isDe() ? "Eigene Bilder" : "Own images"}
 				</Typography>
 				<Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, maxHeight: 160, overflowY: "auto" }}>
@@ -480,7 +481,7 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 					gap: 0.5,
 				}}
 			>
-				<img
+				<VisFileImage
 					src={customPictogramUrl(item, instance)}
 					alt=""
 					width={thumb}
@@ -513,7 +514,7 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 		return (
 			<>
 				{preview ? (
-					<img
+					<VisFileImage
 						src={preview}
 						alt=""
 						width={72}
@@ -527,11 +528,7 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 					value={selected.customRef || ""}
 					onChange={e => this.updateItem(this.state.selectedIndex, { customRef: e.target.value })}
 				/>
-				{tags ? (
-					<Typography variant="caption">
-						Tags: {tags}
-					</Typography>
-				) : null}
+				{tags ? <Typography variant="caption">Tags: {tags}</Typography> : null}
 				<TextField
 					size="small"
 					fullWidth
@@ -540,27 +537,37 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 					onChange={e => this.setState({ searchQuery: e.target.value })}
 				/>
 				{this.state.searchError ? (
-					<Typography color="error" variant="caption">
+					<Typography
+						color="error"
+						variant="caption"
+					>
 						{this.state.searchError}
 					</Typography>
 				) : null}
-				<Typography variant="caption" sx={{ fontWeight: 700 }}>
-					{this.isDe()
-						? "Gespeicherte Bilder – antippen zum Auswählen"
-						: "Saved images – tap to select"}
+				<Typography
+					variant="caption"
+					sx={{ fontWeight: 700 }}
+				>
+					{this.isDe() ? "Gespeicherte Bilder – antippen zum Auswählen" : "Saved images – tap to select"}
 				</Typography>
 				<Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, maxHeight: 260, overflowY: "auto" }}>
 					{items.length ? (
 						items.map(item => this.renderLibraryThumb(item, thumb, instance))
 					) : (
-						<Typography variant="caption" sx={{ opacity: 0.75 }}>
+						<Typography
+							variant="caption"
+							sx={{ opacity: 0.75 }}
+						>
 							{this.isDe()
 								? "Noch keine eigenen Bilder. Bitte in den Instanzeinstellungen (Admin) hochladen und mit Tags versehen."
 								: "No own images yet. Upload and tag them in the Admin instance settings."}
 						</Typography>
 					)}
 				</Box>
-				<Typography variant="caption" sx={{ opacity: 0.75 }}>
+				<Typography
+					variant="caption"
+					sx={{ opacity: 0.75 }}
+				>
 					{this.isDe()
 						? "Upload und Tags nur in den Instanzeinstellungen (Admin, Reiter Piktogramme). Die Suche hier findet eigene Bilder über Name und Tags."
 						: "Upload and tags are only in Admin instance settings (Pictograms tab). Search here finds own images by name and tags."}
@@ -576,17 +583,27 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 		const overrides = this.getMergedPeriodOverrides();
 		const periods = applyPeriodOverrides(basePeriods, overrides);
 		const nowMinutes = Number(this.state.values[`${this.state.rxData.oidNowMinutes}.val`] ?? 0);
-		const selected =
-			this.state.selectedIndex >= 0 ? this.state.draft.items[this.state.selectedIndex] : null;
+		const selected = this.state.selectedIndex >= 0 ? this.state.draft.items[this.state.selectedIndex] : null;
 
 		return (
 			<Box sx={{ width: "100%", height: "100%", overflow: "auto", p: 1, boxSizing: "border-box" }}>
-				<Stack direction={{ xs: "column", md: "row" }} spacing={2} sx={{ minHeight: "100%" }}>
+				<Stack
+					direction={{ xs: "column", md: "row" }}
+					spacing={2}
+					sx={{ minHeight: "100%" }}
+				>
 					<Box sx={{ flex: 1, minWidth: 280 }}>
-						<Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 700 }}>
+						<Typography
+							variant="subtitle1"
+							sx={{ mb: 1, fontWeight: 700 }}
+						>
 							Schedule
 						</Typography>
-						<Stack direction="row" spacing={1} sx={{ mb: 1, flexWrap: "wrap" }}>
+						<Stack
+							direction="row"
+							spacing={1}
+							sx={{ mb: 1, flexWrap: "wrap" }}
+						>
 							<Button
 								size="small"
 								variant="outlined"
@@ -652,10 +669,16 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 							}
 						/>
 
-						<Typography variant="subtitle2" sx={{ mt: 1, mb: 0.5, fontWeight: 700 }}>
+						<Typography
+							variant="subtitle2"
+							sx={{ mt: 1, mb: 0.5, fontWeight: 700 }}
+						>
 							Tagesbereiche
 						</Typography>
-						<FormGroup row sx={{ mb: 2 }}>
+						<FormGroup
+							row
+							sx={{ mb: 2 }}
+						>
 							{basePeriods.map((period: DayPeriodDefinition) => (
 								<FormControlLabel
 									key={period.id}
@@ -684,7 +707,10 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 							))}
 						</FormGroup>
 
-						<Stack spacing={1} sx={{ mb: 2 }}>
+						<Stack
+							spacing={1}
+							sx={{ mb: 2 }}
+						>
 							{this.state.draft.items.map((item, index) => (
 								<Button
 									key={item.id}
@@ -711,18 +737,25 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 									value={selected.label}
 									onChange={e => this.updateItem(this.state.selectedIndex, { label: e.target.value })}
 								/>
-								<Stack direction="row" spacing={1}>
+								<Stack
+									direction="row"
+									spacing={1}
+								>
 									<TextField
 										size="small"
 										label="Start"
 										value={selected.start}
-										onChange={e => this.updateItem(this.state.selectedIndex, { start: e.target.value })}
+										onChange={e =>
+											this.updateItem(this.state.selectedIndex, { start: e.target.value })
+										}
 									/>
 									<TextField
 										size="small"
 										label="End"
 										value={selected.end}
-										onChange={e => this.updateItem(this.state.selectedIndex, { end: e.target.value })}
+										onChange={e =>
+											this.updateItem(this.state.selectedIndex, { end: e.target.value })
+										}
 									/>
 								</Stack>
 								<FormControl size="small">
@@ -754,11 +787,18 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 												})
 											}
 										/>
-										<Stack direction="row" spacing={1}>
+										<Stack
+											direction="row"
+											spacing={1}
+										>
 											<TextField
 												size="small"
 												fullWidth
-												label={this.isDe() ? "Suche (ARASAAC + eigene Tags)" : "Search (ARASAAC + own tags)"}
+												label={
+													this.isDe()
+														? "Suche (ARASAAC + eigene Tags)"
+														: "Search (ARASAAC + own tags)"
+												}
 												value={this.state.searchQuery}
 												onChange={e => this.setState({ searchQuery: e.target.value })}
 												onKeyDown={e => {
@@ -776,14 +816,28 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 											</Button>
 										</Stack>
 										{this.state.searchError ? (
-											<Typography color="error" variant="caption">
+											<Typography
+												color="error"
+												variant="caption"
+											>
 												{this.state.searchError}
 											</Typography>
 										) : null}
 										{this.renderCustomHits()}
-										<Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, maxHeight: 220, overflowY: "auto" }}>
+										<Box
+											sx={{
+												display: "flex",
+												flexWrap: "wrap",
+												gap: 1,
+												maxHeight: 220,
+												overflowY: "auto",
+											}}
+										>
 											{this.state.searchHits.map(hit => {
-												const thumb = Math.max(48, Math.min(96, Number(this.state.rxData.pictogramSize) || 64));
+												const thumb = Math.max(
+													48,
+													Math.min(96, Number(this.state.rxData.pictogramSize) || 64),
+												);
 												return (
 													<Box
 														key={hit.id}
@@ -837,7 +891,10 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 												);
 											})}
 										</Box>
-										<Typography variant="caption" sx={{ opacity: 0.75 }}>
+										<Typography
+											variant="caption"
+											sx={{ opacity: 0.75 }}
+										>
 											{this.isDe()
 												? "ARASAAC-Bilder kommen nur von static.arasaac.org (CC BY-NC-SA)."
 												: "ARASAAC images are loaded from static.arasaac.org only (CC BY-NC-SA)."}

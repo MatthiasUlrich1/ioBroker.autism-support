@@ -141,8 +141,33 @@ export function periodToSegments(
 	];
 }
 
+/** Encode each path segment so spaces/umlauts work in img src. */
+export function encodeIoBrokerFileUrl(urlPath: string): string {
+	return `/${urlPath
+		.replace(/^\/+/, "")
+		.split("/")
+		.filter(Boolean)
+		.map(segment => encodeURIComponent(segment))
+		.join("/")}`;
+}
+
+function visPictogramRelativePath(path: string): string {
+	const p = path
+		.replace(/^\/+/, "")
+		.replace(/^files\//, "")
+		.replace(/^vis-2\.0\//, "");
+	if (p.startsWith("Autismus Unterstützung/")) {
+		return p;
+	}
+	if (p.startsWith("main/autism-support/pictograms/")) {
+		return p;
+	}
+	const filename = p.split("/").pop() || p;
+	return `Autismus Unterstützung/pictograms/${filename}`;
+}
+
 /** Resolve image URL for a schedule item (ARASAAC CDN or custom file/URL). */
-export function resolveItemImageUrl(item: ScheduleItem, adapterInstance = "autism-support.0"): string | null {
+export function resolveItemImageUrl(item: ScheduleItem, _adapterInstance = "autism-support.0"): string | null {
 	if (item.source === "arasaac" && item.arasaacId) {
 		return arasaacImageUrl(item.arasaacId, 500);
 	}
@@ -151,24 +176,7 @@ export function resolveItemImageUrl(item: ScheduleItem, adapterInstance = "autis
 		if (/^https?:\/\//i.test(ref) || ref.startsWith("data:")) {
 			return ref;
 		}
-		const path = ref.replace(/^\/+/, "").replace(/^files\//, "");
-		// vis-2 storage: vis-2.0/Autismus Unterstützung/pictograms/…
-		if (path.startsWith("vis-2.0/")) {
-			return `/${path}`;
-		}
-		if (path.startsWith("Autismus Unterstützung/pictograms/")) {
-			return `/vis-2.0/${path}`;
-		}
-		// Legacy path (before 0.1.21)
-		if (path.startsWith("main/autism-support/pictograms/")) {
-			return `/vis-2.0/${path}`;
-		}
-		// Legacy adapter file store
-		if (path.includes("pictograms/")) {
-			const clean = path.slice(path.indexOf("pictograms/"));
-			return `/files/${adapterInstance}/${clean}`;
-		}
-		return `/vis-2.0/Autismus Unterstützung/pictograms/${path.split("/").pop() || path}`;
+		return encodeIoBrokerFileUrl(`vis-2.0/${visPictogramRelativePath(ref)}`);
 	}
 	return null;
 }

@@ -1,8 +1,21 @@
 {
 	"common": {
 		"name": "autism-support",
-		"version": "0.1.22",
+		"version": "0.1.23",
 		"news": {
+			"0.1.23": {
+				"en": "Fix custom pictogram preview: encode vis-2 path (spaces/umlauts) and /files fallback",
+				"de": "Piktogramm-Vorschau repariert: vis-2-Pfad kodieren (Leerzeichen/Umlaute) und /files-Fallback",
+				"ru": "Исправлено превью pictogram: кодирование vis-2 пути",
+				"pt": "Corrigida pre-visualizacao de pictogramas: encoding do caminho vis-2",
+				"nl": "Pictogram-voorbeeld hersteld: vis-2-pad encoderen",
+				"fr": "Apercu pictogrammes corrige: encodage chemin vis-2",
+				"it": "Anteprima pittogrammi corretta: encoding percorso vis-2",
+				"es": "Vista previa pictogramas corregida: encoding ruta vis-2",
+				"pl": "Naprawiono podglad piktogramow: kodowanie sciezki vis-2",
+				"uk": "Виправлено прев’ю pictogram: кодування шляху vis-2",
+				"zh-cn": "修复象形图预览：编码 vis-2 路径"
+			},
 			"0.1.22": {
 				"en": "Fix pictogram folder: library in adapter store, placeholder in vis-2; remove broken _library.json",
 				"de": "Piktogramm-Ordner repariert: Metadaten im Adapter, Platzhalter in vis-2; _library.json entfernt",

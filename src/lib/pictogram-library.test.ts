@@ -61,7 +61,7 @@ describe("pictogram-library", () => {
 		);
 		expect(pictogramStoragePath("brush.png")).to.equal("Autismus Unterstützung/pictograms/brush.png");
 		expect(pictogramPublicUrl("Autismus Unterstützung/pictograms/brush.png")).to.equal(
-			"/vis-2.0/Autismus Unterstützung/pictograms/brush.png",
+			"/vis-2.0/Autismus%20Unterst%C3%BCtzung/pictograms/brush.png",
 		);
 	});
 

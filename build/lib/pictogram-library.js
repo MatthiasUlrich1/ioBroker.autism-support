@@ -27,6 +27,7 @@ __export(pictogram_library_exports, {
   PICTOGRAM_SUBFOLDER: () => PICTOGRAM_SUBFOLDER,
   VIS_PROJECT: () => VIS_PROJECT,
   emptyLibrary: () => emptyLibrary,
+  encodeIoBrokerFileUrl: () => encodeIoBrokerFileUrl,
   fileRefToPath: () => fileRefToPath,
   isIgnoredPictogramFile: () => isIgnoredPictogramFile,
   libraryFromNativeRows: () => libraryFromNativeRows,
@@ -58,9 +59,12 @@ function pictogramStoragePath(filename) {
 function isIgnoredPictogramFile(filename) {
   return filename === "_library.json" || filename === PICTOGRAM_PLACEHOLDER_FILE || filename.startsWith(".");
 }
+function encodeIoBrokerFileUrl(urlPath) {
+  return `/${urlPath.replace(/^\/+/, "").split("/").filter(Boolean).map((segment) => encodeURIComponent(segment)).join("/")}`;
+}
 function pictogramPublicUrl(storagePath) {
   const path = fileRefToPath(storagePath);
-  return path ? `/${PICTOGRAM_FILE_ADAPTER}/${path}` : "";
+  return path ? encodeIoBrokerFileUrl(`${PICTOGRAM_FILE_ADAPTER}/${path}`) : "";
 }
 function normalizeTags(input) {
   let parts;
@@ -222,6 +226,7 @@ function syncCustomPictogramRows(filenames, existingRows) {
   PICTOGRAM_SUBFOLDER,
   VIS_PROJECT,
   emptyLibrary,
+  encodeIoBrokerFileUrl,
   fileRefToPath,
   isIgnoredPictogramFile,
   libraryFromNativeRows,

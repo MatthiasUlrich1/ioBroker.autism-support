@@ -81,6 +81,9 @@ npm run start
 
 See [CHANGELOG_OLD.md](CHANGELOG_OLD.md) for older entries.
 
+### 0.1.23
+- Fix custom pictogram images not showing: URL-encode vis-2 path (`Autismus Unterstützung`) and fall back to `/files/`
+
 ### 0.1.22
 - Fix pictogram folder creation: metadata in adapter store, images in vis-2; remove broken `_library.json` from vis-2 path
 

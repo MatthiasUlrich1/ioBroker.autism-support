@@ -1,8 +1,5 @@
 import React from "react";
-import {
-	ARASAAC_ATTRIBUTION_DE,
-	ARASAAC_ATTRIBUTION_EN,
-} from "../lib/arasaac";
+import { ARASAAC_ATTRIBUTION_DE, ARASAAC_ATTRIBUTION_EN } from "../lib/arasaac";
 import {
 	type DayPeriodDefinition,
 	type ScheduleItem,
@@ -11,6 +8,7 @@ import {
 	resolveItemImageUrl,
 	isItemActiveAt,
 } from "../lib/schedule";
+import VisFileImage from "./VisFileImage";
 
 export interface DailyScheduleVisualProps {
 	plan: SchedulePlan;
@@ -123,9 +121,7 @@ function isNowInSegment(nowMinutes: number, segStart: number, segEnd: number): b
 }
 
 /** Segments ignoring the period.enabled flag (caller decides visibility). */
-function periodSegmentsRaw(
-	period: DayPeriodDefinition,
-): Array<{ startMin: number; endMin: number }> {
+function periodSegmentsRaw(period: DayPeriodDefinition): Array<{ startMin: number; endMin: number }> {
 	const s = parseTimeToMinutes(period.start);
 	const e = parseTimeToMinutes(period.end);
 	if (s === e) {
@@ -192,10 +188,7 @@ export function minutesToY(minutes: number, blocks: PeriodBlockLayout[]): number
 	return last.topPx + last.heightPx;
 }
 
-export function computeNowMarkerTop(
-	blocks: PeriodBlockLayout[],
-	nowMinutes: number,
-): number | null {
+export function computeNowMarkerTop(blocks: PeriodBlockLayout[], nowMinutes: number): number | null {
 	for (const block of blocks) {
 		if (isNowInSegment(nowMinutes, block.startMin, block.endMin)) {
 			return minutesToY(nowMinutes, blocks);
@@ -205,10 +198,7 @@ export function computeNowMarkerTop(
 }
 
 /** Greedy lane packing for overlaps; at most 2 columns. */
-export function assignLanes(
-	placements: Array<{ startMin: number; endMin: number }>,
-	maxLanes = 2,
-): number[] {
+export function assignLanes(placements: Array<{ startMin: number; endMin: number }>, maxLanes = 2): number[] {
 	const order = placements
 		.map((p, index) => ({ index, startMin: p.startMin, endMin: p.endMin }))
 		.sort((a, b) => a.startMin - b.startMin || b.endMin - a.endMin);
@@ -442,7 +432,7 @@ function renderItemCard(
 				}}
 			>
 				{img ? (
-					<img
+					<VisFileImage
 						src={img}
 						alt=""
 						style={{ width: "100%", height: "100%", objectFit: "contain" }}
@@ -470,12 +460,7 @@ export default function DailyScheduleVisual({
 }: DailyScheduleVisualProps): React.JSX.Element {
 	const pictoPx = Math.max(32, Math.min(200, Number(pictogramSize) || 64));
 	const sorted = [...plan.items].sort((a, b) => itemStartMin(a) - itemStartMin(b));
-	const { blocks, placements, laneCount, totalHeight } = buildScheduleLayout(
-		sorted,
-		periods,
-		nowMinutes,
-		pictoPx,
-	);
+	const { blocks, placements, laneCount, totalHeight } = buildScheduleLayout(sorted, periods, nowMinutes, pictoPx);
 	const nowTop = computeNowMarkerTop(blocks, nowMinutes);
 
 	const usesArasaac = plan.items.some(item => item.source === "arasaac" && item.arasaacId);
@@ -521,13 +506,7 @@ export default function DailyScheduleVisual({
 						>
 							{placements.map(placement => (
 								<React.Fragment key={placement.item.id || placement.itemIndex}>
-									{renderItemCard(
-										placement,
-										laneCount,
-										nowMinutes,
-										adapterInstance,
-										pictoPx,
-									)}
+									{renderItemCard(placement, laneCount, nowMinutes, adapterInstance, pictoPx)}
 								</React.Fragment>
 							))}
 						</div>
@@ -558,9 +537,7 @@ export default function DailyScheduleVisual({
 										background: block.color,
 										boxSizing: "border-box",
 										borderBottom:
-											index < blocks.length - 1
-												? "1px solid rgba(255,255,255,0.55)"
-												: "none",
+											index < blocks.length - 1 ? "1px solid rgba(255,255,255,0.55)" : "none",
 										opacity: block.enabled ? 1 : 0.35,
 									}}
 									title={
@@ -616,7 +593,10 @@ export default function DailyScheduleVisual({
 
 			<div style={{ display: "flex", flexWrap: "wrap", gap: 8, fontSize: 12 }}>
 				{activePeriods.map(p => (
-					<span key={p.id} style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+					<span
+						key={p.id}
+						style={{ display: "inline-flex", alignItems: "center", gap: 4 }}
+					>
 						<span
 							style={{
 								width: 12,
@@ -635,9 +615,7 @@ export default function DailyScheduleVisual({
 				</span>
 			</div>
 
-			{usesArasaac && (
-				<div style={{ fontSize: 10, lineHeight: 1.35, opacity: 0.75 }}>{attribution}</div>
-			)}
+			{usesArasaac && <div style={{ fontSize: 10, lineHeight: 1.35, opacity: 0.75 }}>{attribution}</div>}
 		</div>
 	);
 }
