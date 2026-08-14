@@ -382,10 +382,10 @@ function renderItemCard(
 	const { item, topPx, heightPx, lane } = placement;
 	const active = isItemActiveAt(item, nowMinutes);
 	const img = resolveItemImageUrl(item, adapterInstance);
-	const padX = 10;
-	const cardW = pictoPx + padX * 2;
-	// Column 2 sits on top of column 1 (including when it spans two items).
-	const leftPx = lane === 0 ? 4 : Math.round(4 + pictoPx * 0.52);
+	const inset = 2;
+	// Column 2 starts after column-1 pictogram so images never overlap,
+	// but both frames still reach the time bar (nested).
+	const leftPx = lane === 0 ? inset : inset + pictoPx + 12;
 	const zIndex = (lane + 1) * 4 + (active ? 2 : 0);
 
 	return (
@@ -394,24 +394,23 @@ function renderItemCard(
 				position: "absolute",
 				top: topPx,
 				left: leftPx,
-				width: cardW,
+				right: inset,
 				height: heightPx,
 				boxSizing: "border-box",
 				borderRadius: 10,
-				border: active ? "2px solid #FF8A00" : "1.5px solid rgba(0,0,0,0.28)",
-				background: active ? "rgba(255,138,0,0.18)" : "rgba(255,255,255,0.14)",
+				border: active ? "2px solid #FF8A00" : "1.5px solid rgba(255,255,255,0.35)",
+				background: active ? "rgba(255,138,0,0.16)" : "rgba(0,0,0,0.28)",
 				display: "flex",
 				flexDirection: "column",
-				alignItems: "center",
+				alignItems: "flex-start",
 				gap: 4,
 				padding: "6px 8px 8px",
 				overflow: "hidden",
 				zIndex,
-				boxShadow: lane > 0 ? "0 4px 14px rgba(0,0,0,0.45)" : "none",
 			}}
 			title={`${item.label || "—"} · ${item.start} – ${item.end}`}
 		>
-			<div style={{ width: "100%", textAlign: "center", flexShrink: 0 }}>
+			<div style={{ width: "100%", textAlign: "left", flexShrink: 0 }}>
 				<div
 					style={{
 						fontWeight: 700,
@@ -511,13 +510,13 @@ export default function DailyScheduleVisual({
 				{blocks.length === 0 ? (
 					<div style={{ opacity: 0.7, padding: 12 }}>—</div>
 				) : (
-					<div style={{ display: "flex", gap: 10, height: totalHeight }}>
+					<div style={{ display: "flex", gap: 4, height: totalHeight }}>
 						<div
 							style={{
 								flex: 1,
 								position: "relative",
 								height: totalHeight,
-								minWidth: pictoPx + Math.round(pictoPx * 0.52) + 36,
+								minWidth: pictoPx * 2 + 36,
 							}}
 						>
 							{placements.map(placement => (
