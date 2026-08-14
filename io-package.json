@@ -1,8 +1,21 @@
 {
 	"common": {
 		"name": "autism-support",
-		"version": "0.1.15",
+		"version": "0.1.16",
 		"news": {
+			"0.1.16": {
+				"en": "Fix Admin GUI crash on open: use file upload helper instead of fileSelector",
+				"de": "GUI-Absturz beim Oeffnen behoben: Datei-Upload-Hilfe statt fileSelector",
+				"ru": "Исправлен сбой Admin при открытии: загрузка файлов вместо fileSelector",
+				"pt": "Corrigida falha ao abrir Admin: upload de ficheiros em vez de fileSelector",
+				"nl": "Admin-crash bij openen opgelost: bestandsupload i.p.v. fileSelector",
+				"fr": "Correction du plantage a l ouverture Admin: upload de fichiers au lieu de fileSelector",
+				"it": "Corretto crash all apertura Admin: upload file al posto di fileSelector",
+				"es": "Corregido fallo al abrir Admin: subida de archivos en lugar de fileSelector",
+				"pl": "Naprawiono awarie Admin przy otwieraniu: upload plikow zamiast fileSelector",
+				"uk": "Виправлено збій Admin при відкритті: завантаження файлів замість fileSelector",
+				"zh-cn": "修复打开管理界面时崩溃；改用文件上传助手替代 fileSelector"
+			},
 			"0.1.15": {
 				"en": "Fix Admin GUI crash when adding pictogram rows; upload images via a dedicated file selector",
 				"de": "GUI-Absturz beim Hinzufügen von Piktogramm-Zeilen behoben; Bilder über eigenen Datei-Upload",
@@ -222,7 +235,6 @@
 		"periodNightStart": "21:00",
 		"periodNightEnd": "06:00",
 		"periodNightColor": "#5C6BC0",
-		"pictogramUpload": "",
 		"customPictograms": []
 	},
 	"objects": [],

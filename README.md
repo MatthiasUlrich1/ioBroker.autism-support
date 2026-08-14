@@ -81,6 +81,9 @@ npm run start
 
 See [CHANGELOG_OLD.md](CHANGELOG_OLD.md) for older entries.
 
+### 0.1.16
+- Fix Admin GUI crash on open: file upload helper instead of fileSelector
+
 ### 0.1.15
 - Fix Admin GUI crash when adding pictogram rows; upload images via a dedicated file selector
 
