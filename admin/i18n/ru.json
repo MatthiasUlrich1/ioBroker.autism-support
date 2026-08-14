@@ -24,6 +24,7 @@
 	"pictograms_header": "Источники пictogramм",
 	"arasaac_license_info": "Pictogramмы ARASAAC загружаются только внешне с static.arasaac.org / api.arasaac.org и не хранятся в адаптере. Лицензия: CC BY-NC-SA (автор: Sergio Palao, владелец: правительство Арагона). Требуется указание авторства. Сайт: https://arasaac.org",
 	"custom_pictogram_info": "Загружайте и помечайте свои pictogramмы здесь. Файлы в autism-support.X/pictograms/. Виджет настройки может искать теги и выбирать изображения. Только изображения с правами. Не загружайте файлы ARASAAC – используйте внешний ID.",
+	"custom_pictograms_hint": "Нажмите + чтобы добавить строку. В Изображение откройте файлы, загрузите PNG/JPEG/GIF/WebP/SVG, укажите имя и теги.",
 	"custom_pictograms_table": "Свои pictogramмы",
 	"custom_pictogram_file": "Изображение",
 	"custom_pictogram_label": "Имя",

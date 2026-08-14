@@ -448,11 +448,27 @@
 					"lg": 12,
 					"xl": 12
 				},
+				"_customHint": {
+					"type": "staticText",
+					"text": "custom_pictograms_hint",
+					"style": { "fontSize": "0.9em", "opacity": 0.85 },
+					"newLine": true,
+					"xs": 12,
+					"sm": 12,
+					"md": 12,
+					"lg": 12,
+					"xl": 12
+				},
 				"customPictograms": {
-					"type": "accordion",
+					"type": "table",
 					"label": "custom_pictograms_table",
-					"titleAttr": "label",
-					"clone": true,
+					"noDelete": false,
+					"showFirstAddOnTop": true,
+					"showSecondAddAt": 3,
+					"clone": false,
+					"import": false,
+					"export": false,
+					"compact": true,
 					"newLine": true,
 					"xs": 12,
 					"sm": 12,
@@ -461,41 +477,34 @@
 					"xl": 12,
 					"items": [
 						{
-							"type": "fileSelector",
+							"type": "file",
 							"attr": "file",
-							"label": "custom_pictogram_file",
-							"upload": "pictograms",
-							"objectID": "autism-support.%INSTANCE%",
-							"pattern": "pictograms/*.*",
-							"fileTypes": "image",
-							"delete": true,
-							"refresh": true,
-							"maxSize": 5242880,
-							"xs": 12,
-							"sm": 12,
-							"md": 12,
-							"lg": 6,
-							"xl": 6
+							"title": "custom_pictogram_file",
+							"width": "45%",
+							"default": "",
+							"disableEdit": false,
+							"allowUpload": true,
+							"allowDownload": true,
+							"allowCreateFolder": true,
+							"allowView": true,
+							"showToolbar": true,
+							"filterByType": "images",
+							"filterFiles": ["png", "svg", "jpg", "jpeg", "gif", "webp"],
+							"limitPath": "autism-support.%INSTANCE%/pictograms"
 						},
 						{
 							"type": "text",
 							"attr": "label",
-							"label": "custom_pictogram_label",
-							"xs": 12,
-							"sm": 6,
-							"md": 6,
-							"lg": 3,
-							"xl": 3
+							"title": "custom_pictogram_label",
+							"width": "25%",
+							"default": ""
 						},
 						{
 							"type": "text",
 							"attr": "tags",
-							"label": "custom_pictogram_tags",
-							"xs": 12,
-							"sm": 6,
-							"md": 6,
-							"lg": 3,
-							"xl": 3
+							"title": "custom_pictogram_tags",
+							"width": "30%",
+							"default": ""
 						}
 					]
 				}

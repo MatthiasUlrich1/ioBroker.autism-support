@@ -1,8 +1,21 @@
 {
 	"common": {
 		"name": "autism-support",
-		"version": "0.1.13",
+		"version": "0.1.14",
 		"news": {
+			"0.1.14": {
+				"en": "Fix Admin pictogram upload: table with image file manager instead of JSON accordion import",
+				"de": "Piktogramm-Upload im Admin korrigiert: Tabelle mit Bild-Dateiverwaltung statt JSON-Accordion-Import",
+				"ru": "Исправлен upload pictogram в Admin: таблица с файловым менеджером вместо JSON accordion",
+				"pt": "Correcao do upload de pictogramas no Admin: tabela com gestor de imagens em vez de importacao JSON",
+				"nl": "Pictogram-upload in Admin hersteld: tabel met afbeeldingenbeheer in plaats van JSON-accordion",
+				"fr": "Correction du televersement Admin: tableau avec gestionnaire d images au lieu de l import JSON",
+				"it": "Corretto upload pittogrammi in Admin: tabella con file manager immagini invece di import JSON",
+				"es": "Corregida subida de pictogramas en Admin: tabla con gestor de imagenes en vez de importacion JSON",
+				"pl": "Naprawiono upload piktogramow w Admin: tabela z menedzerem obrazow zamiast importu JSON",
+				"uk": "Виправлено завантаження pictogram в Admin: таблиця з файловим менеджером замість JSON accordion",
+				"zh-cn": "修复管理界面象形图上传：用图片文件管理表格替代 JSON 手风琴导入"
+			},
 			"0.1.13": {
 				"en": "Move custom pictogram upload and tags to Admin instance settings; widget can search and select own images",
 				"de": "Upload und Tags eigener Piktogramme in die Admin-Instanzeinstellungen verschoben; Widget sucht und wählt eigene Bilder",

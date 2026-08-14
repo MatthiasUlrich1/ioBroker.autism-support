@@ -81,6 +81,9 @@ npm run start
 
 See [CHANGELOG_OLD.md](CHANGELOG_OLD.md) for older entries.
 
+### 0.1.14
+- Fix Admin pictogram upload: table with image file manager instead of JSON accordion import
+
 ### 0.1.13
 - Move custom pictogram upload and tags to Admin instance settings; vis widget searches and selects own images
 

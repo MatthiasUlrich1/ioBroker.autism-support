@@ -24,6 +24,7 @@
 	"pictograms_header": "Fontes de pictogramas",
 	"arasaac_license_info": "Pictogramas ARASAAC são carregados apenas externamente de static.arasaac.org / api.arasaac.org e não são armazenados nem redistribuídos. Licença: CC BY-NC-SA (autor: Sergio Palao, titular: Governo de Aragão). Atribuição obrigatória. Site: https://arasaac.org",
 	"custom_pictogram_info": "Envie e etiquete os pictogramas aqui. Ficheiros em autism-support.X/pictograms/. O widget de configuracao pode procurar etiquetas e selecionar imagens. Apenas imagens com direitos. Nao envie ficheiros ARASAAC – use o ID externo.",
+	"custom_pictograms_hint": "Clique + para adicionar uma linha. Em Imagem abra o gestor, envie PNG/JPEG/GIF/WebP/SVG, defina nome e etiquetas.",
 	"custom_pictograms_table": "Pictogramas proprios",
 	"custom_pictogram_file": "Imagem",
 	"custom_pictogram_label": "Nome",

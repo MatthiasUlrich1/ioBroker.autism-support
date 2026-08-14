@@ -24,6 +24,7 @@
 	"pictograms_header": "Fuentes de pictogramas",
 	"arasaac_license_info": "Los pictogramas ARASAAC se cargan solo externamente desde static.arasaac.org / api.arasaac.org y no se almacenan ni redistribuyen en este adaptador. Licencia: Creative Commons BY-NC-SA (autor: Sergio Palao, titular: Gobierno de Aragón). Se requiere atribución en README y widgets. Web: https://arasaac.org",
 	"custom_pictogram_info": "Suba y etiquete aquí sus pictogramas. Archivos en autism-support.X/pictograms/. El widget de configuración puede buscar etiquetas y seleccionar imágenes. Solo imágenes con derechos de uso. No suba archivos ARASAAC: use el ID externo.",
+	"custom_pictograms_hint": "Pulse + para anadir una fila. En Imagen abra el gestor, suba PNG/JPEG/GIF/WebP/SVG, ponga nombre y etiquetas y guarde.",
 	"custom_pictograms_table": "Pictogramas propios",
 	"custom_pictogram_file": "Imagen",
 	"custom_pictogram_label": "Nombre",
