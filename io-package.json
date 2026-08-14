@@ -82,10 +82,6 @@
 			"0.0.8": {
 				"en": "New adapter icon: Visual Countdown circle at 45 minutes",
 				"de": "Neues Adapter-Icon: Visual-Countdown-Kreisdiagramm mit 45 Minuten"
-			},
-			"0.0.7": {
-				"en": "Replace hour bars with small full-hour circle diagrams",
-				"de": "Stundenbalken durch kleine volle Stunden-Kreisdiagramme ersetzt"
 			}
 		},
 		"titleLang": {
