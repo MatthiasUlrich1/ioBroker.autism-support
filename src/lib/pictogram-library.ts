@@ -27,9 +27,14 @@ export function emptyLibrary(): PictogramLibrary {
 }
 
 export function normalizeTags(input: unknown): string[] {
-	const parts = Array.isArray(input)
-		? input.map(entry => String(entry))
-		: String(input || "").split(/[,;]+/);
+	let parts: string[];
+	if (Array.isArray(input)) {
+		parts = input.map(entry => (typeof entry === "string" ? entry : ""));
+	} else if (typeof input === "string") {
+		parts = input.split(/[,;]+/);
+	} else {
+		parts = [];
+	}
 	const seen = new Set<string>();
 	const tags: string[] = [];
 	for (const part of parts) {

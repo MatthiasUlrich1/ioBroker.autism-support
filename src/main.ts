@@ -629,14 +629,20 @@ class AutismSupport extends utils.Adapter {
 			}
 
 			if (obj.command === "updatePictogram") {
-				const payload = obj.message as { path?: string; filename?: string; label?: string; tags?: string[] | string };
+				const payload = obj.message as {
+					path?: string;
+					filename?: string;
+					label?: string;
+					tags?: string[] | string;
+				};
 				const key = String(payload?.path || payload?.filename || "");
 				if (!key) {
 					throw new Error("path required");
 				}
 				const library = await this.getMergedPictogramLibrary();
 				const item = library.items.find(
-					entry => entry.path === key || entry.filename === key || `${PICTOGRAM_DIR}/${entry.filename}` === key,
+					entry =>
+						entry.path === key || entry.filename === key || `${PICTOGRAM_DIR}/${entry.filename}` === key,
 				);
 				if (!item) {
 					throw new Error("pictogram not found");
@@ -660,7 +666,8 @@ class AutismSupport extends utils.Adapter {
 				}
 				const library = await this.getMergedPictogramLibrary();
 				const item = library.items.find(
-					entry => entry.path === key || entry.filename === key || `${PICTOGRAM_DIR}/${entry.filename}` === key,
+					entry =>
+						entry.path === key || entry.filename === key || `${PICTOGRAM_DIR}/${entry.filename}` === key,
 				);
 				if (!item) {
 					throw new Error("pictogram not found");

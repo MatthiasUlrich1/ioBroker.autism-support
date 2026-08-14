@@ -91,19 +91,21 @@ function periodToSegments(period) {
 }
 function dayPeriodsFromConfig(config) {
   return DAY_PERIOD_IDS.map((id) => {
-    var _a, _b, _c;
     const cap = id.charAt(0).toUpperCase() + id.slice(1);
     const enabledKey = `period${cap}Enabled`;
     const startKey = `period${cap}Start`;
     const endKey = `period${cap}End`;
     const colorKey = `period${cap}Color`;
     const fallback = DEFAULT_DAY_PERIODS.find((p) => p.id === id);
+    const start = config[startKey];
+    const end = config[endKey];
+    const color = config[colorKey];
     return {
       id,
       enabled: config[enabledKey] !== false,
-      start: String((_a = config[startKey]) != null ? _a : fallback.start),
-      end: String((_b = config[endKey]) != null ? _b : fallback.end),
-      color: String((_c = config[colorKey]) != null ? _c : fallback.color)
+      start: typeof start === "string" ? start : fallback.start,
+      end: typeof end === "string" ? end : fallback.end,
+      color: typeof color === "string" ? color : fallback.color
     };
   });
 }

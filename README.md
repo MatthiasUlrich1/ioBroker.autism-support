@@ -81,6 +81,9 @@ npm run start
 
 See [CHANGELOG_OLD.md](CHANGELOG_OLD.md) for older entries.
 
+### 0.1.15
+- Fix Admin GUI crash when adding pictogram rows; upload images via a dedicated file selector
+
 ### 0.1.14
 - Fix Admin pictogram upload: table with image file manager instead of JSON accordion import
 

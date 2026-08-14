@@ -1,8 +1,21 @@
 {
 	"common": {
 		"name": "autism-support",
-		"version": "0.1.14",
+		"version": "0.1.15",
 		"news": {
+			"0.1.15": {
+				"en": "Fix Admin GUI crash when adding pictogram rows; upload images via a dedicated file selector",
+				"de": "GUI-Absturz beim Hinzufügen von Piktogramm-Zeilen behoben; Bilder über eigenen Datei-Upload",
+				"ru": "Исправлен сбой Admin при добавлении строк pictogram; отдельная загрузка изображений",
+				"pt": "Corrigida falha no Admin ao adicionar linhas; upload de imagens num seletor proprio",
+				"nl": "Admin-crash bij nieuwe rijen hersteld; afbeeldingen via aparte upload",
+				"fr": "Correction du plantage Admin a l ajout de lignes; televersement d images separe",
+				"it": "Corretto crash Admin all aggiunta di righe; upload immagini dedicato",
+				"es": "Corregido fallo de Admin al anadir filas; subida de imagenes en selector propio",
+				"pl": "Naprawiono awarie Admin przy dodawaniu wierszy; osobny upload obrazow",
+				"uk": "Виправлено збій Admin при додаванні рядків; окреме завантаження зображень",
+				"zh-cn": "修复添加象形图行时管理界面崩溃；改为独立图片上传控件"
+			},
 			"0.1.14": {
 				"en": "Fix Admin pictogram upload: table with image file manager instead of JSON accordion import",
 				"de": "Piktogramm-Upload im Admin korrigiert: Tabelle mit Bild-Dateiverwaltung statt JSON-Accordion-Import",
@@ -209,6 +222,7 @@
 		"periodNightStart": "21:00",
 		"periodNightEnd": "06:00",
 		"periodNightColor": "#5C6BC0",
+		"pictogramUpload": "",
 		"customPictograms": []
 	},
 	"objects": [],

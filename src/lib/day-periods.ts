@@ -137,12 +137,15 @@ export function dayPeriodsFromConfig(config: ioBroker.AdapterConfig): DayPeriodD
 		const endKey = `period${cap}End` as keyof ioBroker.AdapterConfig;
 		const colorKey = `period${cap}Color` as keyof ioBroker.AdapterConfig;
 		const fallback = DEFAULT_DAY_PERIODS.find(p => p.id === id)!;
+		const start = config[startKey];
+		const end = config[endKey];
+		const color = config[colorKey];
 		return {
 			id,
 			enabled: config[enabledKey] !== false,
-			start: String(config[startKey] ?? fallback.start),
-			end: String(config[endKey] ?? fallback.end),
-			color: String(config[colorKey] ?? fallback.color),
+			start: typeof start === "string" ? start : fallback.start,
+			end: typeof end === "string" ? end : fallback.end,
+			color: typeof color === "string" ? color : fallback.color,
 		};
 	});
 }

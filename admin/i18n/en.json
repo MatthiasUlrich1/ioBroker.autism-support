@@ -24,8 +24,9 @@
 	"pictograms_header": "Pictogram sources",
 	"arasaac_license_info": "ARASAAC pictograms are loaded only externally from static.arasaac.org / api.arasaac.org and are never stored or redistributed by this adapter. License: Creative Commons BY-NC-SA (author: Sergio Palao, owner: Government of Aragon). Attribution is required in the README and widgets. Website: https://arasaac.org",
 	"custom_pictogram_info": "Upload and tag your own pictograms here. Files are stored under autism-support.X/pictograms/. The Daily Schedule Config widget can search these tags and select images. Only upload images you own or are licensed to use. Do not upload ARASAAC files – use external ARASAAC IDs instead.",
-	"custom_pictograms_hint": "Click + to add a row. In the Image column open the file manager, upload a PNG/JPEG/GIF/WebP/SVG, then set name and tags. Save the instance afterwards.",
+	"custom_pictograms_hint": "First upload an image above (PNG/JPEG/GIF/WebP/SVG). Plus then adds a row and fills the file path. Set name and tags, then save the instance.",
 	"custom_pictograms_table": "Own pictograms",
+	"custom_pictogram_upload": "Upload image",
 	"custom_pictogram_file": "Image",
 	"custom_pictogram_label": "Name",
 	"custom_pictogram_tags": "Tags (comma-separated)"

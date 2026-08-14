@@ -35,7 +35,14 @@ function emptyLibrary() {
   return { version: 1, items: [] };
 }
 function normalizeTags(input) {
-  const parts = Array.isArray(input) ? input.map((entry) => String(entry)) : String(input || "").split(/[,;]+/);
+  let parts;
+  if (Array.isArray(input)) {
+    parts = input.map((entry) => typeof entry === "string" ? entry : "");
+  } else if (typeof input === "string") {
+    parts = input.split(/[,;]+/);
+  } else {
+    parts = [];
+  }
   const seen = /* @__PURE__ */ new Set();
   const tags = [];
   for (const part of parts) {

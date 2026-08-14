@@ -459,16 +459,31 @@
 					"lg": 12,
 					"xl": 12
 				},
+				"pictogramUpload": {
+					"type": "fileSelector",
+					"label": "custom_pictogram_upload",
+					"upload": "pictograms",
+					"objectID": "autism-support.%INSTANCE%",
+					"pattern": "pictograms/*.*",
+					"fileTypes": "image",
+					"delete": true,
+					"refresh": true,
+					"maxSize": 5242880,
+					"newLine": true,
+					"xs": 12,
+					"sm": 12,
+					"md": 12,
+					"lg": 12,
+					"xl": 12
+				},
 				"customPictograms": {
 					"type": "table",
 					"label": "custom_pictograms_table",
 					"noDelete": false,
 					"showFirstAddOnTop": true,
-					"showSecondAddAt": 3,
 					"clone": false,
 					"import": false,
 					"export": false,
-					"compact": true,
 					"newLine": true,
 					"xs": 12,
 					"sm": 12,
@@ -477,20 +492,12 @@
 					"xl": 12,
 					"items": [
 						{
-							"type": "file",
+							"type": "text",
 							"attr": "file",
 							"title": "custom_pictogram_file",
 							"width": "45%",
 							"default": "",
-							"disableEdit": false,
-							"allowUpload": true,
-							"allowDownload": true,
-							"allowCreateFolder": true,
-							"allowView": true,
-							"showToolbar": true,
-							"filterByType": "images",
-							"filterFiles": ["png", "svg", "jpg", "jpeg", "gif", "webp"],
-							"limitPath": "autism-support.%INSTANCE%/pictograms"
+							"defaultFunc": "return data.pictogramUpload || '';"
 						},
 						{
 							"type": "text",
