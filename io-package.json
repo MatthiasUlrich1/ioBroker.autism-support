@@ -1,8 +1,21 @@
 {
 	"common": {
 		"name": "autism-support",
-		"version": "0.1.16",
+		"version": "0.1.17",
 		"news": {
+			"0.1.17": {
+				"en": "Fix pictogram upload: use adapter file store instead of vis.0; upload from computer",
+				"de": "Piktogramm-Upload korrigiert: Adapter-Dateispeicher statt vis.0; Upload vom Computer",
+				"ru": "Исправлен upload pictogram: хранилище адаптера вместо vis.0",
+				"pt": "Corrigido upload de pictogramas: armazenamento do adaptador em vez de vis.0",
+				"nl": "Pictogram-upload hersteld: adapter-bestanden i.p.v. vis.0",
+				"fr": "Correction upload pictogrammes: stockage adaptateur au lieu de vis.0",
+				"it": "Corretto upload pittogrammi: storage adapter invece di vis.0",
+				"es": "Corregida subida de pictogramas: almacenamiento del adaptador en vez de vis.0",
+				"pl": "Naprawiono upload piktogramow: magazyn adaptera zamiast vis.0",
+				"uk": "Виправлено завантаження pictogram: сховище адаптера замість vis.0",
+				"zh-cn": "修复象形图上传：使用适配器文件库而非 vis.0"
+			},
 			"0.1.16": {
 				"en": "Fix Admin GUI crash on open: use file upload helper instead of fileSelector",
 				"de": "GUI-Absturz beim Oeffnen behoben: Datei-Upload-Hilfe statt fileSelector",
@@ -238,5 +251,15 @@
 		"customPictograms": []
 	},
 	"objects": [],
-	"instanceObjects": []
+	"instanceObjects": [
+		{
+			"_id": "",
+			"type": "meta",
+			"common": {
+				"name": "Pictogram files",
+				"type": "meta.user"
+			},
+			"native": {}
+		}
+	]
 }

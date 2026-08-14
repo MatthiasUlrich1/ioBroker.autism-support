@@ -81,6 +81,9 @@ npm run start
 
 See [CHANGELOG_OLD.md](CHANGELOG_OLD.md) for older entries.
 
+### 0.1.17
+- Fix pictogram upload: store files in the adapter (not vis.0) and upload from the computer
+
 ### 0.1.16
 - Fix Admin GUI crash on open: file upload helper instead of fileSelector
 

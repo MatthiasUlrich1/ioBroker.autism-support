@@ -24,6 +24,7 @@ __export(pictogram_library_exports, {
   fileRefToPath: () => fileRefToPath,
   libraryFromNativeRows: () => libraryFromNativeRows,
   matchesPictogramQuery: () => matchesPictogramQuery,
+  mergePictogramSources: () => mergePictogramSources,
   normalizeTags: () => normalizeTags,
   parseLibrary: () => parseLibrary,
   uniquePictogramFilename: () => uniquePictogramFilename
@@ -125,6 +126,25 @@ function libraryFromNativeRows(rows) {
   });
   return { version: 1, items };
 }
+function mergePictogramSources(disk, configRows) {
+  const items = /* @__PURE__ */ new Map();
+  for (const item of disk.items) {
+    items.set(item.filename, { ...item });
+  }
+  for (const item of configRows.items) {
+    const existing = items.get(item.filename);
+    if (existing) {
+      items.set(item.filename, {
+        ...existing,
+        label: item.label || existing.label,
+        tags: item.tags.length ? item.tags : existing.tags
+      });
+    } else {
+      items.set(item.filename, item);
+    }
+  }
+  return { version: 1, items: [...items.values()] };
+}
 function uniquePictogramFilename(original) {
   const sanitized = String(original || "image").replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 80);
   const extMatch = /\.(png|jpe?g|gif|webp|svg)$/i.exec(sanitized);
@@ -140,6 +160,7 @@ function uniquePictogramFilename(original) {
   fileRefToPath,
   libraryFromNativeRows,
   matchesPictogramQuery,
+  mergePictogramSources,
   normalizeTags,
   parseLibrary,
   uniquePictogramFilename

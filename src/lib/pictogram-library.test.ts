@@ -3,6 +3,7 @@ import {
 	fileRefToPath,
 	libraryFromNativeRows,
 	matchesPictogramQuery,
+	mergePictogramSources,
 	normalizeTags,
 	parseLibrary,
 	uniquePictogramFilename,
@@ -46,5 +47,28 @@ describe("pictogram-library", () => {
 
 	it("parses an empty library on invalid JSON", () => {
 		expect(parseLibrary("not-json").items).to.deep.equal([]);
+	});
+
+	it("merges disk files with admin name and tags", () => {
+		const disk = parseLibrary({
+			version: 1,
+			items: [
+				{
+					id: "brush.png",
+					filename: "brush.png",
+					path: "pictograms/brush.png",
+					label: "brush",
+					tags: [],
+					originalName: "brush.png",
+					mime: "",
+					uploadedAt: 0,
+				},
+			],
+		});
+		const configRows = libraryFromNativeRows([{ file: "pictograms/brush.png", label: "Zähne", tags: "hygiene" }]);
+		const merged = mergePictogramSources(disk, configRows);
+		expect(merged.items).to.have.length(1);
+		expect(merged.items[0].label).to.equal("Zähne");
+		expect(merged.items[0].tags).to.deep.equal(["hygiene"]);
 	});
 });

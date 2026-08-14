@@ -24,7 +24,7 @@
 	"pictograms_header": "Pictogrambronnen",
 	"arasaac_license_info": "ARASAAC-pictogrammen worden alleen extern geladen van static.arasaac.org / api.arasaac.org en niet opgeslagen of heruitgegeven. Licentie: CC BY-NC-SA (auteur: Sergio Palao, eigenaar: regering van Aragón). Naamsvermelding verplicht. Website: https://arasaac.org",
 	"custom_pictogram_info": "Upload en tag hier eigen pictogrammen. Bestanden in autism-support.X/pictograms/. Het config-widget kan op tags zoeken en beelden kiezen. Alleen beelden met gebruiksrecht. Geen ARASAAC-bestanden – gebruik het externe ID.",
-	"custom_pictograms_hint": "Upload eerst hierboven een afbeelding (PNG/JPEG/GIF/WebP/SVG). Plus voegt een rij toe en vult het pad. Vul naam en tags in en sla de instantie op.",
+	"custom_pictograms_hint": "Upload een bestand van de computer via de uploadknop naast de lijst (niet vis.0). Bestanden in autism-support.X/pictograms. Optioneel naam/tags in de tabel, daarna instantie opslaan.",
 	"custom_pictograms_table": "Eigen pictogrammen",
 	"custom_pictogram_upload": "Afbeelding uploaden",
 	"custom_pictogram_file": "Afbeelding",

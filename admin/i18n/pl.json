@@ -24,7 +24,7 @@
 	"pictograms_header": "Źródła piktogramów",
 	"arasaac_license_info": "Piktogramy ARASAAC są ładowane tylko zewnętrznie z static.arasaac.org / api.arasaac.org i nie są przechowywane ani redystrybuowane. Licencja: CC BY-NC-SA (autor: Sergio Palao, właściciel: rząd Aragonii). Wymagane oznaczenie autorstwa. Strona: https://arasaac.org",
 	"custom_pictogram_info": "Przesylaj i taguj wlasne piktogramy tutaj. Pliki w autism-support.X/pictograms/. Widget konfiguracji moze szukac tagow i wybierac obrazy. Tylko obrazy z prawami. Nie przesylaj plikow ARASAAC – uzyj zewnetrznego ID.",
-	"custom_pictograms_hint": "Najpierw wgraj obraz powyzej (PNG/JPEG/GIF/WebP/SVG). Plus dodaje wiersz i uzupelnia sciezke. Wpisz nazwe i tagi, potem zapisz instancje.",
+	"custom_pictograms_hint": "Wgraj obraz z komputera przyciskiem upload obok listy (nie vis.0). Pliki w autism-support.X/pictograms. Opcjonalnie nazwa/tagi w tabeli, potem zapisz instancje.",
 	"custom_pictograms_table": "Wlasne piktogramy",
 	"custom_pictogram_upload": "Wgraj obraz",
 	"custom_pictogram_file": "Obraz",

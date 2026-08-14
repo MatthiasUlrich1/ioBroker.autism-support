@@ -16,6 +16,7 @@ import {
 	PICTOGRAM_DIR,
 	emptyLibrary,
 	libraryFromNativeRows,
+	mergePictogramSources,
 	normalizeTags,
 	parseLibrary,
 	uniquePictogramFilename,
@@ -56,6 +57,7 @@ class AutismSupport extends utils.Adapter {
 		this.dayPeriods = dayPeriodsFromConfig(this.config);
 
 		await this.createTimerStates();
+		await this.ensurePictogramStore();
 		await this.createScheduleStates();
 
 		this.timerManager = new TimerManager(
@@ -345,12 +347,24 @@ class AutismSupport extends utils.Adapter {
 		await this.publishPictogramLibrary();
 	}
 
-	private async publishPictogramLibrary(): Promise<void> {
-		const fromConfig = libraryFromNativeRows(this.config.customPictograms);
-		let library = fromConfig;
-		if (!library.items.length) {
-			library = await this.getMergedPictogramLibrary();
+	private async ensurePictogramStore(): Promise<void> {
+		try {
+			await this.readDirAsync(this.namespace, PICTOGRAM_DIR);
+		} catch {
+			await this.writeFileAsync(this.namespace, LIBRARY_FILE, JSON.stringify(emptyLibrary(), null, 2));
+			this.log.info(`Created file store ${this.namespace}/${PICTOGRAM_DIR}`);
 		}
+	}
+
+	private async getPublishedPictogramLibrary(): Promise<PictogramLibrary> {
+		return mergePictogramSources(
+			await this.getMergedPictogramLibrary(),
+			libraryFromNativeRows(this.config.customPictograms),
+		);
+	}
+
+	private async publishPictogramLibrary(): Promise<void> {
+		const library = await this.getPublishedPictogramLibrary();
 		await this.setState(`${SCHEDULE_CHANNEL}.pictogramLibrary`, JSON.stringify(library), true);
 	}
 
@@ -618,8 +632,7 @@ class AutismSupport extends utils.Adapter {
 			}
 
 			if (obj.command === "listPictograms") {
-				const fromConfig = libraryFromNativeRows(this.config.customPictograms);
-				const library = fromConfig.items.length ? fromConfig : await this.getMergedPictogramLibrary();
+				const library = await this.getPublishedPictogramLibrary();
 				this.reply(obj, {
 					ok: true,
 					files: library.items.map(item => item.filename),

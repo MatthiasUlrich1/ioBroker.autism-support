@@ -127,6 +127,26 @@ export function libraryFromNativeRows(rows: unknown): PictogramLibrary {
 	return { version: 1, items };
 }
 
+export function mergePictogramSources(disk: PictogramLibrary, configRows: PictogramLibrary): PictogramLibrary {
+	const items = new Map<string, CustomPictogram>();
+	for (const item of disk.items) {
+		items.set(item.filename, { ...item });
+	}
+	for (const item of configRows.items) {
+		const existing = items.get(item.filename);
+		if (existing) {
+			items.set(item.filename, {
+				...existing,
+				label: item.label || existing.label,
+				tags: item.tags.length ? item.tags : existing.tags,
+			});
+		} else {
+			items.set(item.filename, item);
+		}
+	}
+	return { version: 1, items: [...items.values()] };
+}
+
 export function uniquePictogramFilename(original: string): string {
 	const sanitized = String(original || "image")
 		.replace(/[^a-zA-Z0-9._-]/g, "_")
