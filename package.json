@@ -1,6 +1,6 @@
 {
   "name": "iobroker.autism-support",
-  "version": "0.1.17",
+  "version": "0.1.18",
   "description": "Unterstützung für Menschen mit Autismus: Visual Countdown, Bild-Ablaufpläne und Piktogramme",
   "author": {
     "name": "Matthias Ulrich",
@@ -64,7 +64,7 @@
   ],
   "scripts": {
     "prebuild": "rimraf build",
-    "build": "build-adapter ts && node tasks --typescript",
+    "build": "build-adapter ts && node tasks --typescript && node tasks --admin",
     "build:adapter": "build-adapter ts",
     "build:widgets": "node tasks --typescript",
     "watch": "build-adapter ts --watch",

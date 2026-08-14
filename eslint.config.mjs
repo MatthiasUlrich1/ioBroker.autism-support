@@ -20,6 +20,8 @@ export default [
 			'widgets/**/*.js',
 			'tasks.js',
 			'src-widgets-ts/**',
+			'src-admin/**',
+			'admin/custom/**',
 		],
 	},
 	{

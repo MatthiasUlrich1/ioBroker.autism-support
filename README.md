@@ -81,6 +81,9 @@ npm run start
 
 See [CHANGELOG_OLD.md](CHANGELOG_OLD.md) for older entries.
 
+### 0.1.18
+- Fix Admin GUI crash: custom pictogram upload from computer via adapter (no vis file dialog)
+
 ### 0.1.17
 - Fix pictogram upload: store files in the adapter (not vis.0) and upload from the computer
 

@@ -112,6 +112,38 @@ if (process.argv.includes('--typescript') || process.argv.length === 2) {
         .catch(e => console.error(`Cannot build: ${e}`));
 }
 
+// ------------------- tasks for admin custom component ----------------------
+
+const SRC_ADMIN = "src-admin/";
+const src_admin = `${__dirname}/${SRC_ADMIN}`;
+
+function adminClean() {
+	deleteFoldersRecursive(`${src_admin}build`);
+}
+
+function adminCopyAllFiles() {
+	copyFiles([`${SRC_ADMIN}build/assets/*.*`], "admin/custom/assets");
+	copyFiles([`${SRC_ADMIN}build/static/js/*.js`], "admin/custom/static/js");
+	copyFiles([`${SRC_ADMIN}build/static/js/*.map`], "admin/custom/static/js");
+	copyFiles([`${SRC_ADMIN}build/customComponents.js`], "admin/custom");
+	copyFiles([`${SRC_ADMIN}build/customComponents.js.map`], "admin/custom");
+	copyFiles([`${SRC_ADMIN}build/mf-manifest.json`], "admin/custom");
+}
+
+if (process.argv.includes("--admin")) {
+	adminClean();
+	let npmPromise;
+	if (existsSync(`${src_admin}/node_modules`)) {
+		npmPromise = Promise.resolve();
+	} else {
+		npmPromise = npmInstall(src_admin);
+	}
+	npmPromise
+		.then(() => buildReact(src_admin, { vite: true }))
+		.then(() => adminCopyAllFiles())
+		.catch(e => console.error(`Cannot build admin component: ${e}`));
+}
+
 // ------------------- tasks for javascript-vite ----------------------
 
 const SRC_JSV = 'src-widgets-jsvite/';

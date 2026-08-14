@@ -1,8 +1,21 @@
 {
 	"common": {
 		"name": "autism-support",
-		"version": "0.1.17",
+		"version": "0.1.18",
 		"news": {
+			"0.1.18": {
+				"en": "Fix Admin GUI crash: custom pictogram upload from computer via adapter",
+				"de": "GUI-Absturz behoben: eigener Piktogramm-Upload vom Computer ueber Adapter",
+				"ru": "Исправлен сбой Admin: загрузка pictogram с компьютера через адаптер",
+				"pt": "Corrigida falha no Admin: upload de pictogramas do computador via adaptador",
+				"nl": "Admin-crash opgelost: pictogram-upload vanaf computer via adapter",
+				"fr": "Correction plantage Admin: upload pictogrammes depuis ordinateur via adaptateur",
+				"it": "Corretto crash Admin: upload pittogrammi dal computer via adapter",
+				"es": "Corregido fallo Admin: subida de pictogramas desde PC via adaptador",
+				"pl": "Naprawiono awarie Admin: upload piktogramow z komputera przez adapter",
+				"uk": "Виправлено збій Admin: завантаження pictogram з комп'ютера через адаптер",
+				"zh-cn": "修复管理界面崩溃：通过适配器从电脑上传象形图"
+			},
 			"0.1.17": {
 				"en": "Fix pictogram upload: use adapter file store instead of vis.0; upload from computer",
 				"de": "Piktogramm-Upload korrigiert: Adapter-Dateispeicher statt vis.0; Upload vom Computer",
