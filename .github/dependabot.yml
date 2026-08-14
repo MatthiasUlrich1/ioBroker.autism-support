@@ -1,40 +1,43 @@
+# Dependabot will run on day 18 of each month at 03:58 (Europe/Berlin timezone)
 version: 2
 updates:
-  - package-ecosystem: npm
-    directory: "/"
+
+  - package-ecosystem: 'npm'
+    directory: '/'
     schedule:
-      interval: cron
-      cronjob: "5 0 14 * *"
-      timezone: Europe/Berlin
+      interval: 'cron'
+      cronjob: '5 0 14 * *'
+      timezone: 'Europe/Berlin'
     cooldown:
       default: 7
     open-pull-requests-limit: 15
     assignees:
-      - MatthiasUlrich1
-    versioning-strategy: increase
+      - 'MatthiasUlrich1'
+    versioning-strategy: 'increase'
     ignore:
-      - dependency-name: "@types/node"
-        update-types: ["version-update:semver-major"]
+      - dependency-name: '@types/node'
+        update-types:
+          - 'version-update:semver-major'
 
-  - package-ecosystem: npm
-    directory: "/src-widgets-ts"
+  - package-ecosystem: 'npm'
+    directory: '/src-widgets-ts'
     schedule:
-      interval: cron
-      cronjob: "15 0 14 * *"
-      timezone: Europe/Berlin
+      interval: 'cron'
+      cronjob: '15 0 14 * *'
+      timezone: 'Europe/Berlin'
     cooldown:
       default: 7
     open-pull-requests-limit: 15
     assignees:
-      - MatthiasUlrich1
-    versioning-strategy: increase
+      - 'MatthiasUlrich1'
+    versioning-strategy: 'increase'
 
-  - package-ecosystem: github-actions
-    directory: "/"
+  - package-ecosystem: 'github-actions'
+    directory: '/'
     schedule:
-      interval: cron
-      cronjob: "25 0 15 * *"
-      timezone: Europe/Berlin
+      interval: 'cron'
+      cronjob: '25 0 15 * *'
+      timezone: 'Europe/Berlin'
     open-pull-requests-limit: 15
     assignees:
-      - MatthiasUlrich1
+      - 'MatthiasUlrich1'
