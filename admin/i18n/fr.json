@@ -23,5 +23,9 @@
 	"pictograms_tab": "Pictogrammes",
 	"pictograms_header": "Sources de pictogrammes",
 	"arasaac_license_info": "Les pictogrammes ARASAAC sont chargés uniquement depuis static.arasaac.org / api.arasaac.org et ne sont ni stockés ni redistribués par cet adaptateur. Licence: CC BY-NC-SA (auteur: Sergio Palao, titulaire: Gouvernement d'Aragon). Attribution requise. Site: https://arasaac.org",
-	"custom_pictogram_info": "Les pictogrammes personnalisés peuvent être téléversés via le widget de configuration (fichiers dans autism-support.X/pictograms/). N'utilisez que des images autorisées. N'importez pas de fichiers ARASAAC – utilisez l'ID externe."
+	"custom_pictogram_info": "Téléversez et étiquetez vos pictogrammes ici. Fichiers dans autism-support.X/pictograms/. Le widget de configuration peut chercher ces étiquettes. Uniquement des images autorisées. Pas de fichiers ARASAAC – utilisez l'ID externe.",
+	"custom_pictograms_table": "Pictogrammes personnels",
+	"custom_pictogram_file": "Image",
+	"custom_pictogram_label": "Nom",
+	"custom_pictogram_tags": "Tags (virgule)"
 }

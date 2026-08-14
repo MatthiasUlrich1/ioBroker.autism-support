@@ -34,6 +34,7 @@ declare global {
 			periodNightStart: string;
 			periodNightEnd: string;
 			periodNightColor: string;
+			customPictograms: Array<{ file?: string; label?: string; tags?: string }>;
 		}
 	}
 }

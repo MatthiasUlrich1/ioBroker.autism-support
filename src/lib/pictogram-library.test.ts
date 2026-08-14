@@ -1,5 +1,7 @@
 import { expect } from "chai";
 import {
+	fileRefToPath,
+	libraryFromNativeRows,
 	matchesPictogramQuery,
 	normalizeTags,
 	parseLibrary,
@@ -31,6 +33,15 @@ describe("pictogram-library", () => {
 		const name = uniquePictogramFilename("Zähne putzen.PNG");
 		expect(name.endsWith(".png")).to.equal(true);
 		expect(name).to.match(/-\d+\.png$/);
+	});
+
+	it("maps native admin rows to library paths", () => {
+		const library = libraryFromNativeRows([
+			{ file: "autism-support.0/pictograms/brush.png", label: "Zähne", tags: "hygiene, morgen" },
+		]);
+		expect(fileRefToPath("/files/autism-support.0/pictograms/brush.png")).to.equal("pictograms/brush.png");
+		expect(library.items[0].path).to.equal("pictograms/brush.png");
+		expect(library.items[0].tags).to.deep.equal(["hygiene", "morgen"]);
 	});
 
 	it("parses an empty library on invalid JSON", () => {

@@ -1,8 +1,21 @@
 {
 	"common": {
 		"name": "autism-support",
-		"version": "0.1.12",
+		"version": "0.1.13",
 		"news": {
+			"0.1.13": {
+				"en": "Move custom pictogram upload and tags to Admin instance settings; widget can search and select own images",
+				"de": "Upload und Tags eigener Piktogramme in die Admin-Instanzeinstellungen verschoben; Widget sucht und wählt eigene Bilder",
+				"ru": "Загрузка и теги своих pictogram в настройки Admin; виджет ищет и выбирает свои изображения",
+				"pt": "Upload e tags de pictogramas próprios nas definições Admin; o widget pesquisa e seleciona imagens",
+				"nl": "Upload en tags van eigen pictogrammen in Admin-instellingen; widget zoekt en kiest eigen beelden",
+				"fr": "Téléversement et tags des pictogrammes dans les réglages Admin; le widget cherche et sélectionne les images",
+				"it": "Caricamento e tag dei pittogrammi nelle impostazioni Admin; il widget cerca e seleziona le immagini",
+				"es": "Subida y etiquetas de pictogramas propios en ajustes Admin; el widget busca y selecciona imágenes",
+				"pl": "Upload i tagi własnych piktogramów w ustawieniach Admin; widget szuka i wybiera obrazy",
+				"uk": "Завантаження і теги власних pictogram у налаштуваннях Admin; віджет шукає і вибирає зображення",
+				"zh-cn": "将自定义象形图上传和标签移至管理实例设置；小组件可搜索并选择自有图片"
+			},
 			"0.1.12": {
 				"en": "Repository checker fixes: admin UI sizes, README license, CI Node 24",
 				"de": "Repository-Checker: Admin-UI-Größen, README-Lizenz, CI Node 24",
@@ -182,7 +195,8 @@
 		"periodNightEnabled": true,
 		"periodNightStart": "21:00",
 		"periodNightEnd": "06:00",
-		"periodNightColor": "#5C6BC0"
+		"periodNightColor": "#5C6BC0",
+		"customPictograms": []
 	},
 	"objects": [],
 	"instanceObjects": []

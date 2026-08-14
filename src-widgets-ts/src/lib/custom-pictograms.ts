@@ -16,6 +16,36 @@ export interface PictogramLibrary {
 	items: CustomPictogram[];
 }
 
+export function emptyLibrary(): PictogramLibrary {
+	return { version: 1, items: [] };
+}
+
+export function parseLibrary(raw: unknown): PictogramLibrary {
+	try {
+		const data = typeof raw === "string" ? JSON.parse(raw) : raw;
+		if (!data || typeof data !== "object" || !Array.isArray((data as PictogramLibrary).items)) {
+			return emptyLibrary();
+		}
+		return {
+			version: 1,
+			items: (data as PictogramLibrary).items
+				.filter(item => item && typeof item === "object" && item.filename)
+				.map(item => ({
+					id: String(item.id || item.filename),
+					filename: String(item.filename),
+					path: String(item.path || `pictograms/${item.filename}`),
+					label: String(item.label || ""),
+					tags: Array.isArray(item.tags) ? item.tags.map(tag => String(tag)) : [],
+					originalName: String(item.originalName || item.filename),
+					mime: String(item.mime || ""),
+					uploadedAt: Number(item.uploadedAt) || 0,
+				})),
+		};
+	} catch {
+		return emptyLibrary();
+	}
+}
+
 export function matchesPictogramQuery(item: CustomPictogram, query: string): boolean {
 	const q = query.trim().toLowerCase();
 	if (!q) {
@@ -32,67 +62,4 @@ export function customPictogramUrl(item: CustomPictogram, adapterInstance: strin
 			adapterInstance,
 		) || ""
 	);
-}
-
-export function fileToBase64(file: File): Promise<string> {
-	return new Promise((resolve, reject) => {
-		const reader = new FileReader();
-		reader.onload = () => {
-			const result = String(reader.result || "");
-			const comma = result.indexOf(",");
-			resolve(comma >= 0 ? result.slice(comma + 1) : result);
-		};
-		reader.onerror = () => reject(new Error("Could not read file"));
-		reader.readAsDataURL(file);
-	});
-}
-
-export function sendToAdapter<T>(
-	socket: { sendTo?: (instance: string, command: string, message: unknown, callback?: (result: T) => void) => unknown },
-	instance: string,
-	command: string,
-	message: unknown,
-	timeoutMs = 20000,
-): Promise<T> {
-	const sendTo = socket.sendTo;
-	if (!sendTo) {
-		return Promise.reject(new Error("socket.sendTo is not available"));
-	}
-	return new Promise((resolve, reject) => {
-		let settled = false;
-		const timer = setTimeout(() => {
-			if (!settled) {
-				settled = true;
-				reject(new Error("Adapter did not answer (timeout). Is autism-support running?"));
-			}
-		}, timeoutMs);
-		const finish = (result: T): void => {
-			if (settled) {
-				return;
-			}
-			settled = true;
-			clearTimeout(timer);
-			resolve(result);
-		};
-		try {
-			const maybePromise = sendTo(instance, command, message, finish);
-			if (maybePromise && typeof (maybePromise as Promise<T>).then === "function") {
-				void (maybePromise as Promise<T>).then(result => {
-					if (result !== undefined && result !== null) {
-						finish(result);
-					}
-				}, error => {
-					if (!settled) {
-						settled = true;
-						clearTimeout(timer);
-						reject(error);
-					}
-				});
-			}
-		} catch (error) {
-			settled = true;
-			clearTimeout(timer);
-			reject(error);
-		}
-	});
 }

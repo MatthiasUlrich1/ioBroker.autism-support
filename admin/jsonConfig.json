@@ -447,6 +447,57 @@
 					"md": 12,
 					"lg": 12,
 					"xl": 12
+				},
+				"customPictograms": {
+					"type": "accordion",
+					"label": "custom_pictograms_table",
+					"titleAttr": "label",
+					"clone": true,
+					"newLine": true,
+					"xs": 12,
+					"sm": 12,
+					"md": 12,
+					"lg": 12,
+					"xl": 12,
+					"items": [
+						{
+							"type": "fileSelector",
+							"attr": "file",
+							"label": "custom_pictogram_file",
+							"upload": "pictograms",
+							"objectID": "autism-support.%INSTANCE%",
+							"pattern": "pictograms/*.*",
+							"fileTypes": "image",
+							"delete": true,
+							"refresh": true,
+							"maxSize": 5242880,
+							"xs": 12,
+							"sm": 12,
+							"md": 12,
+							"lg": 6,
+							"xl": 6
+						},
+						{
+							"type": "text",
+							"attr": "label",
+							"label": "custom_pictogram_label",
+							"xs": 12,
+							"sm": 6,
+							"md": 6,
+							"lg": 3,
+							"xl": 3
+						},
+						{
+							"type": "text",
+							"attr": "tags",
+							"label": "custom_pictogram_tags",
+							"xs": 12,
+							"sm": 6,
+							"md": 6,
+							"lg": 3,
+							"xl": 3
+						}
+					]
 				}
 			}
 		}

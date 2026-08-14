@@ -21,9 +21,8 @@ import DailyScheduleVisual from "./components/DailyScheduleVisual";
 import { arasaacImageUrl, searchArasaac, type ArasaacSearchHit } from "./lib/arasaac";
 import {
 	customPictogramUrl,
-	fileToBase64,
 	matchesPictogramQuery,
-	sendToAdapter,
+	parseLibrary,
 	type CustomPictogram,
 	type PictogramLibrary,
 } from "./lib/custom-pictograms";
@@ -45,6 +44,7 @@ interface DailyScheduleConfigRxData {
 	oidClearAfterLast: string;
 	oidNowMinutes: string;
 	oidCurrentItemIndex: string;
+	oidLibrary: string;
 	adapterInstance: string;
 	arasaacLanguage: string;
 	pictogramSize: number;
@@ -58,7 +58,6 @@ interface DailyScheduleConfigState extends VisRxWidgetState {
 	searchError: string;
 	busy: boolean;
 	library: PictogramLibrary;
-	tagDraft: string;
 	/** Optimistic day-period on/off until ioBroker state catches up. */
 	localPeriodOverrides: Record<string, boolean>;
 	/** Optimistic clear-after-last toggle until ioBroker state catches up. */
@@ -133,6 +132,12 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 							default: "autism-support.0.schedule.currentItemIndex",
 						},
 						{
+							name: "oidLibrary",
+							type: "id",
+							label: "oid_schedule_library",
+							default: "autism-support.0.schedule.pictogramLibrary",
+						},
+						{
 							name: "adapterInstance",
 							type: "text",
 							label: "adapter_instance",
@@ -171,7 +176,6 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 			searchError: "",
 			busy: false,
 			library: { version: 1, items: [] },
-			tagDraft: "",
 			localPeriodOverrides: {},
 		};
 	}
@@ -188,12 +192,16 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 		super.componentDidMount();
 		this.syncDraftFromState();
 		void this.bootstrapClearAfterLast();
-		void this.loadLibrary();
+		this.syncLibraryFromState();
+		void this.bootstrapLibrary();
 	}
 
 	onStateUpdated(id: string, _state: ioBroker.State | null | undefined): void {
 		if (id === this.state.rxData.oidPlan) {
 			this.syncDraftFromState();
+		}
+		if (id === this.libraryOid()) {
+			this.syncLibraryFromState();
 		}
 		const overridesOid = this.getPeriodOverridesOid();
 		if (id === overridesOid) {
@@ -362,30 +370,25 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 		return this.state.rxData.adapterInstance || "autism-support.0";
 	}
 
-	private async sendCommand<T extends { ok?: boolean; error?: string }>(
-		command: string,
-		message: unknown,
-	): Promise<T> {
-		return sendToAdapter<T>(this.props.context.socket, this.adapterInstance(), command, message);
+	private libraryOid(): string {
+		return this.state.rxData.oidLibrary || `${this.adapterInstance()}.schedule.pictogramLibrary`;
 	}
 
-	private async loadLibrary(): Promise<void> {
+	private syncLibraryFromState(): void {
+		this.setState({ library: parseLibrary(this.state.values[`${this.libraryOid()}.val`]) });
+	}
+
+	private async bootstrapLibrary(): Promise<void> {
+		const oid = this.libraryOid();
+		const socket = this.props.context?.socket;
+		if (!oid || !socket || this.state.values[`${oid}.val`] !== undefined) {
+			return;
+		}
 		try {
-			const result = await this.sendCommand<{ ok?: boolean; library?: PictogramLibrary; error?: string }>(
-				"listPictograms",
-				{},
-			);
-			if (result?.ok && result.library) {
-				this.setState({ library: result.library });
-			}
+			const state = await socket.getState(oid);
+			this.setState({ library: parseLibrary(state?.val) });
 		} catch (error) {
 			this.setState({ searchError: (error as Error).message });
-		}
-	}
-
-	private applyLibrary(library: PictogramLibrary | undefined): void {
-		if (library) {
-			this.setState({ library });
 		}
 	}
 
@@ -406,7 +409,7 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 			arasaacId: undefined,
 			label: selected?.label || item.label,
 		});
-		this.setState({ tagDraft: (item.tags || []).join(", "), searchError: "" });
+		this.setState({ searchError: "" });
 	}
 
 	private libraryItemFor(ref: string | undefined): CustomPictogram | undefined {
@@ -416,57 +419,6 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 		return this.state.library.items.find(
 			item => item.path === ref || item.filename === ref || `pictograms/${item.filename}` === ref,
 		);
-	}
-
-	private async saveTags(): Promise<void> {
-		const selected = this.state.selectedIndex >= 0 ? this.state.draft.items[this.state.selectedIndex] : null;
-		if (!selected?.customRef) {
-			return;
-		}
-		this.setState({ busy: true, searchError: "" });
-		try {
-			const result = await this.sendCommand<{ ok?: boolean; library?: PictogramLibrary; error?: string }>(
-				"updatePictogram",
-				{ path: selected.customRef, tags: this.state.tagDraft, label: selected.label },
-			);
-			if (!result?.ok) {
-				throw new Error(result?.error || "update failed");
-			}
-			this.applyLibrary(result.library);
-		} catch (error) {
-			this.setState({ searchError: (error as Error).message });
-		} finally {
-			this.setState({ busy: false });
-		}
-	}
-
-	private async deleteLibraryItem(item: CustomPictogram): Promise<void> {
-		const message = this.isDe()
-			? `Bild „${item.label || item.filename}“ wirklich löschen?`
-			: `Really delete image “${item.label || item.filename}”?`;
-		if (!window.confirm(message)) {
-			return;
-		}
-		this.setState({ busy: true, searchError: "" });
-		try {
-			const result = await this.sendCommand<{ ok?: boolean; library?: PictogramLibrary; error?: string }>(
-				"deletePictogram",
-				{ path: item.path },
-			);
-			if (!result?.ok) {
-				throw new Error(result?.error || "delete failed");
-			}
-			this.applyLibrary(result.library);
-			const index = this.state.selectedIndex;
-			if (index >= 0 && this.state.draft.items[index]?.customRef === item.path) {
-				this.updateItem(index, { customRef: "" });
-				this.setState({ tagDraft: "" });
-			}
-		} catch (error) {
-			this.setState({ searchError: (error as Error).message });
-		} finally {
-			this.setState({ busy: false });
-		}
 	}
 
 	private async runSearch(): Promise<void> {
@@ -479,47 +431,6 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 			this.setState({ searchHits: hits });
 		} catch (error) {
 			this.setState({ searchError: (error as Error).message, searchHits: [] });
-		} finally {
-			this.setState({ busy: false });
-		}
-	}
-
-	private async uploadCustomFile(file: File): Promise<void> {
-		const index = this.state.selectedIndex;
-		if (index < 0) {
-			this.setState({
-				searchError: this.isDe()
-					? "Bitte zuerst einen Plan-Eintrag auswählen, dann hochladen."
-					: "Select a schedule item first, then upload.",
-			});
-			return;
-		}
-		this.setState({ busy: true, searchError: "" });
-		try {
-			const base64 = await fileToBase64(file);
-			const selected = this.state.draft.items[index];
-			const result = await this.sendCommand<{
-				ok?: boolean;
-				path?: string;
-				item?: CustomPictogram;
-				library?: PictogramLibrary;
-				error?: string;
-			}>("uploadPictogram", {
-				filename: file.name,
-				base64,
-				mime: file.type,
-				label: selected?.label || file.name.replace(/\.[^.]+$/, ""),
-				tags: this.state.tagDraft,
-			});
-
-			if (!result?.ok || !result.path) {
-				throw new Error(result?.error || "upload failed");
-			}
-			this.applyLibrary(result.library);
-			this.updateItem(index, { source: "custom", customRef: result.path, arasaacId: undefined });
-			this.setState({ tagDraft: (result.item?.tags || []).join(", ") });
-		} catch (error) {
-			this.setState({ searchError: (error as Error).message });
 		} finally {
 			this.setState({ busy: false });
 		}
@@ -539,23 +450,22 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 					{this.isDe() ? "Eigene Bilder" : "Own images"}
 				</Typography>
 				<Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, maxHeight: 160, overflowY: "auto" }}>
-					{hits.map(item => this.renderLibraryThumb(item, thumb, instance, true))}
+					{hits.map(item => this.renderLibraryThumb(item, thumb, instance))}
 				</Box>
 			</>
 		);
 	}
 
-	private renderLibraryThumb(
-		item: CustomPictogram,
-		thumb: number,
-		instance: string,
-		compact: boolean,
-	): React.JSX.Element {
+	private renderLibraryThumb(item: CustomPictogram, thumb: number, instance: string): React.JSX.Element {
 		const selected = this.state.selectedIndex >= 0 ? this.state.draft.items[this.state.selectedIndex] : null;
 		const active = selected?.source === "custom" && selected.customRef === item.path;
 		return (
 			<Box
 				key={item.id}
+				component="button"
+				type="button"
+				title={(item.tags || []).join(", ") || item.label}
+				onClick={() => this.selectCustomPictogram(item)}
 				sx={{
 					width: thumb + 16,
 					p: 0.5,
@@ -563,59 +473,32 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 					borderColor: active ? "primary.main" : "divider",
 					borderRadius: 1,
 					background: "#fff",
+					cursor: "pointer",
 					display: "flex",
 					flexDirection: "column",
 					alignItems: "center",
 					gap: 0.5,
 				}}
 			>
-				<Box
-					component="button"
-					type="button"
-					title={(item.tags || []).join(", ") || item.label}
-					onClick={() => this.selectCustomPictogram(item)}
+				<img
+					src={customPictogramUrl(item, instance)}
+					alt=""
+					width={thumb}
+					height={thumb}
+					style={{ objectFit: "contain", display: "block" }}
+				/>
+				<Typography
+					variant="caption"
 					sx={{
-						border: 0,
-						background: "transparent",
-						cursor: "pointer",
-						p: 0,
-						display: "flex",
-						flexDirection: "column",
-						alignItems: "center",
-						gap: 0.5,
+						maxWidth: thumb + 8,
+						overflow: "hidden",
+						textOverflow: "ellipsis",
+						whiteSpace: "nowrap",
+						lineHeight: 1.2,
 					}}
 				>
-					<img
-						src={customPictogramUrl(item, instance)}
-						alt=""
-						width={thumb}
-						height={thumb}
-						style={{ objectFit: "contain", display: "block" }}
-					/>
-					<Typography
-						variant="caption"
-						sx={{
-							maxWidth: thumb + 8,
-							overflow: "hidden",
-							textOverflow: "ellipsis",
-							whiteSpace: "nowrap",
-							lineHeight: 1.2,
-						}}
-					>
-						{item.label || item.filename}
-					</Typography>
-				</Box>
-				{compact ? null : (
-					<Button
-						size="small"
-						color="error"
-						disabled={this.state.busy}
-						onClick={() => void this.deleteLibraryItem(item)}
-						sx={{ minWidth: 0, py: 0, fontSize: "0.7rem" }}
-					>
-						{this.isDe() ? "Löschen" : "Delete"}
-					</Button>
-				)}
+					{item.label || item.filename}
+				</Typography>
 			</Box>
 		);
 	}
@@ -626,6 +509,7 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 		const preview = resolveItemImageUrl(selected, instance);
 		const filter = this.state.searchQuery.trim();
 		const items = this.state.library.items.filter(item => matchesPictogramQuery(item, filter));
+		const tags = (this.libraryItemFor(selected.customRef)?.tags || []).join(", ");
 		return (
 			<>
 				{preview ? (
@@ -643,47 +527,18 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 					value={selected.customRef || ""}
 					onChange={e => this.updateItem(this.state.selectedIndex, { customRef: e.target.value })}
 				/>
-				<Stack direction="row" spacing={1} alignItems="center">
-					<TextField
-						size="small"
-						fullWidth
-						label={this.isDe() ? "Tags (Komma)" : "Tags (comma)"}
-						placeholder={this.isDe() ? "z. B. hygiene, morgen" : "e.g. hygiene, morning"}
-						value={this.state.tagDraft}
-						onChange={e => this.setState({ tagDraft: e.target.value })}
-					/>
-					<Button
-						variant="outlined"
-						disabled={this.state.busy || !selected.customRef}
-						onClick={() => void this.saveTags()}
-					>
-						{this.isDe() ? "Tags speichern" : "Save tags"}
-					</Button>
-				</Stack>
-				<Stack direction="row" spacing={1}>
-					<TextField
-						size="small"
-						fullWidth
-						label={this.isDe() ? "Eigene Bilder suchen" : "Search own images"}
-						value={this.state.searchQuery}
-						onChange={e => this.setState({ searchQuery: e.target.value })}
-					/>
-					<Button variant="outlined" component="label" disabled={this.state.busy}>
-						{this.isDe() ? "Hochladen" : "Upload"}
-						<input
-							hidden
-							type="file"
-							accept="image/png,image/jpeg,image/gif,image/webp,image/svg+xml"
-							onChange={e => {
-								const file = e.target.files?.[0];
-								if (file) {
-									void this.uploadCustomFile(file);
-								}
-								e.target.value = "";
-							}}
-						/>
-					</Button>
-				</Stack>
+				{tags ? (
+					<Typography variant="caption">
+						Tags: {tags}
+					</Typography>
+				) : null}
+				<TextField
+					size="small"
+					fullWidth
+					label={this.isDe() ? "Eigene Bilder suchen" : "Search own images"}
+					value={this.state.searchQuery}
+					onChange={e => this.setState({ searchQuery: e.target.value })}
+				/>
 				{this.state.searchError ? (
 					<Typography color="error" variant="caption">
 						{this.state.searchError}
@@ -696,19 +551,19 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 				</Typography>
 				<Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, maxHeight: 260, overflowY: "auto" }}>
 					{items.length ? (
-						items.map(item => this.renderLibraryThumb(item, thumb, instance, false))
+						items.map(item => this.renderLibraryThumb(item, thumb, instance))
 					) : (
 						<Typography variant="caption" sx={{ opacity: 0.75 }}>
 							{this.isDe()
-								? "Noch keine eigenen Bilder. Zuerst einen Eintrag wählen, dann hochladen."
-								: "No own images yet. Select an item first, then upload."}
+								? "Noch keine eigenen Bilder. Bitte in den Instanzeinstellungen (Admin) hochladen und mit Tags versehen."
+								: "No own images yet. Upload and tag them in the Admin instance settings."}
 						</Typography>
 					)}
 				</Box>
 				<Typography variant="caption" sx={{ opacity: 0.75 }}>
 					{this.isDe()
-						? "Bilder bleiben in der Instanz gespeichert und können später wiederverwendet werden. Nur eigene/lizenzierte Dateien, keine ARASAAC-Dateien."
-						: "Images stay stored in the instance and can be reused later. Only upload images you own or are licensed to use. Do not upload ARASAAC files."}
+						? "Upload und Tags nur in den Instanzeinstellungen (Admin, Reiter Piktogramme). Die Suche hier findet eigene Bilder über Name und Tags."
+						: "Upload and tags are only in Admin instance settings (Pictograms tab). Search here finds own images by name and tags."}
 				</Typography>
 			</>
 		);
@@ -835,15 +690,12 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 									key={item.id}
 									size="small"
 									variant={index === this.state.selectedIndex ? "contained" : "outlined"}
-									onClick={() => {
-									const item = this.state.draft.items[index];
-									const lib = this.libraryItemFor(item.customRef);
-									this.setState({
-										selectedIndex: index,
-										tagDraft: lib?.tags.join(", ") || "",
-										searchError: "",
-									});
-								}}
+									onClick={() =>
+										this.setState({
+											selectedIndex: index,
+											searchError: "",
+										})
+									}
 									sx={{ justifyContent: "flex-start", textTransform: "none" }}
 								>
 									{item.label || item.id} ({item.start}-{item.end})
@@ -885,7 +737,7 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 										}
 									>
 										<MenuItem value="arasaac">ARASAAC (external)</MenuItem>
-										<MenuItem value="custom">Custom upload / URL</MenuItem>
+										<MenuItem value="custom">Custom / URL</MenuItem>
 									</Select>
 								</FormControl>
 

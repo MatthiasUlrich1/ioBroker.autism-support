@@ -287,6 +287,17 @@ class AutismSupport extends utils.Adapter {
       },
       native: {}
     });
+    await this.setObjectNotExistsAsync(`${SCHEDULE_CHANNEL}.pictogramLibrary`, {
+      type: "state",
+      common: {
+        name: "Custom pictogram library (JSON)",
+        type: "string",
+        role: "json",
+        read: true,
+        write: false
+      },
+      native: {}
+    });
     const planState = await this.getStateAsync(`${SCHEDULE_CHANNEL}.plan`);
     if ((planState == null ? void 0 : planState.val) == null || planState.val === "") {
       await this.setState(`${SCHEDULE_CHANNEL}.plan`, JSON.stringify({ version: 1, items: [] }), true);
@@ -300,6 +311,15 @@ class AutismSupport extends utils.Adapter {
       await this.setState(`${SCHEDULE_CHANNEL}.clearAfterLast`, false, true);
     }
     await this.setState(`${SCHEDULE_CHANNEL}.periods`, JSON.stringify(this.dayPeriods), true);
+    await this.publishPictogramLibrary();
+  }
+  async publishPictogramLibrary() {
+    const fromConfig = (0, import_pictogram_library.libraryFromNativeRows)(this.config.customPictograms);
+    let library = fromConfig;
+    if (!library.items.length) {
+      library = await this.getMergedPictogramLibrary();
+    }
+    await this.setState(`${SCHEDULE_CHANNEL}.pictogramLibrary`, JSON.stringify(library), true);
   }
   async publishTimerSnapshot(snapshot) {
     await this.setState(`${TIMER_CHANNEL}.duration`, snapshot.duration, true);
@@ -446,6 +466,7 @@ class AutismSupport extends utils.Adapter {
   }
   async savePictogramLibrary(library) {
     await this.writeFileAsync(this.namespace, import_pictogram_library.LIBRARY_FILE, JSON.stringify(library, null, 2));
+    await this.setState(`${SCHEDULE_CHANNEL}.pictogramLibrary`, JSON.stringify(library), true);
   }
   async listPictogramFiles() {
     try {
@@ -530,7 +551,8 @@ class AutismSupport extends utils.Adapter {
         return;
       }
       if (obj.command === "listPictograms") {
-        const library = await this.getMergedPictogramLibrary();
+        const fromConfig = (0, import_pictogram_library.libraryFromNativeRows)(this.config.customPictograms);
+        const library = fromConfig.items.length ? fromConfig : await this.getMergedPictogramLibrary();
         this.reply(obj, {
           ok: true,
           files: library.items.map((item) => item.filename),

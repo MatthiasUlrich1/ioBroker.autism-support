@@ -21,6 +21,8 @@ __export(pictogram_library_exports, {
   LIBRARY_FILE: () => LIBRARY_FILE,
   PICTOGRAM_DIR: () => PICTOGRAM_DIR,
   emptyLibrary: () => emptyLibrary,
+  fileRefToPath: () => fileRefToPath,
+  libraryFromNativeRows: () => libraryFromNativeRows,
   matchesPictogramQuery: () => matchesPictogramQuery,
   normalizeTags: () => normalizeTags,
   parseLibrary: () => parseLibrary,
@@ -77,6 +79,45 @@ function matchesPictogramQuery(item, query) {
   const haystack = [item.label, item.originalName, item.filename, ...item.tags].join(" ").toLowerCase();
   return q.split(/\s+/).every((part) => haystack.includes(part));
 }
+function fileRefToPath(file) {
+  const ref = String(file || "").trim().replace(/^\/+/, "").replace(/^files\//, "");
+  if (!ref) {
+    return "";
+  }
+  if (ref.includes(`${PICTOGRAM_DIR}/`)) {
+    return ref.slice(ref.indexOf(`${PICTOGRAM_DIR}/`));
+  }
+  const filename = ref.split("/").pop() || "";
+  return filename ? `${PICTOGRAM_DIR}/${filename}` : "";
+}
+function libraryFromNativeRows(rows) {
+  if (!Array.isArray(rows)) {
+    return emptyLibrary();
+  }
+  const items = [];
+  rows.forEach((row, index) => {
+    if (!row || typeof row !== "object") {
+      return;
+    }
+    const data = row;
+    const path = fileRefToPath(String(data.file || ""));
+    if (!path) {
+      return;
+    }
+    const filename = path.split("/").pop() || `image-${index}`;
+    items.push({
+      id: filename,
+      filename,
+      path,
+      label: String(data.label || filename.replace(/\.[^.]+$/, "")),
+      tags: normalizeTags(data.tags),
+      originalName: filename,
+      mime: "",
+      uploadedAt: 0
+    });
+  });
+  return { version: 1, items };
+}
 function uniquePictogramFilename(original) {
   const sanitized = String(original || "image").replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 80);
   const extMatch = /\.(png|jpe?g|gif|webp|svg)$/i.exec(sanitized);
@@ -89,6 +130,8 @@ function uniquePictogramFilename(original) {
   LIBRARY_FILE,
   PICTOGRAM_DIR,
   emptyLibrary,
+  fileRefToPath,
+  libraryFromNativeRows,
   matchesPictogramQuery,
   normalizeTags,
   parseLibrary,

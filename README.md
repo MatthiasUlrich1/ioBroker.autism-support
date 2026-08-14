@@ -49,14 +49,14 @@ In the admin tab **Day periods** you can configure start/end (HH:MM) and color p
 | Widget | Purpose |
 |--------|---------|
 | **Daily Schedule (Live)** | Pictograms + time bar display |
-| **Daily Schedule (Config)** | Edit entries, reset, auto-clear, period toggles, ARASAAC, upload |
+| **Daily Schedule (Config)** | Edit entries, reset, auto-clear, period toggles, ARASAAC, select own images |
 
 ### Pictogram sources
 
 1. **ARASAAC (external)** – only pictogram ID is stored; image is loaded at runtime from `static.arasaac.org`. No ARASAAC files in the adapter package.
-2. **Custom uploads** – via the Daily Schedule Config widget.
+2. **Custom uploads** – via the adapter instance settings in Admin (Pictograms tab). vis-2 widgets cannot upload files reliably.
 
-Custom images are stored in the ioBroker file store of the adapter instance (`autism-support.0/pictograms/`, URL `/files/autism-support.0/pictograms/...`). They stay there after a plan reset and can be reused: open a schedule item, set source to **Custom**, then tap a saved thumbnail. Optional comma-separated **tags** are included in search (ARASAAC search also lists matching own images). Upload only images you own or are licensed to use. Do not upload ARASAAC files.
+Custom images are stored in the ioBroker file store of the adapter instance (`autism-support.0/pictograms/`, URL `/files/autism-support.0/pictograms/...`). Add a name and comma-separated **tags** in Admin. After saving the instance, the Daily Schedule Config widget can search those tags (ARASAAC search also lists matching own images) and select a thumbnail. Images stay available after a plan reset. Upload only images you own or are licensed to use. Do not upload ARASAAC files.
 
 ## Development
 
@@ -80,6 +80,9 @@ npm run start
 ## Changelog
 
 See [CHANGELOG_OLD.md](CHANGELOG_OLD.md) for older entries.
+
+### 0.1.13
+- Move custom pictogram upload and tags to Admin instance settings; vis widget searches and selects own images
 
 ### 0.1.12
 - Fix ioBroker repository checker issues (admin UI sizes, README license, CI Node 24)
@@ -135,4 +138,4 @@ Official terms: [ARASAAC Terms of Use](https://aulaabierta.arasaac.org/en/terms-
 
 ### Custom / uploaded pictograms
 
-You are responsible for having the required rights for uploads. The adapter stores files locally in the instance only; they are not shipped in the npm/GitHub package.
+You are responsible for having the required rights for uploads. Upload and tagging happen in the Admin instance settings. The adapter stores files locally in the instance only; they are not shipped in the npm/GitHub package.

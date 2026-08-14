@@ -47,6 +47,6 @@
 	"oid_schedule_current_item": "Current item index",
 	"adapter_instance": "Adapter instance",
 	"arasaac_language": "ARASAAC search language",
-	"pictogram_size": "Pictogram size (px)"
+	"pictogram_size": "Pictogram size (px)",
+	"oid_schedule_library": "Pictogram library (JSON)"
 }
-

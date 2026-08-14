@@ -23,5 +23,9 @@
 	"pictograms_tab": "象形图",
 	"pictograms_header": "象形图来源",
 	"arasaac_license_info": "ARASAAC 象形图仅从 static.arasaac.org / api.arasaac.org 外部加载，本适配器不存储或再分发。许可：CC BY-NC-SA（作者 Sergio Palao，所有者阿拉贡政府）。需注明出处。网站：https://arasaac.org",
-	"custom_pictogram_info": "可通过日程配置小组件上传自定义象形图（文件位于 autism-support.X/pictograms/）。仅上传有权使用的图片。请勿上传 ARASAAC 文件，请使用外部 ID。"
+	"custom_pictogram_info": "在此上传并为自定义象形图添加标签。文件位于 autism-support.X/pictograms/。日程配置小组件可按标签搜索并选择图片。仅上传有权使用的图片。请勿上传 ARASAAC 文件，请使用外部 ID。",
+	"custom_pictograms_table": "自定义象形图",
+	"custom_pictogram_file": "图片",
+	"custom_pictogram_label": "名称",
+	"custom_pictogram_tags": "标签（逗号）"
 }

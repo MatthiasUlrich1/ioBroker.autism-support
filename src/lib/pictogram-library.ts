@@ -78,6 +78,50 @@ export function matchesPictogramQuery(item: CustomPictogram, query: string): boo
 	return q.split(/\s+/).every(part => haystack.includes(part));
 }
 
+export function fileRefToPath(file: string): string {
+	const ref = String(file || "")
+		.trim()
+		.replace(/^\/+/, "")
+		.replace(/^files\//, "");
+	if (!ref) {
+		return "";
+	}
+	if (ref.includes(`${PICTOGRAM_DIR}/`)) {
+		return ref.slice(ref.indexOf(`${PICTOGRAM_DIR}/`));
+	}
+	const filename = ref.split("/").pop() || "";
+	return filename ? `${PICTOGRAM_DIR}/${filename}` : "";
+}
+
+export function libraryFromNativeRows(rows: unknown): PictogramLibrary {
+	if (!Array.isArray(rows)) {
+		return emptyLibrary();
+	}
+	const items: CustomPictogram[] = [];
+	rows.forEach((row, index) => {
+		if (!row || typeof row !== "object") {
+			return;
+		}
+		const data = row as { file?: string; label?: string; tags?: unknown };
+		const path = fileRefToPath(String(data.file || ""));
+		if (!path) {
+			return;
+		}
+		const filename = path.split("/").pop() || `image-${index}`;
+		items.push({
+			id: filename,
+			filename,
+			path,
+			label: String(data.label || filename.replace(/\.[^.]+$/, "")),
+			tags: normalizeTags(data.tags),
+			originalName: filename,
+			mime: "",
+			uploadedAt: 0,
+		});
+	});
+	return { version: 1, items };
+}
+
 export function uniquePictogramFilename(original: string): string {
 	const sanitized = String(original || "image")
 		.replace(/[^a-zA-Z0-9._-]/g, "_")
