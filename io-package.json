@@ -1,8 +1,21 @@
 {
 	"common": {
 		"name": "autism-support",
-		"version": "0.1.18",
+		"version": "0.1.19",
 		"news": {
+			"0.1.19": {
+				"en": "Store pictograms in vis-2.0/main/autism-support/pictograms instead of adapter file store",
+				"de": "Piktogramme in vis-2.0/main/autism-support/pictograms statt Adapter-Dateispeicher",
+				"ru": "Pictogram хранятся в vis-2.0/main/autism-support/pictograms",
+				"pt": "Pictogramas em vis-2.0/main/autism-support/pictograms",
+				"nl": "Pictogrammen in vis-2.0/main/autism-support/pictograms",
+				"fr": "Pictogrammes dans vis-2.0/main/autism-support/pictograms",
+				"it": "Pittogrammi in vis-2.0/main/autism-support/pictograms",
+				"es": "Pictogramas en vis-2.0/main/autism-support/pictograms",
+				"pl": "Piktogramy w vis-2.0/main/autism-support/pictograms",
+				"uk": "Pictogram у vis-2.0/main/autism-support/pictograms",
+				"zh-cn": "象形图存储于 vis-2.0/main/autism-support/pictograms"
+			},
 			"0.1.18": {
 				"en": "Fix Admin GUI crash: custom pictogram upload from computer via adapter",
 				"de": "GUI-Absturz behoben: eigener Piktogramm-Upload vom Computer ueber Adapter",
@@ -263,16 +276,5 @@
 		"periodNightColor": "#5C6BC0",
 		"customPictograms": []
 	},
-	"objects": [],
-	"instanceObjects": [
-		{
-			"_id": "",
-			"type": "meta",
-			"common": {
-				"name": "Pictogram files",
-				"type": "meta.user"
-			},
-			"native": {}
-		}
-	]
+	"objects": []
 }

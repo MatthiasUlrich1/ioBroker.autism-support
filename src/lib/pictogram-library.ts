@@ -1,9 +1,13 @@
 /**
  * Metadata for user-uploaded pictograms (never ARASAAC files).
- * Images live next to this JSON in the instance file store.
+ * Image files live in the vis-2 file store: vis-2.0/main/autism-support/pictograms/
  */
 
-export const PICTOGRAM_DIR = "pictograms";
+export const PICTOGRAM_FILE_ADAPTER = "vis-2.0";
+export const VIS_PROJECT = "main";
+export const PICTOGRAM_SUBFOLDER = "autism-support/pictograms";
+/** Path inside vis-2.0, e.g. main/autism-support/pictograms */
+export const PICTOGRAM_DIR = `${VIS_PROJECT}/${PICTOGRAM_SUBFOLDER}`;
 export const LIBRARY_FILE = `${PICTOGRAM_DIR}/_library.json`;
 
 export interface CustomPictogram {
@@ -24,6 +28,16 @@ export interface PictogramLibrary {
 
 export function emptyLibrary(): PictogramLibrary {
 	return { version: 1, items: [] };
+}
+
+export function pictogramStoragePath(filename: string): string {
+	return `${PICTOGRAM_DIR}/${filename}`;
+}
+
+/** Public URL as used in vis-2 views, e.g. /vis-2.0/main/autism-support/pictograms/foo.png */
+export function pictogramPublicUrl(storagePath: string): string {
+	const path = fileRefToPath(storagePath);
+	return path ? `/${PICTOGRAM_FILE_ADAPTER}/${path}` : "";
 }
 
 export function normalizeTags(input: unknown): string[] {
@@ -61,7 +75,7 @@ export function parseLibrary(raw: unknown): PictogramLibrary {
 				.map(item => ({
 					id: String(item.id || item.filename),
 					filename: String(item.filename),
-					path: String(item.path || `${PICTOGRAM_DIR}/${item.filename}`),
+					path: fileRefToPath(String(item.path || item.filename)),
 					label: String(item.label || ""),
 					tags: normalizeTags(item.tags),
 					originalName: String(item.originalName || item.filename),
@@ -83,6 +97,7 @@ export function matchesPictogramQuery(item: CustomPictogram, query: string): boo
 	return q.split(/\s+/).every(part => haystack.includes(part));
 }
 
+/** Normalize admin/config references to vis-2 storage path (main/autism-support/pictograms/…). */
 export function fileRefToPath(file: string): string {
 	const ref = String(file || "")
 		.trim()
@@ -91,11 +106,42 @@ export function fileRefToPath(file: string): string {
 	if (!ref) {
 		return "";
 	}
-	if (ref.includes(`${PICTOGRAM_DIR}/`)) {
-		return ref.slice(ref.indexOf(`${PICTOGRAM_DIR}/`));
+
+	const visPrefix = `${PICTOGRAM_FILE_ADAPTER}/`;
+	if (ref.startsWith(visPrefix)) {
+		return ref.slice(visPrefix.length);
 	}
+
+	if (ref.startsWith(`${PICTOGRAM_DIR}/`)) {
+		return ref;
+	}
+
+	if (ref.includes(`${PICTOGRAM_SUBFOLDER}/`)) {
+		const tail = ref.slice(ref.indexOf(`${PICTOGRAM_SUBFOLDER}/`));
+		return `${VIS_PROJECT}/${tail}`;
+	}
+
+	// Legacy adapter store: pictograms/file.png or autism-support.0/pictograms/file.png
+	if (ref.includes("pictograms/")) {
+		const filename = ref.slice(ref.indexOf("pictograms/") + "pictograms/".length);
+		return filename ? pictogramStoragePath(filename) : "";
+	}
+
 	const filename = ref.split("/").pop() || "";
-	return filename ? `${PICTOGRAM_DIR}/${filename}` : "";
+	return filename ? pictogramStoragePath(filename) : "";
+}
+
+export function matchesPictogramKey(entry: CustomPictogram, key: string): boolean {
+	const normalized = fileRefToPath(key);
+	if (!normalized) {
+		return false;
+	}
+	return (
+		entry.path === key ||
+		entry.filename === key ||
+		fileRefToPath(entry.path) === normalized ||
+		pictogramStoragePath(entry.filename) === normalized
+	);
 }
 
 export function libraryFromNativeRows(rows: unknown): PictogramLibrary {

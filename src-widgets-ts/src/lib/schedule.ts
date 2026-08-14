@@ -117,10 +117,7 @@ export function applyPeriodOverrides(
 ): DayPeriodDefinition[] {
 	return periods.map(period => ({
 		...period,
-		enabled:
-			overrides[period.id] === undefined
-				? period.enabled !== false
-				: Boolean(overrides[period.id]),
+		enabled: overrides[period.id] === undefined ? period.enabled !== false : Boolean(overrides[period.id]),
 	}));
 }
 
@@ -145,10 +142,7 @@ export function periodToSegments(
 }
 
 /** Resolve image URL for a schedule item (ARASAAC CDN or custom file/URL). */
-export function resolveItemImageUrl(
-	item: ScheduleItem,
-	adapterInstance = "autism-support.0",
-): string | null {
+export function resolveItemImageUrl(item: ScheduleItem, adapterInstance = "autism-support.0"): string | null {
 	if (item.source === "arasaac" && item.arasaacId) {
 		return arasaacImageUrl(item.arasaacId, 500);
 	}
@@ -158,11 +152,19 @@ export function resolveItemImageUrl(
 			return ref;
 		}
 		const path = ref.replace(/^\/+/, "").replace(/^files\//, "");
+		// vis-2 storage: vis-2.0/main/autism-support/pictograms/… or main/autism-support/pictograms/…
+		if (path.startsWith("vis-2.0/")) {
+			return `/${path}`;
+		}
+		if (path.startsWith("main/autism-support/pictograms/")) {
+			return `/vis-2.0/${path}`;
+		}
+		// Legacy adapter file store (before 0.1.19)
 		if (path.includes("pictograms/")) {
 			const clean = path.slice(path.indexOf("pictograms/"));
 			return `/files/${adapterInstance}/${clean}`;
 		}
-		return `/files/${adapterInstance}/pictograms/${path}`;
+		return `/vis-2.0/main/autism-support/pictograms/${path.split("/").pop() || path}`;
 	}
 	return null;
 }

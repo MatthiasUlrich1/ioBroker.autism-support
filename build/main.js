@@ -316,10 +316,10 @@ class AutismSupport extends utils.Adapter {
   }
   async ensurePictogramStore() {
     try {
-      await this.readDirAsync(this.namespace, import_pictogram_library.PICTOGRAM_DIR);
+      await this.readDirAsync(import_pictogram_library.PICTOGRAM_FILE_ADAPTER, import_pictogram_library.PICTOGRAM_DIR);
     } catch {
-      await this.writeFileAsync(this.namespace, import_pictogram_library.LIBRARY_FILE, JSON.stringify((0, import_pictogram_library.emptyLibrary)(), null, 2));
-      this.log.info(`Created file store ${this.namespace}/${import_pictogram_library.PICTOGRAM_DIR}`);
+      await this.writeFileAsync(import_pictogram_library.PICTOGRAM_FILE_ADAPTER, import_pictogram_library.LIBRARY_FILE, JSON.stringify((0, import_pictogram_library.emptyLibrary)(), null, 2));
+      this.log.info(`Created vis-2 pictogram folder ${import_pictogram_library.PICTOGRAM_FILE_ADAPTER}/${import_pictogram_library.PICTOGRAM_DIR}`);
     }
   }
   async getPublishedPictogramLibrary() {
@@ -468,7 +468,7 @@ class AutismSupport extends utils.Adapter {
   }
   async loadPictogramLibrary() {
     try {
-      const file = await this.readFileAsync(this.namespace, import_pictogram_library.LIBRARY_FILE);
+      const file = await this.readFileAsync(import_pictogram_library.PICTOGRAM_FILE_ADAPTER, import_pictogram_library.LIBRARY_FILE);
       const raw = typeof file.file === "string" ? file.file : Buffer.from(file.file).toString("utf8");
       return (0, import_pictogram_library.parseLibrary)(raw);
     } catch {
@@ -476,12 +476,12 @@ class AutismSupport extends utils.Adapter {
     }
   }
   async savePictogramLibrary(library) {
-    await this.writeFileAsync(this.namespace, import_pictogram_library.LIBRARY_FILE, JSON.stringify(library, null, 2));
+    await this.writeFileAsync(import_pictogram_library.PICTOGRAM_FILE_ADAPTER, import_pictogram_library.LIBRARY_FILE, JSON.stringify(library, null, 2));
     await this.setState(`${SCHEDULE_CHANNEL}.pictogramLibrary`, JSON.stringify(library), true);
   }
   async listPictogramFiles() {
     try {
-      const result = await this.readDirAsync(this.namespace, import_pictogram_library.PICTOGRAM_DIR);
+      const result = await this.readDirAsync(import_pictogram_library.PICTOGRAM_FILE_ADAPTER, import_pictogram_library.PICTOGRAM_DIR);
       return (result || []).filter((entry) => !entry.isDir && entry.file !== "_library.json").map((entry) => entry.file);
     } catch {
       return null;
@@ -501,7 +501,7 @@ class AutismSupport extends utils.Adapter {
       library.items.push({
         id: filename,
         filename,
-        path: `${import_pictogram_library.PICTOGRAM_DIR}/${filename}`,
+        path: (0, import_pictogram_library.pictogramStoragePath)(filename),
         label: filename.replace(/\.[^.]+$/, "").replace(/-\d+$/, ""),
         tags: [],
         originalName: filename,
@@ -542,8 +542,8 @@ class AutismSupport extends utils.Adapter {
         if (buffer.length > 5 * 1024 * 1024) {
           throw new Error("file too large (max 5 MB)");
         }
-        const path = `${import_pictogram_library.PICTOGRAM_DIR}/${filename}`;
-        await this.writeFileAsync(this.namespace, path, buffer);
+        const path = (0, import_pictogram_library.pictogramStoragePath)(filename);
+        await this.writeFileAsync(import_pictogram_library.PICTOGRAM_FILE_ADAPTER, path, buffer);
         const library = await this.getMergedPictogramLibrary();
         const entry = {
           id: filename,
@@ -557,8 +557,15 @@ class AutismSupport extends utils.Adapter {
         };
         library.items = [entry, ...library.items.filter((item) => item.filename !== filename)];
         await this.savePictogramLibrary(library);
-        this.log.info(`Custom pictogram stored: ${path} (${buffer.length} bytes)`);
-        this.reply(obj, { ok: true, path, item: entry, library, namespace: this.namespace });
+        this.log.info(`Custom pictogram stored: ${import_pictogram_library.PICTOGRAM_FILE_ADAPTER}/${path} (${buffer.length} bytes)`);
+        this.reply(obj, {
+          ok: true,
+          path,
+          url: (0, import_pictogram_library.pictogramPublicUrl)(path),
+          item: entry,
+          library,
+          adapter: import_pictogram_library.PICTOGRAM_FILE_ADAPTER
+        });
         return;
       }
       if (obj.command === "listPictograms") {
@@ -577,9 +584,7 @@ class AutismSupport extends utils.Adapter {
           throw new Error("path required");
         }
         const library = await this.getMergedPictogramLibrary();
-        const item = library.items.find(
-          (entry) => entry.path === key || entry.filename === key || `${import_pictogram_library.PICTOGRAM_DIR}/${entry.filename}` === key
-        );
+        const item = library.items.find((entry) => (0, import_pictogram_library.matchesPictogramKey)(entry, key));
         if (!item) {
           throw new Error("pictogram not found");
         }
@@ -600,14 +605,12 @@ class AutismSupport extends utils.Adapter {
           throw new Error("path required");
         }
         const library = await this.getMergedPictogramLibrary();
-        const item = library.items.find(
-          (entry) => entry.path === key || entry.filename === key || `${import_pictogram_library.PICTOGRAM_DIR}/${entry.filename}` === key
-        );
+        const item = library.items.find((entry) => (0, import_pictogram_library.matchesPictogramKey)(entry, key));
         if (!item) {
           throw new Error("pictogram not found");
         }
         try {
-          await this.unlinkAsync(this.namespace, item.path);
+          await this.unlinkAsync(import_pictogram_library.PICTOGRAM_FILE_ADAPTER, item.path);
         } catch (error) {
           this.log.warn(`Could not delete pictogram file ${item.path}: ${error.message}`);
         }

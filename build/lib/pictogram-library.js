@@ -20,20 +20,36 @@ var pictogram_library_exports = {};
 __export(pictogram_library_exports, {
   LIBRARY_FILE: () => LIBRARY_FILE,
   PICTOGRAM_DIR: () => PICTOGRAM_DIR,
+  PICTOGRAM_FILE_ADAPTER: () => PICTOGRAM_FILE_ADAPTER,
+  PICTOGRAM_SUBFOLDER: () => PICTOGRAM_SUBFOLDER,
+  VIS_PROJECT: () => VIS_PROJECT,
   emptyLibrary: () => emptyLibrary,
   fileRefToPath: () => fileRefToPath,
   libraryFromNativeRows: () => libraryFromNativeRows,
+  matchesPictogramKey: () => matchesPictogramKey,
   matchesPictogramQuery: () => matchesPictogramQuery,
   mergePictogramSources: () => mergePictogramSources,
   normalizeTags: () => normalizeTags,
   parseLibrary: () => parseLibrary,
+  pictogramPublicUrl: () => pictogramPublicUrl,
+  pictogramStoragePath: () => pictogramStoragePath,
   uniquePictogramFilename: () => uniquePictogramFilename
 });
 module.exports = __toCommonJS(pictogram_library_exports);
-const PICTOGRAM_DIR = "pictograms";
+const PICTOGRAM_FILE_ADAPTER = "vis-2.0";
+const VIS_PROJECT = "main";
+const PICTOGRAM_SUBFOLDER = "autism-support/pictograms";
+const PICTOGRAM_DIR = `${VIS_PROJECT}/${PICTOGRAM_SUBFOLDER}`;
 const LIBRARY_FILE = `${PICTOGRAM_DIR}/_library.json`;
 function emptyLibrary() {
   return { version: 1, items: [] };
+}
+function pictogramStoragePath(filename) {
+  return `${PICTOGRAM_DIR}/${filename}`;
+}
+function pictogramPublicUrl(storagePath) {
+  const path = fileRefToPath(storagePath);
+  return path ? `/${PICTOGRAM_FILE_ADAPTER}/${path}` : "";
 }
 function normalizeTags(input) {
   let parts;
@@ -67,7 +83,7 @@ function parseLibrary(raw) {
       items: data.items.filter((item) => item && typeof item === "object" && item.filename).map((item) => ({
         id: String(item.id || item.filename),
         filename: String(item.filename),
-        path: String(item.path || `${PICTOGRAM_DIR}/${item.filename}`),
+        path: fileRefToPath(String(item.path || item.filename)),
         label: String(item.label || ""),
         tags: normalizeTags(item.tags),
         originalName: String(item.originalName || item.filename),
@@ -92,11 +108,30 @@ function fileRefToPath(file) {
   if (!ref) {
     return "";
   }
-  if (ref.includes(`${PICTOGRAM_DIR}/`)) {
-    return ref.slice(ref.indexOf(`${PICTOGRAM_DIR}/`));
+  const visPrefix = `${PICTOGRAM_FILE_ADAPTER}/`;
+  if (ref.startsWith(visPrefix)) {
+    return ref.slice(visPrefix.length);
+  }
+  if (ref.startsWith(`${PICTOGRAM_DIR}/`)) {
+    return ref;
+  }
+  if (ref.includes(`${PICTOGRAM_SUBFOLDER}/`)) {
+    const tail = ref.slice(ref.indexOf(`${PICTOGRAM_SUBFOLDER}/`));
+    return `${VIS_PROJECT}/${tail}`;
+  }
+  if (ref.includes("pictograms/")) {
+    const filename2 = ref.slice(ref.indexOf("pictograms/") + "pictograms/".length);
+    return filename2 ? pictogramStoragePath(filename2) : "";
   }
   const filename = ref.split("/").pop() || "";
-  return filename ? `${PICTOGRAM_DIR}/${filename}` : "";
+  return filename ? pictogramStoragePath(filename) : "";
+}
+function matchesPictogramKey(entry, key) {
+  const normalized = fileRefToPath(key);
+  if (!normalized) {
+    return false;
+  }
+  return entry.path === key || entry.filename === key || fileRefToPath(entry.path) === normalized || pictogramStoragePath(entry.filename) === normalized;
 }
 function libraryFromNativeRows(rows) {
   if (!Array.isArray(rows)) {
@@ -156,13 +191,19 @@ function uniquePictogramFilename(original) {
 0 && (module.exports = {
   LIBRARY_FILE,
   PICTOGRAM_DIR,
+  PICTOGRAM_FILE_ADAPTER,
+  PICTOGRAM_SUBFOLDER,
+  VIS_PROJECT,
   emptyLibrary,
   fileRefToPath,
   libraryFromNativeRows,
+  matchesPictogramKey,
   matchesPictogramQuery,
   mergePictogramSources,
   normalizeTags,
   parseLibrary,
+  pictogramPublicUrl,
+  pictogramStoragePath,
   uniquePictogramFilename
 });
 //# sourceMappingURL=pictogram-library.js.map

@@ -6,6 +6,8 @@ import {
 	mergePictogramSources,
 	normalizeTags,
 	parseLibrary,
+	pictogramPublicUrl,
+	pictogramStoragePath,
 	uniquePictogramFilename,
 } from "./pictogram-library";
 
@@ -18,7 +20,7 @@ describe("pictogram-library", () => {
 		const item = {
 			id: "1",
 			filename: "brush-1.png",
-			path: "pictograms/brush-1.png",
+			path: "main/autism-support/pictograms/brush-1.png",
 			label: "Zähneputzen",
 			tags: ["hygiene", "morgen"],
 			originalName: "zaehne.png",
@@ -36,13 +38,29 @@ describe("pictogram-library", () => {
 		expect(name).to.match(/-\d+\.png$/);
 	});
 
-	it("maps native admin rows to library paths", () => {
+	it("maps native admin rows to vis-2 storage paths", () => {
 		const library = libraryFromNativeRows([
-			{ file: "autism-support.0/pictograms/brush.png", label: "Zähne", tags: "hygiene, morgen" },
+			{
+				file: "vis-2.0/main/autism-support/pictograms/brush.png",
+				label: "Zähne",
+				tags: "hygiene, morgen",
+			},
 		]);
-		expect(fileRefToPath("/files/autism-support.0/pictograms/brush.png")).to.equal("pictograms/brush.png");
-		expect(library.items[0].path).to.equal("pictograms/brush.png");
+		expect(fileRefToPath("/vis-2.0/main/autism-support/pictograms/brush.png")).to.equal(
+			"main/autism-support/pictograms/brush.png",
+		);
+		expect(library.items[0].path).to.equal("main/autism-support/pictograms/brush.png");
 		expect(library.items[0].tags).to.deep.equal(["hygiene", "morgen"]);
+	});
+
+	it("maps legacy adapter paths to vis-2 storage paths", () => {
+		expect(fileRefToPath("autism-support.0/pictograms/brush.png")).to.equal(
+			"main/autism-support/pictograms/brush.png",
+		);
+		expect(pictogramStoragePath("brush.png")).to.equal("main/autism-support/pictograms/brush.png");
+		expect(pictogramPublicUrl("main/autism-support/pictograms/brush.png")).to.equal(
+			"/vis-2.0/main/autism-support/pictograms/brush.png",
+		);
 	});
 
 	it("parses an empty library on invalid JSON", () => {
@@ -56,7 +74,7 @@ describe("pictogram-library", () => {
 				{
 					id: "brush.png",
 					filename: "brush.png",
-					path: "pictograms/brush.png",
+					path: "main/autism-support/pictograms/brush.png",
 					label: "brush",
 					tags: [],
 					originalName: "brush.png",
@@ -65,7 +83,9 @@ describe("pictogram-library", () => {
 				},
 			],
 		});
-		const configRows = libraryFromNativeRows([{ file: "pictograms/brush.png", label: "Zähne", tags: "hygiene" }]);
+		const configRows = libraryFromNativeRows([
+			{ file: "main/autism-support/pictograms/brush.png", label: "Zähne", tags: "hygiene" },
+		]);
 		const merged = mergePictogramSources(disk, configRows);
 		expect(merged.items).to.have.length(1);
 		expect(merged.items[0].label).to.equal("Zähne");

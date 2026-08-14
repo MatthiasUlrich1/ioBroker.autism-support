@@ -14,11 +14,15 @@ import { findCurrentItemIndex, isPlanFullyExpired, parseSchedulePlan, type Sched
 import {
 	LIBRARY_FILE,
 	PICTOGRAM_DIR,
+	PICTOGRAM_FILE_ADAPTER,
 	emptyLibrary,
 	libraryFromNativeRows,
+	matchesPictogramKey,
 	mergePictogramSources,
 	normalizeTags,
 	parseLibrary,
+	pictogramPublicUrl,
+	pictogramStoragePath,
 	uniquePictogramFilename,
 	type CustomPictogram,
 	type PictogramLibrary,
@@ -349,10 +353,10 @@ class AutismSupport extends utils.Adapter {
 
 	private async ensurePictogramStore(): Promise<void> {
 		try {
-			await this.readDirAsync(this.namespace, PICTOGRAM_DIR);
+			await this.readDirAsync(PICTOGRAM_FILE_ADAPTER, PICTOGRAM_DIR);
 		} catch {
-			await this.writeFileAsync(this.namespace, LIBRARY_FILE, JSON.stringify(emptyLibrary(), null, 2));
-			this.log.info(`Created file store ${this.namespace}/${PICTOGRAM_DIR}`);
+			await this.writeFileAsync(PICTOGRAM_FILE_ADAPTER, LIBRARY_FILE, JSON.stringify(emptyLibrary(), null, 2));
+			this.log.info(`Created vis-2 pictogram folder ${PICTOGRAM_FILE_ADAPTER}/${PICTOGRAM_DIR}`);
 		}
 	}
 
@@ -524,7 +528,7 @@ class AutismSupport extends utils.Adapter {
 
 	private async loadPictogramLibrary(): Promise<PictogramLibrary> {
 		try {
-			const file = await this.readFileAsync(this.namespace, LIBRARY_FILE);
+			const file = await this.readFileAsync(PICTOGRAM_FILE_ADAPTER, LIBRARY_FILE);
 			const raw = typeof file.file === "string" ? file.file : Buffer.from(file.file).toString("utf8");
 			return parseLibrary(raw);
 		} catch {
@@ -533,13 +537,13 @@ class AutismSupport extends utils.Adapter {
 	}
 
 	private async savePictogramLibrary(library: PictogramLibrary): Promise<void> {
-		await this.writeFileAsync(this.namespace, LIBRARY_FILE, JSON.stringify(library, null, 2));
+		await this.writeFileAsync(PICTOGRAM_FILE_ADAPTER, LIBRARY_FILE, JSON.stringify(library, null, 2));
 		await this.setState(`${SCHEDULE_CHANNEL}.pictogramLibrary`, JSON.stringify(library), true);
 	}
 
 	private async listPictogramFiles(): Promise<string[] | null> {
 		try {
-			const result = await this.readDirAsync(this.namespace, PICTOGRAM_DIR);
+			const result = await this.readDirAsync(PICTOGRAM_FILE_ADAPTER, PICTOGRAM_DIR);
 			return (result || [])
 				.filter(entry => !entry.isDir && entry.file !== "_library.json")
 				.map(entry => entry.file);
@@ -562,7 +566,7 @@ class AutismSupport extends utils.Adapter {
 			library.items.push({
 				id: filename,
 				filename,
-				path: `${PICTOGRAM_DIR}/${filename}`,
+				path: pictogramStoragePath(filename),
 				label: filename.replace(/\.[^.]+$/, "").replace(/-\d+$/, ""),
 				tags: [],
 				originalName: filename,
@@ -611,8 +615,8 @@ class AutismSupport extends utils.Adapter {
 				if (buffer.length > 5 * 1024 * 1024) {
 					throw new Error("file too large (max 5 MB)");
 				}
-				const path = `${PICTOGRAM_DIR}/${filename}`;
-				await this.writeFileAsync(this.namespace, path, buffer);
+				const path = pictogramStoragePath(filename);
+				await this.writeFileAsync(PICTOGRAM_FILE_ADAPTER, path, buffer);
 				const library = await this.getMergedPictogramLibrary();
 				const entry: CustomPictogram = {
 					id: filename,
@@ -626,8 +630,15 @@ class AutismSupport extends utils.Adapter {
 				};
 				library.items = [entry, ...library.items.filter(item => item.filename !== filename)];
 				await this.savePictogramLibrary(library);
-				this.log.info(`Custom pictogram stored: ${path} (${buffer.length} bytes)`);
-				this.reply(obj, { ok: true, path, item: entry, library, namespace: this.namespace });
+				this.log.info(`Custom pictogram stored: ${PICTOGRAM_FILE_ADAPTER}/${path} (${buffer.length} bytes)`);
+				this.reply(obj, {
+					ok: true,
+					path,
+					url: pictogramPublicUrl(path),
+					item: entry,
+					library,
+					adapter: PICTOGRAM_FILE_ADAPTER,
+				});
 				return;
 			}
 
@@ -653,10 +664,7 @@ class AutismSupport extends utils.Adapter {
 					throw new Error("path required");
 				}
 				const library = await this.getMergedPictogramLibrary();
-				const item = library.items.find(
-					entry =>
-						entry.path === key || entry.filename === key || `${PICTOGRAM_DIR}/${entry.filename}` === key,
-				);
+				const item = library.items.find(entry => matchesPictogramKey(entry, key));
 				if (!item) {
 					throw new Error("pictogram not found");
 				}
@@ -678,15 +686,12 @@ class AutismSupport extends utils.Adapter {
 					throw new Error("path required");
 				}
 				const library = await this.getMergedPictogramLibrary();
-				const item = library.items.find(
-					entry =>
-						entry.path === key || entry.filename === key || `${PICTOGRAM_DIR}/${entry.filename}` === key,
-				);
+				const item = library.items.find(entry => matchesPictogramKey(entry, key));
 				if (!item) {
 					throw new Error("pictogram not found");
 				}
 				try {
-					await this.unlinkAsync(this.namespace, item.path);
+					await this.unlinkAsync(PICTOGRAM_FILE_ADAPTER, item.path);
 				} catch (error) {
 					this.log.warn(`Could not delete pictogram file ${item.path}: ${(error as Error).message}`);
 				}
