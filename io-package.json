@@ -1,8 +1,21 @@
 {
 	"common": {
 		"name": "autism-support",
-		"version": "0.1.23",
+		"version": "0.1.24",
 		"news": {
+			"0.1.24": {
+				"en": "Sun/moon pictograms on the day-period time bar in Live and Config schedule widgets",
+				"de": "Sonnen-/Mond-Piktogramme auf der Tagesbereich-Leiste in Live- und Config-Ablaufplan",
+				"ru": "Пиктограммы солнце/луна на шкале времени дня в Live и Config",
+				"pt": "Pictogramas sol/lua na barra de periodos nos widgets Live e Config",
+				"nl": "Zon/maan-pictogrammen op de dagperiodebalk in Live- en Config-widgets",
+				"fr": "Pictogrammes soleil/lune sur la barre des periodes dans Live et Config",
+				"it": "Pittogrammi sole/luna sulla barra dei periodi in Live e Config",
+				"es": "Pictogramas sol/luna en la barra de periodos en Live y Config",
+				"pl": "Piktogramy slonce/ksiezyc na pasku pory dnia w widgetach Live i Config",
+				"uk": "Піктограми сонце/місяць на смузі доби в Live і Config",
+				"zh-cn": "在 Live 和 Config 日程控件的时段条上显示日月象形图"
+			},
 			"0.1.23": {
 				"en": "Fix custom pictogram preview: encode vis-2 path (spaces/umlauts) and /files fallback",
 				"de": "Piktogramm-Vorschau repariert: vis-2-Pfad kodieren (Leerzeichen/Umlaute) und /files-Fallback",

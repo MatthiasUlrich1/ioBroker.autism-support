@@ -18,6 +18,7 @@ import type { RxRenderWidgetProps, RxWidgetInfo, VisRxWidgetProps, VisRxWidgetSt
 import type VisRxWidget from "@iobroker/types-vis-2/visRxWidget";
 
 import DailyScheduleVisual from "./components/DailyScheduleVisual";
+import PeriodIcon from "./components/PeriodIcon";
 import VisFileImage from "./components/VisFileImage";
 import { arasaacImageUrl, searchArasaac, type ArasaacSearchHit } from "./lib/arasaac";
 import {
@@ -691,6 +692,11 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 									}
 									label={
 										<span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+											<PeriodIcon
+												periodId={period.id}
+												size={22}
+												alt=""
+											/>
 											<span
 												style={{
 													width: 10,

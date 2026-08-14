@@ -8,6 +8,7 @@ import {
 	resolveItemImageUrl,
 	isItemActiveAt,
 } from "../lib/schedule";
+import PeriodIcon from "./PeriodIcon";
 import VisFileImage from "./VisFileImage";
 
 export interface DailyScheduleVisualProps {
@@ -513,8 +514,8 @@ export default function DailyScheduleVisual({
 
 						<div
 							style={{
-								flex: "0 0 88px",
-								width: 88,
+								flex: "0 0 96px",
+								width: 96,
 								position: "relative",
 								height: totalHeight,
 								borderRadius: 10,
@@ -525,28 +526,40 @@ export default function DailyScheduleVisual({
 							title={`${formatClock(viewStartMin)} – ${formatClock(viewEndMin)}`}
 						>
 							{/* Full stack keeps Y alignment; only enabled periods show their color */}
-							{blocks.map((block, index) => (
-								<div
-									key={block.id}
-									style={{
-										position: "absolute",
-										left: 0,
-										right: 0,
-										top: block.topPx,
-										height: block.heightPx,
-										background: block.color,
-										boxSizing: "border-box",
-										borderBottom:
-											index < blocks.length - 1 ? "1px solid rgba(255,255,255,0.55)" : "none",
-										opacity: block.enabled ? 1 : 0.35,
-									}}
-									title={
-										block.enabled
-											? `${periodLabel(block.periodId, locale)} · ${formatClock(block.startMin)} – ${formatClock(block.endMin)}`
-											: `${periodLabel(block.periodId, locale)} (${locale.startsWith("de") ? "aus" : "off"})`
-									}
-								/>
-							))}
+							{blocks.map((block, index) => {
+								const iconSize = Math.min(64, Math.max(0, block.heightPx - 8));
+								return (
+									<div
+										key={block.id}
+										style={{
+											position: "absolute",
+											left: 0,
+											right: 0,
+											top: block.topPx,
+											height: block.heightPx,
+											background: block.color,
+											boxSizing: "border-box",
+											borderBottom:
+												index < blocks.length - 1 ? "1px solid rgba(255,255,255,0.55)" : "none",
+											opacity: block.enabled ? 1 : 0.35,
+											display: "flex",
+											alignItems: "center",
+											justifyContent: "center",
+										}}
+										title={
+											block.enabled
+												? `${periodLabel(block.periodId, locale)} · ${formatClock(block.startMin)} – ${formatClock(block.endMin)}`
+												: `${periodLabel(block.periodId, locale)} (${locale.startsWith("de") ? "aus" : "off"})`
+										}
+									>
+										<PeriodIcon
+											periodId={block.periodId}
+											size={iconSize}
+											alt={periodLabel(block.periodId, locale)}
+										/>
+									</div>
+								);
+							})}
 
 							{nowTop != null && (
 								<>
@@ -597,6 +610,11 @@ export default function DailyScheduleVisual({
 						key={p.id}
 						style={{ display: "inline-flex", alignItems: "center", gap: 4 }}
 					>
+						<PeriodIcon
+							periodId={p.id}
+							size={18}
+							alt=""
+						/>
 						<span
 							style={{
 								width: 12,
