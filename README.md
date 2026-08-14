@@ -54,7 +54,9 @@ In the admin tab **Day periods** you can configure start/end (HH:MM) and color p
 ### Pictogram sources
 
 1. **ARASAAC (external)** – only pictogram ID is stored; image is loaded at runtime from `static.arasaac.org`. No ARASAAC files in the adapter package.
-2. **Custom uploads** – via config widget into `autism-support.X/pictograms/` (images you have rights to use only).
+2. **Custom uploads** – via the Daily Schedule Config widget.
+
+Custom images are stored in the ioBroker file store of the adapter instance (`autism-support.0/pictograms/`, URL `/files/autism-support.0/pictograms/...`). They stay there after a plan reset and can be reused: open a schedule item, set source to **Custom**, then tap a saved thumbnail. Optional comma-separated **tags** are included in search (ARASAAC search also lists matching own images). Upload only images you own or are licensed to use. Do not upload ARASAAC files.
 
 ## Development
 

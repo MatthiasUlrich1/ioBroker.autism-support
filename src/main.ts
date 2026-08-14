@@ -11,6 +11,16 @@ import {
 	type DayPeriodDefinition,
 } from "./lib/day-periods";
 import { findCurrentItemIndex, isPlanFullyExpired, parseSchedulePlan, type SchedulePlan } from "./lib/schedule-types";
+import {
+	LIBRARY_FILE,
+	PICTOGRAM_DIR,
+	emptyLibrary,
+	normalizeTags,
+	parseLibrary,
+	uniquePictogramFilename,
+	type CustomPictogram,
+	type PictogramLibrary,
+} from "./lib/pictogram-library";
 
 const TIMER_CHANNEL = "timer";
 const SCHEDULE_CHANNEL = "schedule";
@@ -469,8 +479,66 @@ class AutismSupport extends utils.Adapter {
 		}
 	}
 
+	private reply(obj: ioBroker.Message, payload: unknown): void {
+		if (obj.callback) {
+			this.sendTo(obj.from, obj.command, payload, obj.callback);
+		}
+	}
+
+	private async loadPictogramLibrary(): Promise<PictogramLibrary> {
+		try {
+			const file = await this.readFileAsync(this.namespace, LIBRARY_FILE);
+			const raw = typeof file.file === "string" ? file.file : Buffer.from(file.file).toString("utf8");
+			return parseLibrary(raw);
+		} catch {
+			return emptyLibrary();
+		}
+	}
+
+	private async savePictogramLibrary(library: PictogramLibrary): Promise<void> {
+		await this.writeFileAsync(this.namespace, LIBRARY_FILE, JSON.stringify(library, null, 2));
+	}
+
+	private async listPictogramFiles(): Promise<string[] | null> {
+		try {
+			const result = await this.readDirAsync(this.namespace, PICTOGRAM_DIR);
+			return (result || [])
+				.filter(entry => !entry.isDir && entry.file !== "_library.json")
+				.map(entry => entry.file);
+		} catch {
+			return null;
+		}
+	}
+
+	private async getMergedPictogramLibrary(): Promise<PictogramLibrary> {
+		const library = await this.loadPictogramLibrary();
+		const files = await this.listPictogramFiles();
+		if (!files) {
+			return library;
+		}
+		const known = new Set(library.items.map(item => item.filename));
+		for (const filename of files) {
+			if (known.has(filename)) {
+				continue;
+			}
+			library.items.push({
+				id: filename,
+				filename,
+				path: `${PICTOGRAM_DIR}/${filename}`,
+				label: filename.replace(/\.[^.]+$/, "").replace(/-\d+$/, ""),
+				tags: [],
+				originalName: filename,
+				mime: "",
+				uploadedAt: 0,
+			});
+		}
+		library.items = library.items.filter(item => files.includes(item.filename));
+		library.items.sort((a, b) => (b.uploadedAt || 0) - (a.uploadedAt || 0));
+		return library;
+	}
+
 	/**
-	 * Custom pictogram upload (user-owned images only).
+	 * Custom pictogram library (user-owned images only).
 	 * ARASAAC images must never be uploaded here – use external IDs only.
 	 *
 	 * @param obj
@@ -480,53 +548,110 @@ class AutismSupport extends utils.Adapter {
 			return;
 		}
 
-		if (obj.command === "uploadPictogram") {
-			try {
+		try {
+			if (obj.command === "uploadPictogram") {
 				const payload = obj.message as {
 					filename?: string;
 					base64?: string;
 					mime?: string;
+					label?: string;
+					tags?: string[] | string;
 				};
-				const filename = String(payload?.filename || "")
-					.replace(/[^a-zA-Z0-9._-]/g, "_")
-					.slice(0, 120);
+				const originalName = String(payload?.filename || "image.png");
+				const filename = uniquePictogramFilename(originalName);
 				const base64 = String(payload?.base64 || "");
-				if (!filename || !base64) {
+				if (!base64) {
 					throw new Error("filename and base64 required");
 				}
-				const lower = filename.toLowerCase();
-				if (!/\.(png|jpe?g|gif|webp|svg)$/.test(lower)) {
+				if (!/\.(png|jpe?g|gif|webp|svg)$/i.test(filename)) {
 					throw new Error("unsupported file type");
 				}
 				const buffer = Buffer.from(base64.replace(/^data:[^;]+;base64,/, ""), "base64");
+				if (!buffer.length) {
+					throw new Error("empty file");
+				}
 				if (buffer.length > 5 * 1024 * 1024) {
 					throw new Error("file too large (max 5 MB)");
 				}
-				const path = `pictograms/${filename}`;
+				const path = `${PICTOGRAM_DIR}/${filename}`;
 				await this.writeFileAsync(this.namespace, path, buffer);
-				if (obj.callback) {
-					this.sendTo(obj.from, obj.command, { ok: true, path, namespace: this.namespace }, obj.callback);
-				}
-			} catch (error) {
-				if (obj.callback) {
-					this.sendTo(obj.from, obj.command, { ok: false, error: (error as Error).message }, obj.callback);
-				}
+				const library = await this.getMergedPictogramLibrary();
+				const entry: CustomPictogram = {
+					id: filename,
+					filename,
+					path,
+					label: String(payload?.label || originalName.replace(/\.[^.]+$/, "")),
+					tags: normalizeTags(payload?.tags),
+					originalName,
+					mime: String(payload?.mime || ""),
+					uploadedAt: Date.now(),
+				};
+				library.items = [entry, ...library.items.filter(item => item.filename !== filename)];
+				await this.savePictogramLibrary(library);
+				this.log.info(`Custom pictogram stored: ${path} (${buffer.length} bytes)`);
+				this.reply(obj, { ok: true, path, item: entry, library, namespace: this.namespace });
+				return;
 			}
-			return;
-		}
 
-		if (obj.command === "listPictograms") {
-			try {
-				const result = await this.readDirAsync(this.namespace, "pictograms");
-				const files = (result || []).filter(entry => !entry.isDir).map(entry => entry.file);
-				if (obj.callback) {
-					this.sendTo(obj.from, obj.command, { ok: true, files }, obj.callback);
-				}
-			} catch {
-				if (obj.callback) {
-					this.sendTo(obj.from, obj.command, { ok: true, files: [] }, obj.callback);
-				}
+			if (obj.command === "listPictograms") {
+				const library = await this.getMergedPictogramLibrary();
+				this.reply(obj, {
+					ok: true,
+					files: library.items.map(item => item.filename),
+					library,
+				});
+				return;
 			}
+
+			if (obj.command === "updatePictogram") {
+				const payload = obj.message as { path?: string; filename?: string; label?: string; tags?: string[] | string };
+				const key = String(payload?.path || payload?.filename || "");
+				if (!key) {
+					throw new Error("path required");
+				}
+				const library = await this.getMergedPictogramLibrary();
+				const item = library.items.find(
+					entry => entry.path === key || entry.filename === key || `${PICTOGRAM_DIR}/${entry.filename}` === key,
+				);
+				if (!item) {
+					throw new Error("pictogram not found");
+				}
+				if (payload.label !== undefined) {
+					item.label = String(payload.label);
+				}
+				if (payload.tags !== undefined) {
+					item.tags = normalizeTags(payload.tags);
+				}
+				await this.savePictogramLibrary(library);
+				this.reply(obj, { ok: true, item, library });
+				return;
+			}
+
+			if (obj.command === "deletePictogram") {
+				const payload = obj.message as { path?: string; filename?: string };
+				const key = String(payload?.path || payload?.filename || "");
+				if (!key) {
+					throw new Error("path required");
+				}
+				const library = await this.getMergedPictogramLibrary();
+				const item = library.items.find(
+					entry => entry.path === key || entry.filename === key || `${PICTOGRAM_DIR}/${entry.filename}` === key,
+				);
+				if (!item) {
+					throw new Error("pictogram not found");
+				}
+				try {
+					await this.unlinkAsync(this.namespace, item.path);
+				} catch (error) {
+					this.log.warn(`Could not delete pictogram file ${item.path}: ${(error as Error).message}`);
+				}
+				library.items = library.items.filter(entry => entry.filename !== item.filename);
+				await this.savePictogramLibrary(library);
+				this.reply(obj, { ok: true, library });
+			}
+		} catch (error) {
+			this.log.error(`Pictogram command ${obj.command} failed: ${(error as Error).message}`);
+			this.reply(obj, { ok: false, error: (error as Error).message });
 		}
 	}
 

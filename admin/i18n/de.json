@@ -23,5 +23,5 @@
 	"pictograms_tab": "Piktogramme",
 	"pictograms_header": "Piktogramm-Quellen",
 	"arasaac_license_info": "ARASAAC-Piktogramme werden ausschließlich extern von static.arasaac.org / api.arasaac.org geladen und nicht im Adapter gespeichert oder weiterverbreitet. Lizenz: Creative Commons BY-NC-SA (Autor: Sergio Palao, Eigentümer: Regierung von Aragón). Attribution ist in der README und im Widget vorgeschrieben. Website: https://arasaac.org",
-	"custom_pictogram_info": "Eigene Piktogramme können über das Tagesplan-Config-Widget hochgeladen werden (Dateien unter autism-support.X/pictograms/). Laden Sie nur Bilder hoch, die Sie besitzen oder für die Sie eine Nutzungserlaubnis haben. ARASAAC-Dateien bitte nicht hochladen – dafür die externe ARASAAC-ID nutzen."
+	"custom_pictogram_info": "Eigene Piktogramme können über das Tagesplan-Config-Widget hochgeladen werden. Dateien liegen unter autism-support.X/pictograms/ und können wiederverwendet werden. Mit Tags sind sie über die Suche findbar. Laden Sie nur Bilder hoch, die Sie besitzen oder für die Sie eine Nutzungserlaubnis haben. ARASAAC-Dateien bitte nicht hochladen – dafür die externe ARASAAC-ID nutzen."
 }

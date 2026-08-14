@@ -48,6 +48,8 @@ interface ItemPlacement {
 
 const DISABLED_PERIOD_COLOR = "#ECEFF1";
 const ITEM_FRAME_PAD = 16;
+/** Title + time above the pictogram. */
+const LABEL_BLOCK_PX = 42;
 
 function clamp(n: number, min: number, max: number): number {
 	return Math.max(min, Math.min(max, n));
@@ -251,7 +253,7 @@ export function buildScheduleLayout(
 	nowMinutes: number,
 	pictoPx: number,
 ): { blocks: PeriodBlockLayout[]; placements: ItemPlacement[]; laneCount: number; totalHeight: number } {
-	const minItemH = pictoPx + ITEM_FRAME_PAD;
+	const minItemH = pictoPx + ITEM_FRAME_PAD + LABEL_BLOCK_PX;
 	const minPeriodH = minItemH;
 	const drafts: DraftBlock[] = [];
 
@@ -372,7 +374,7 @@ export function buildScheduleLayout(
 
 function renderItemCard(
 	placement: ItemPlacement,
-	laneCount: number,
+	_laneCount: number,
 	nowMinutes: number,
 	adapterInstance: string,
 	pictoPx: number,
@@ -380,30 +382,53 @@ function renderItemCard(
 	const { item, topPx, heightPx, lane } = placement;
 	const active = isItemActiveAt(item, nowMinutes);
 	const img = resolveItemImageUrl(item, adapterInstance);
-	const widthPct = 100 / laneCount;
-	const leftPct = lane * widthPct;
+	const padX = 10;
+	const cardW = pictoPx + padX * 2;
+	// Column 2 sits on top of column 1 (including when it spans two items).
+	const leftPx = lane === 0 ? 4 : Math.round(4 + pictoPx * 0.52);
+	const zIndex = (lane + 1) * 4 + (active ? 2 : 0);
 
 	return (
 		<div
 			style={{
 				position: "absolute",
 				top: topPx,
-				left: `calc(${leftPct}% + 2px)`,
-				width: `calc(${widthPct}% - 4px)`,
+				left: leftPx,
+				width: cardW,
 				height: heightPx,
 				boxSizing: "border-box",
 				borderRadius: 10,
 				border: active ? "2px solid #FF8A00" : "1.5px solid rgba(0,0,0,0.28)",
-				background: active ? "rgba(255,138,0,0.12)" : "rgba(255,255,255,0.55)",
+				background: active ? "rgba(255,138,0,0.18)" : "rgba(255,255,255,0.14)",
 				display: "flex",
-				alignItems: "flex-start",
-				gap: 8,
-				padding: "8px",
+				flexDirection: "column",
+				alignItems: "center",
+				gap: 4,
+				padding: "6px 8px 8px",
 				overflow: "hidden",
-				zIndex: active ? 2 : 1,
+				zIndex,
+				boxShadow: lane > 0 ? "0 4px 14px rgba(0,0,0,0.45)" : "none",
 			}}
 			title={`${item.label || "—"} · ${item.start} – ${item.end}`}
 		>
+			<div style={{ width: "100%", textAlign: "center", flexShrink: 0 }}>
+				<div
+					style={{
+						fontWeight: 700,
+						fontSize: Math.max(12, Math.min(16, pictoPx * 0.2)),
+						lineHeight: 1.15,
+						overflow: "hidden",
+						display: "-webkit-box",
+						WebkitLineClamp: 2,
+						WebkitBoxOrient: "vertical" as const,
+					}}
+				>
+					{item.label || "—"}
+				</div>
+				<div style={{ fontSize: 11, opacity: 0.8, lineHeight: 1.2 }}>
+					{item.start} – {item.end}
+				</div>
+			</div>
 			<div
 				style={{
 					width: pictoPx,
@@ -427,23 +452,6 @@ function renderItemCard(
 				) : (
 					<span style={{ fontSize: 12, opacity: 0.5 }}>?</span>
 				)}
-			</div>
-			<div style={{ flex: 1, minWidth: 0, paddingTop: 2 }}>
-				<div
-					style={{
-						fontWeight: 700,
-						fontSize: Math.max(13, Math.min(18, pictoPx * 0.22)),
-						lineHeight: 1.2,
-						overflow: "hidden",
-						textOverflow: "ellipsis",
-						whiteSpace: "nowrap",
-					}}
-				>
-					{item.label || "—"}
-				</div>
-				<div style={{ fontSize: 12, opacity: 0.75, lineHeight: 1.2 }}>
-					{item.start} – {item.end}
-				</div>
 			</div>
 		</div>
 	);
@@ -509,7 +517,7 @@ export default function DailyScheduleVisual({
 								flex: 1,
 								position: "relative",
 								height: totalHeight,
-								minWidth: 0,
+								minWidth: pictoPx + Math.round(pictoPx * 0.52) + 36,
 							}}
 						>
 							{placements.map(placement => (
