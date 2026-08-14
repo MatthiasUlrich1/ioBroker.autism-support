@@ -9,7 +9,10 @@ describe("TimerManager", () => {
 				updates.push(snapshot.remaining);
 				return Promise.resolve();
 			},
-			{ setInterval, clearInterval },
+			{
+				setInterval,
+				clearInterval: (handle: unknown) => clearInterval(handle as NodeJS.Timeout),
+			},
 		);
 
 		await manager.setDuration(120, 24);
