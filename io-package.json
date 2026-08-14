@@ -102,25 +102,7 @@
 		"compact": true,
 		"messagebox": true,
 		"adminUI": {
-			"config": "json",
-			"tab": "materialize"
-		},
-		"adminTab": {
-			"singleton": true,
-			"name": {
-				"en": "Autism Support",
-				"de": "Autismus-Unterstützung",
-				"ru": "Поддержка аутизма",
-				"pt": "Apoio ao autismo",
-				"nl": "Ondersteuning voor autisme",
-				"fr": "Soutien à l'autisme",
-				"it": "Supporto all'autismo",
-				"es": "Apoyo al autismo",
-				"pl": "Wsparcie autyzmu",
-				"uk": "Підтримка аутистів",
-				"zh-cn": "自闭症支持"
-			},
-			"link": ""
+			"config": "json"
 		},
 		"supportCustoms": true,
 		"visWidgets": {
