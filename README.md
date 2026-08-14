@@ -115,3 +115,5 @@ Für Uploads sind **Sie** verantwortlich, dass Sie die erforderlichen Rechte bes
 ## Autor
 
 Matthias Ulrich ([@MatthiasUlrich1](https://github.com/MatthiasUlrich1))
+
+[Older changelogs can be found there](CHANGELOG_OLD.md)
