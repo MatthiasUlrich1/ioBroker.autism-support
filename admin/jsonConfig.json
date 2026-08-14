@@ -459,12 +459,30 @@
 					"lg": 12,
 					"xl": 12
 				},
-				"_pictogramUpload": {
-					"type": "custom",
-					"label": "custom_pictogram_upload",
-					"url": "custom/customComponents.js",
-					"name": "AutismSupportAdminSet/Components/PictogramUpload",
-					"bundlerType": "module",
+				"_openVisFiles": {
+					"type": "staticLink",
+					"label": "custom_pictogram_open_files",
+					"href": "#tab-files/vis-2.0/main/autism-support/pictograms",
+					"target": "_self",
+					"button": true,
+					"variant": "contained",
+					"icon": "upload",
+					"newLine": true,
+					"xs": 12,
+					"sm": 12,
+					"md": 12,
+					"lg": 12,
+					"xl": 12
+				},
+				"_syncPictograms": {
+					"type": "sendTo",
+					"label": "custom_pictogram_refresh",
+					"command": "syncPictogramTable",
+					"useNative": true,
+					"onLoaded": true,
+					"showProcess": true,
+					"variant": "outlined",
+					"icon": "search",
 					"newLine": true,
 					"xs": 12,
 					"sm": 12,
@@ -475,8 +493,7 @@
 				"customPictograms": {
 					"type": "table",
 					"label": "custom_pictograms_table",
-					"noDelete": false,
-					"showFirstAddOnTop": true,
+					"noDelete": true,
 					"clone": false,
 					"import": false,
 					"export": false,
@@ -493,7 +510,7 @@
 							"title": "custom_pictogram_file",
 							"width": "45%",
 							"default": "",
-							"defaultFunc": "return data._pictogramUpload || '';"
+							"disabled": true
 						},
 						{
 							"type": "text",

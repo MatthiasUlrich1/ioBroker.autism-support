@@ -1,8 +1,21 @@
 {
 	"common": {
 		"name": "autism-support",
-		"version": "0.1.19",
+		"version": "0.1.20",
 		"news": {
+			"0.1.20": {
+				"en": "Fix Admin GUI: link to ioBroker file manager; auto-list pictograms from vis-2 folder",
+				"de": "Admin-GUI-Fix: Link zum Dateimanager; Piktogramme aus vis-2-Ordner automatisch auflisten",
+				"ru": "Исправлен Admin GUI: ссылка на файловый менеджер; автосписок pictogram из vis-2",
+				"pt": "Corrigido Admin GUI: link ao gestor de ficheiros; listar pictogramas do vis-2",
+				"nl": "Admin GUI-fix: link naar bestandsbeheer; pictogrammen uit vis-2-map automatisch",
+				"fr": "Correction Admin GUI: lien gestionnaire fichiers; liste auto pictogrammes vis-2",
+				"it": "Fix Admin GUI: link file manager; elenco auto pittogrammi da cartella vis-2",
+				"es": "Corregido Admin GUI: enlace al gestor de archivos; listar pictogramas de vis-2",
+				"pl": "Naprawiono Admin GUI: link do menedzera plikow; auto-lista piktogramow z vis-2",
+				"uk": "Виправлено Admin GUI: посилання на файловий менеджер; автосписок pictogram з vis-2",
+				"zh-cn": "修复管理界面：链接文件管理器；自动列出 vis-2 文件夹中的象形图"
+			},
 			"0.1.19": {
 				"en": "Store pictograms in vis-2.0/main/autism-support/pictograms instead of adapter file store",
 				"de": "Piktogramme in vis-2.0/main/autism-support/pictograms statt Adapter-Dateispeicher",

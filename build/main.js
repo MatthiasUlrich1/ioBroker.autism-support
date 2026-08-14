@@ -56,6 +56,7 @@ class AutismSupport extends utils.Adapter {
     this.dayPeriods = (0, import_day_periods.dayPeriodsFromConfig)(this.config);
     await this.createTimerStates();
     await this.ensurePictogramStore();
+    await this.syncCustomPictogramsConfig();
     await this.createScheduleStates();
     this.timerManager = new import_timer_manager.TimerManager(
       async (snapshot) => {
@@ -314,6 +315,18 @@ class AutismSupport extends utils.Adapter {
     await this.setState(`${SCHEDULE_CHANNEL}.periods`, JSON.stringify(this.dayPeriods), true);
     await this.publishPictogramLibrary();
   }
+  async buildCustomPictogramRows() {
+    const files = await this.listPictogramFiles();
+    return (0, import_pictogram_library.syncCustomPictogramRows)(files || [], this.config.customPictograms);
+  }
+  async syncCustomPictogramsConfig() {
+    const rows = await this.buildCustomPictogramRows();
+    await this.extendObject(`system.adapter.${this.namespace}`, {
+      native: { customPictograms: rows }
+    });
+    this.config.customPictograms = rows;
+    await this.publishPictogramLibrary();
+  }
   async ensurePictogramStore() {
     try {
       await this.readDirAsync(import_pictogram_library.PICTOGRAM_FILE_ADAPTER, import_pictogram_library.PICTOGRAM_DIR);
@@ -524,6 +537,16 @@ class AutismSupport extends utils.Adapter {
       return;
     }
     try {
+      if (obj.command === "syncPictogramTable") {
+        const rows = await this.buildCustomPictogramRows();
+        await this.extendObject(`system.adapter.${this.namespace}`, {
+          native: { customPictograms: rows }
+        });
+        this.config.customPictograms = rows;
+        await this.publishPictogramLibrary();
+        this.reply(obj, { ok: true, native: { customPictograms: rows } });
+        return;
+      }
       if (obj.command === "uploadPictogram") {
         const payload = obj.message;
         const originalName = String((payload == null ? void 0 : payload.filename) || "image.png");
@@ -557,6 +580,7 @@ class AutismSupport extends utils.Adapter {
         };
         library.items = [entry, ...library.items.filter((item) => item.filename !== filename)];
         await this.savePictogramLibrary(library);
+        await this.syncCustomPictogramsConfig();
         this.log.info(`Custom pictogram stored: ${import_pictogram_library.PICTOGRAM_FILE_ADAPTER}/${path} (${buffer.length} bytes)`);
         this.reply(obj, {
           ok: true,

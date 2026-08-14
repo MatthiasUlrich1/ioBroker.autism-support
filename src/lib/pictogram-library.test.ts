@@ -8,6 +8,7 @@ import {
 	parseLibrary,
 	pictogramPublicUrl,
 	pictogramStoragePath,
+	syncCustomPictogramRows,
 	uniquePictogramFilename,
 } from "./pictogram-library";
 
@@ -65,6 +66,25 @@ describe("pictogram-library", () => {
 
 	it("parses an empty library on invalid JSON", () => {
 		expect(parseLibrary("not-json").items).to.deep.equal([]);
+	});
+
+	it("builds admin table rows from disk files and keeps tags", () => {
+		const rows = syncCustomPictogramRows(
+			["brush.png", "readme.txt", "other.jpg"],
+			[{ file: "main/autism-support/pictograms/brush.png", label: "Zähne", tags: "hygiene, morgen" }],
+		);
+		expect(rows).to.deep.equal([
+			{
+				file: "main/autism-support/pictograms/brush.png",
+				label: "Zähne",
+				tags: "hygiene, morgen",
+			},
+			{
+				file: "main/autism-support/pictograms/other.jpg",
+				label: "other",
+				tags: "",
+			},
+		]);
 	});
 
 	it("merges disk files with admin name and tags", () => {

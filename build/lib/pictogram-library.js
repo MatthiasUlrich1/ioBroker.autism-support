@@ -33,6 +33,7 @@ __export(pictogram_library_exports, {
   parseLibrary: () => parseLibrary,
   pictogramPublicUrl: () => pictogramPublicUrl,
   pictogramStoragePath: () => pictogramStoragePath,
+  syncCustomPictogramRows: () => syncCustomPictogramRows,
   uniquePictogramFilename: () => uniquePictogramFilename
 });
 module.exports = __toCommonJS(pictogram_library_exports);
@@ -187,6 +188,19 @@ function uniquePictogramFilename(original) {
   const base = (extMatch ? sanitized.slice(0, -extMatch[0].length) : sanitized).replace(/_+$/g, "") || "image";
   return `${base}-${Date.now()}${ext}`;
 }
+function syncCustomPictogramRows(filenames, existingRows) {
+  const existing = libraryFromNativeRows(existingRows);
+  const byFilename = new Map(existing.items.map((item) => [item.filename, item]));
+  return filenames.filter((name) => /\.(png|jpe?g|gif|webp|svg)$/i.test(name)).sort((a, b) => a.localeCompare(b)).map((filename) => {
+    const prev = byFilename.get(filename);
+    const path = pictogramStoragePath(filename);
+    return {
+      file: path,
+      label: (prev == null ? void 0 : prev.label) || filename.replace(/\.[^.]+$/, "").replace(/-\d+$/, ""),
+      tags: (prev == null ? void 0 : prev.tags.length) ? prev.tags.join(", ") : ""
+    };
+  });
+}
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   LIBRARY_FILE,
@@ -204,6 +218,7 @@ function uniquePictogramFilename(original) {
   parseLibrary,
   pictogramPublicUrl,
   pictogramStoragePath,
+  syncCustomPictogramRows,
   uniquePictogramFilename
 });
 //# sourceMappingURL=pictogram-library.js.map

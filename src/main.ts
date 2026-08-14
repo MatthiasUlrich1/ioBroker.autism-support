@@ -23,6 +23,7 @@ import {
 	parseLibrary,
 	pictogramPublicUrl,
 	pictogramStoragePath,
+	syncCustomPictogramRows,
 	uniquePictogramFilename,
 	type CustomPictogram,
 	type PictogramLibrary,
@@ -62,6 +63,7 @@ class AutismSupport extends utils.Adapter {
 
 		await this.createTimerStates();
 		await this.ensurePictogramStore();
+		await this.syncCustomPictogramsConfig();
 		await this.createScheduleStates();
 
 		this.timerManager = new TimerManager(
@@ -351,6 +353,20 @@ class AutismSupport extends utils.Adapter {
 		await this.publishPictogramLibrary();
 	}
 
+	private async buildCustomPictogramRows(): Promise<Array<{ file: string; label: string; tags: string }>> {
+		const files = await this.listPictogramFiles();
+		return syncCustomPictogramRows(files || [], this.config.customPictograms);
+	}
+
+	private async syncCustomPictogramsConfig(): Promise<void> {
+		const rows = await this.buildCustomPictogramRows();
+		await this.extendObject(`system.adapter.${this.namespace}`, {
+			native: { customPictograms: rows },
+		});
+		this.config.customPictograms = rows;
+		await this.publishPictogramLibrary();
+	}
+
 	private async ensurePictogramStore(): Promise<void> {
 		try {
 			await this.readDirAsync(PICTOGRAM_FILE_ADAPTER, PICTOGRAM_DIR);
@@ -591,6 +607,17 @@ class AutismSupport extends utils.Adapter {
 		}
 
 		try {
+			if (obj.command === "syncPictogramTable") {
+				const rows = await this.buildCustomPictogramRows();
+				await this.extendObject(`system.adapter.${this.namespace}`, {
+					native: { customPictograms: rows },
+				});
+				this.config.customPictograms = rows;
+				await this.publishPictogramLibrary();
+				this.reply(obj, { ok: true, native: { customPictograms: rows } });
+				return;
+			}
+
 			if (obj.command === "uploadPictogram") {
 				const payload = obj.message as {
 					filename?: string;
@@ -630,6 +657,7 @@ class AutismSupport extends utils.Adapter {
 				};
 				library.items = [entry, ...library.items.filter(item => item.filename !== filename)];
 				await this.savePictogramLibrary(library);
+				await this.syncCustomPictogramsConfig();
 				this.log.info(`Custom pictogram stored: ${PICTOGRAM_FILE_ADAPTER}/${path} (${buffer.length} bytes)`);
 				this.reply(obj, {
 					ok: true,

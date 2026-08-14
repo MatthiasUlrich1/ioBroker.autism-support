@@ -202,3 +202,28 @@ export function uniquePictogramFilename(original: string): string {
 	const base = (extMatch ? sanitized.slice(0, -extMatch[0].length) : sanitized).replace(/_+$/g, "") || "image";
 	return `${base}-${Date.now()}${ext}`;
 }
+
+export interface CustomPictogramConfigRow {
+	file: string;
+	label: string;
+	tags: string;
+}
+
+/** Build admin table rows from files on disk, preserving existing labels/tags. */
+export function syncCustomPictogramRows(filenames: string[], existingRows: unknown): CustomPictogramConfigRow[] {
+	const existing = libraryFromNativeRows(existingRows);
+	const byFilename = new Map(existing.items.map(item => [item.filename, item]));
+
+	return filenames
+		.filter(name => /\.(png|jpe?g|gif|webp|svg)$/i.test(name))
+		.sort((a, b) => a.localeCompare(b))
+		.map(filename => {
+			const prev = byFilename.get(filename);
+			const path = pictogramStoragePath(filename);
+			return {
+				file: path,
+				label: prev?.label || filename.replace(/\.[^.]+$/, "").replace(/-\d+$/, ""),
+				tags: prev?.tags.length ? prev.tags.join(", ") : "",
+			};
+		});
+}
