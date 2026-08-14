@@ -25,7 +25,7 @@ function secondsToParts(totalSeconds: number): { hours: number; minutes: number 
 
 class AutismSupport extends utils.Adapter {
 	private timerManager: TimerManager | null = null;
-	private scheduleTick: ReturnType<typeof setInterval> | null = null;
+	private scheduleTick: ioBroker.Interval | undefined | null = null;
 	private dayPeriods: DayPeriodDefinition[] = [];
 
 	public constructor(options: Partial<utils.AdapterOptions> = {}) {
@@ -47,9 +47,15 @@ class AutismSupport extends utils.Adapter {
 		await this.createTimerStates();
 		await this.createScheduleStates();
 
-		this.timerManager = new TimerManager(async snapshot => {
-			await this.publishTimerSnapshot(snapshot);
-		});
+		this.timerManager = new TimerManager(
+			async snapshot => {
+				await this.publishTimerSnapshot(snapshot);
+			},
+			{
+				setInterval: (handler, ms) => this.setInterval(handler, ms),
+				clearInterval: handle => this.clearInterval(handle as ioBroker.Interval),
+			},
+		);
 
 		await this.timerManager.setDuration(defaultSeconds, maxHours);
 		await this.publishTimerSnapshot(this.timerManager.getSnapshot());
@@ -58,7 +64,7 @@ class AutismSupport extends utils.Adapter {
 		this.subscribeStates(`${this.namespace}.${TIMER_CHANNEL}.*`);
 		this.subscribeStates(`${this.namespace}.${SCHEDULE_CHANNEL}.*`);
 
-		this.scheduleTick = setInterval(() => {
+		this.scheduleTick = this.setInterval(() => {
 			void this.publishScheduleRuntime();
 		}, 30_000);
 
@@ -541,8 +547,8 @@ class AutismSupport extends utils.Adapter {
 	}
 
 	private onUnload(callback: () => void): void {
-		if (this.scheduleTick) {
-			clearInterval(this.scheduleTick);
+		if (this.scheduleTick !== undefined && this.scheduleTick !== null) {
+			this.clearInterval(this.scheduleTick);
 			this.scheduleTick = null;
 		}
 		this.timerManager?.destroy();

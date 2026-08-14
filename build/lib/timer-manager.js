@@ -24,9 +24,11 @@ module.exports = __toCommonJS(timer_manager_exports);
 class TimerManager {
   /**
    * @param onUpdate Called whenever the timer snapshot changes
+   * @param scheduler Interval helpers (use adapter.setInterval in production)
    */
-  constructor(onUpdate) {
+  constructor(onUpdate, scheduler) {
     this.onUpdate = onUpdate;
+    this.scheduler = scheduler;
   }
   durationSeconds = 3600;
   remainingSeconds = 3600;
@@ -108,13 +110,13 @@ class TimerManager {
   }
   startTick() {
     this.stopTick();
-    this.tickHandle = setInterval(() => {
+    this.tickHandle = this.scheduler.setInterval(() => {
       void this.tick();
     }, 1e3);
   }
   stopTick() {
     if (this.tickHandle) {
-      clearInterval(this.tickHandle);
+      this.scheduler.clearInterval(this.tickHandle);
       this.tickHandle = null;
     }
   }

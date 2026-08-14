@@ -1,6 +1,6 @@
 {
   "name": "iobroker.autism-support",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "description": "Unterstützung für Menschen mit Autismus: Visual Countdown, Bild-Ablaufpläne und Piktogramme",
   "author": {
     "name": "Matthias Ulrich",
@@ -24,7 +24,7 @@
     "url": "https://github.com/MatthiasUlrich1/ioBroker.autism-support.git"
   },
   "engines": {
-    "node": ">= 20"
+    "node": ">= 22"
   },
   "dependencies": {
     "@iobroker/adapter-core": "^3.4.3"
@@ -57,6 +57,7 @@
     "build/",
     "widgets/**/!(tsconfig|tsconfig.*|.eslintrc).json",
     "widgets/**/*.{html,css,png,svg,jpg,js}",
+    "src-widgets-ts/src/i18n/**/*.json",
     "www/",
     "io-package.json",
     "LICENSE"

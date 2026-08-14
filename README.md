@@ -1,64 +1,64 @@
 # ioBroker.autism-support
 
-Unterstützung für Menschen mit Autismus in ioBroker: **Visual Countdown**, **Tagesplan mit Zeitbalken** und Piktogrammen.
+Support for people with autism in ioBroker: **Visual Countdown**, **daily schedule with time bar**, and pictograms.
 
 ## Visual Countdown
 
-Visueller Countdown als Geometrie-Rahmen (Standard: Quadrat) mit kreisförmigem Fortschritts-Wisch vom Zentrum.
+Visual countdown as a geometry frame (default: square) with circular progress wipe from the center.
 
-### Datenpunkte (`autism-support.0.timer.*`)
+### States (`autism-support.0.timer.*`)
 
-| State | Beschreibung |
-|-------|--------------|
-| `duration` | Gesamtdauer in Sekunden |
-| `remaining` | Verbleibende Sekunden |
-| `elapsed` | Abgelaufene Sekunden |
+| State | Description |
+|-------|-------------|
+| `duration` | Total duration in seconds |
+| `remaining` | Remaining seconds |
+| `elapsed` | Elapsed seconds |
 | `running` / `paused` / `finished` | Status |
-| `start` / `pause` / `resume` / `stop` | Befehle (Schreiben `true`) |
-| `setDurationHours` / `setDurationMinutes` | Dauer setzen |
+| `start` / `pause` / `resume` / `stop` | Commands (write `true`) |
+| `setDurationHours` / `setDurationMinutes` | Set duration |
 
-### VIS-2-Widgets
+### VIS-2 widgets
 
-| Widget | Zweck |
-|--------|--------|
-| **Visual Countdown (Live)** | Große Anzeige für den Nutzer |
-| **Visual Countdown (Config)** | Steuerung für Eltern/Pflegeperson |
+| Widget | Purpose |
+|--------|---------|
+| **Visual Countdown (Live)** | Large display for the user |
+| **Visual Countdown (Config)** | Control for parents/caregivers |
 
-## Tagesplan mit Zeitbalken
+## Daily schedule with time bar
 
-Flexible Liste von Piktogrammen mit jeweils eigener Zeitspanne. Rechts daneben ein **farbiger Tagesbereich-Balken**, der sich an **Anzahl und Dauer der Piktogramme** anpasst (Zeitfenster vom ersten bis zum letzten Eintrag), plus **Jetzt**-Markierung.
+Flexible list of pictograms with individual time spans. A **colored day-period bar** on the right adapts to **count and duration of pictograms** (time window from first to last entry), plus a **now** marker.
 
-### Admin: Tagesbereiche
+### Admin: day periods
 
-Im Admin-Tab **Tagesbereiche** lassen sich Start/Ende (HH:MM) und Farbe je Bereich einstellen. Nacht darf über Mitternacht gehen (z. B. 21:00–06:00). Im **Tagesplan (Konfiguration)**-Widget können Bereiche zusätzlich ein- und ausgeschaltet werden.
+In the admin tab **Day periods** you can configure start/end (HH:MM) and color per period. Night may wrap past midnight (e.g. 21:00–06:00). In the **Daily Schedule (Config)** widget, periods can additionally be enabled or disabled.
 
-### Datenpunkte (`autism-support.0.schedule.*`)
+### States (`autism-support.0.schedule.*`)
 
-| State | Beschreibung |
-|-------|--------------|
-| `plan` | JSON-Plan mit Einträgen (Label, Start/Ende, Piktogramm-Quelle) |
-| `periods` | Tagesbereiche aus der Admin-Konfiguration (JSON, nur lesen) |
-| `periodOverrides` | Ein/Aus der Tagesbereiche aus dem Config-Widget (JSON, schreibbar) |
-| `clearAfterLast` | Plan nach Ende des letzten Piktogramms automatisch leeren (Boolean) |
-| `nowMinutes` | Aktuelle Minuten seit Mitternacht (lokal) |
-| `currentPeriod` | ID des aktuellen Tagesbereichs |
-| `currentItemIndex` | Index des aktiven Planeintrags (`-1` = keiner) |
+| State | Description |
+|-------|-------------|
+| `plan` | JSON plan with entries (label, start/end, pictogram source) |
+| `periods` | Day periods from admin config (JSON, read-only) |
+| `periodOverrides` | On/off overrides from config widget (JSON, writable) |
+| `clearAfterLast` | Clear plan after last pictogram ends (boolean) |
+| `nowMinutes` | Current minutes since midnight (local) |
+| `currentPeriod` | ID of current day period |
+| `currentItemIndex` | Index of active plan entry (`-1` = none) |
 
-### VIS-2-Widgets
+### VIS-2 widgets
 
-| Widget | Zweck |
-|--------|--------|
-| **Tagesplan (Live)** | Anzeige Piktogramme + Zeitbalken |
-| **Tagesplan (Konfiguration)** | Einträge, Reset, Plan nach Ablauf löschen, Tagesbereiche ein/aus, ARASAAC, Upload |
+| Widget | Purpose |
+|--------|---------|
+| **Daily Schedule (Live)** | Pictograms + time bar display |
+| **Daily Schedule (Config)** | Edit entries, reset, auto-clear, period toggles, ARASAAC, upload |
 
-### Piktogramm-Quellen
+### Pictogram sources
 
-1. **ARASAAC (extern)** – nur Pictogramm-ID speichern; Bild wird zur Laufzeit von `static.arasaac.org` geladen. Keine ARASAAC-Dateien im Adapter-Paket.
-2. **Eigene Uploads** – über das Config-Widget in `autism-support.X/pictograms/` speichern (nur Bilder, für die Sie die Rechte haben).
+1. **ARASAAC (external)** – only pictogram ID is stored; image is loaded at runtime from `static.arasaac.org`. No ARASAAC files in the adapter package.
+2. **Custom uploads** – via config widget into `autism-support.X/pictograms/` (images you have rights to use only).
 
-## Entwicklung
+## Development
 
-Voraussetzungen: Node.js ≥ 20, ioBroker mit `vis-2`.
+Requirements: Node.js ≥ 22, ioBroker with `vis-2`.
 
 ```bash
 npm install
@@ -68,50 +68,64 @@ npm run dev-server setup
 npm run dev-server watch
 ```
 
-Widget-Entwicklung (parallel):
+Widget development (parallel):
 
 ```bash
 cd src-widgets-ts
 npm run start
 ```
 
-## Lizenzen
+## Changelog
 
-### Dieser Adapter
+See [CHANGELOG_OLD.md](CHANGELOG_OLD.md) for older entries.
 
-**MIT** – siehe [LICENSE](LICENSE).
+### 0.1.11
+- Fix ioBroker repository checker issues (admin UI, workflows, metadata)
 
-### ARASAAC-Piktogramme (externe Inhalte)
+### 0.1.10
+- Fix clear-after-last checkbox; highlight active pictogram by current time
 
-Dieser Adapter **enthält und redistribuiert keine** ARASAAC-Bilddateien.
+### 0.1.9
+- Schedule reset with confirmation; optional auto-clear after last pictogram
 
-- **Quelle:** [ARASAAC](https://arasaac.org) / [API](https://api.arasaac.org) / CDN `https://static.arasaac.org`
-- **Lizenz:** [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
-- **Autor der Piktogramme:** Sergio Palao
-- **Eigentümer:** Regierung von Aragón (Gobierno de Aragón)
+### 0.1.8
+- Log-compress empty lead/trail on the time bar
 
-**Pflichten bei Nutzung (Auszug):**
+### 0.1.7
+- Fix period toggles; fixed pictogram size, period bar grows for short spans
 
-- Namensnennung (Attribution) von Autor, Quelle und Lizenz
-- **Keine kommerzielle Nutzung** der ARASAAC-Piktogramme
-- Abgeleitete Werke unter derselben Lizenz (ShareAlike), sofern Sie solche erstellen/verbreiten
+### 0.1.6
+- Shared scroll; single pictogram cards; overlap columns
 
-Empfohlene Attribution (wie von ARASAAC empfohlen):
+### 0.1.5
+- Stretch period bar by pictogram count; clock-accurate now marker
+
+## License
+
+### This adapter
+
+**MIT** – see [LICENSE](LICENSE).
+
+### ARASAAC pictograms (external content)
+
+This adapter **does not contain or redistribute** ARASAAC image files.
+
+- **Source:** [ARASAAC](https://arasaac.org) / [API](https://api.arasaac.org) / CDN `https://static.arasaac.org`
+- **License:** [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+- **Author:** Sergio Palao · **Owner:** Government of Aragon
+
+Recommended attribution:
 
 > The pictographic symbols used are the property of the Government of Aragon and have been created by Sergio Palao for ARASAAC (https://arasaac.org), which distributes them under a Creative Commons license (BY-NC-SA).
 
-Deutsch:
+Live/config widgets show this attribution when the plan contains ARASAAC entries.
 
-> Die verwendeten Piktogramme sind Eigentum der Regierung von Aragón und wurden von Sergio Palao für ARASAAC (https://arasaac.org) erstellt; sie werden unter der Creative-Commons-Lizenz BY-NC-SA bereitgestellt.
+Official terms: [ARASAAC Terms of Use](https://aulaabierta.arasaac.org/en/terms-of-use)
 
-Das Live-/Config-Widget zeigt diese Attribution automatisch, sobald mindestens ein ARASAAC-Eintrag im Plan ist.
+### Custom / uploaded pictograms
 
-Offizielle Hinweise: [ARASAAC Terms of Use](https://aulaabierta.arasaac.org/en/terms-of-use) und die Website [arasaac.org](https://arasaac.org).
+You are responsible for having the required rights for uploads. The adapter stores files locally in the instance only; they are not shipped in the npm/GitHub package.
 
-### Eigene / hochgeladene Piktogramme
-
-Für Uploads sind **Sie** verantwortlich, dass Sie die erforderlichen Rechte besitzen. Der Adapter speichert diese Dateien nur lokal in der Adapter-Instanz und liefert sie nicht als Teil des npm-/GitHub-Pakets aus.
-
-## Autor
+## Author
 
 Matthias Ulrich ([@MatthiasUlrich1](https://github.com/MatthiasUlrich1))

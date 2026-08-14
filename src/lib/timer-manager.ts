@@ -26,6 +26,12 @@ export interface TimerSnapshot {
 	finished: boolean;
 }
 
+/** Adapter-backed interval scheduling (avoids plain setInterval in adapter code). */
+export interface TimerScheduler {
+	setInterval: (handler: () => void, ms: number) => unknown;
+	clearInterval: (handle: unknown) => void;
+}
+
 /** Countdown timer with second ticks and state callbacks. */
 export class TimerManager {
 	private durationSeconds = 3600;
@@ -33,12 +39,16 @@ export class TimerManager {
 	private running = false;
 	private paused = false;
 	private finished = false;
-	private tickHandle: NodeJS.Timeout | null = null;
+	private tickHandle: unknown = null;
 
 	/**
 	 * @param onUpdate Called whenever the timer snapshot changes
+	 * @param scheduler Interval helpers (use adapter.setInterval in production)
 	 */
-	public constructor(private readonly onUpdate: (snapshot: TimerSnapshot) => Promise<void>) {}
+	public constructor(
+		private readonly onUpdate: (snapshot: TimerSnapshot) => Promise<void>,
+		private readonly scheduler: TimerScheduler,
+	) {}
 
 	/** Returns the current timer snapshot. */
 	public getSnapshot(): TimerSnapshot {
@@ -122,14 +132,14 @@ export class TimerManager {
 
 	private startTick(): void {
 		this.stopTick();
-		this.tickHandle = setInterval(() => {
+		this.tickHandle = this.scheduler.setInterval(() => {
 			void this.tick();
 		}, 1000);
 	}
 
 	private stopTick(): void {
 		if (this.tickHandle) {
-			clearInterval(this.tickHandle);
+			this.scheduler.clearInterval(this.tickHandle);
 			this.tickHandle = null;
 		}
 	}

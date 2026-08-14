@@ -1,87 +1,98 @@
 {
 	"common": {
 		"name": "autism-support",
-		"version": "0.1.10",
+		"version": "0.1.11",
 		"news": {
+			"0.1.11": {
+				"en": "Fix repository checker issues; admin UI and CI workflow updates",
+				"de": "Repository-Checker-Meldungen behoben; Admin-UI und CI-Workflow aktualisiert",
+				"ru": "Исправлены замечания repository checker; обновлены Admin UI и CI",
+				"pt": "Correções do repository checker; atualizações na UI admin e CI",
+				"nl": "Repository-checker issues opgelost; admin-UI en CI-workflow bijgewerkt",
+				"fr": "Corrections du repository checker; mise à jour admin UI et CI",
+				"it": "Corretti problemi repository checker; aggiornati admin UI e CI",
+				"es": "Corregidos avisos del repository checker; actualizados admin UI y CI",
+				"pl": "Naprawiono uwagi repository checker; zaktualizowano admin UI i CI",
+				"uk": "Виправлено зауваження repository checker; оновлено admin UI та CI",
+				"zh-cn": "修复仓库检查器问题；更新管理界面与 CI 工作流"
+			},
 			"0.1.10": {
 				"en": "Fix clear-after-last checkbox; highlight active pictogram by current time",
-				"de": "Checkbox „Plan nach Ablauf löschen“ repariert; aktives Piktogramm nach Uhrzeit hervorgehoben"
+				"de": "Checkbox „Plan nach Ablauf löschen“ repariert; aktives Piktogramm nach Uhrzeit hervorgehoben",
+				"ru": "Исправлен флажок автоочистки; активный пиктограмм по текущему времени",
+				"pt": "Correção da caixa auto-limpar; destaque do pictograma ativo pela hora",
+				"nl": "Checkbox auto-wissen gerepareerd; actief pictogram op huidige tijd",
+				"fr": "Case auto-effacement corrigée; pictogramme actif selon l'heure",
+				"it": "Corretta casella auto-cancellazione; evidenzia pittogramma attivo per ora",
+				"es": "Corregida casilla auto-borrar; resalta pictograma activo por hora",
+				"pl": "Naprawiono pole auto-czyszczenia; aktywne piktogram wg czasu",
+				"uk": "Виправлено прапорець автоочищення; активний пiktogram за часом",
+				"zh-cn": "修复到期自动清除复选框；按当前时间高亮活动 pictogram"
 			},
 			"0.1.9": {
 				"en": "Schedule reset with confirm; optional auto-clear after last pictogram",
-				"de": "Tagesplan-Reset mit Bestätigung; optional automatisch nach letztem Piktogramm löschen"
+				"de": "Tagesplan-Reset mit Bestätigung; optional automatisch nach letztem Piktogramm löschen",
+				"ru": "Сброс расписания с подтверждением; опциональная автоочистка",
+				"pt": "Repor horário com confirmação; limpeza automática opcional",
+				"nl": "Planning reset met bevestiging; optioneel auto-wissen na laatste pictogram",
+				"fr": "Réinitialisation avec confirmation; effacement auto optionnel",
+				"it": "Reset programma con conferma; auto-cancellazione opzionale",
+				"es": "Reinicio del plan con confirmación; borrado automático opcional",
+				"pl": "Reset planu z potwierdzeniem; opcjonalne auto-czyszczenie",
+				"uk": "Скидання плану з підтвердженням; опційне автоочищення",
+				"zh-cn": "带确认的日程重置；可选在最后 pictogram 后自动清除"
 			},
 			"0.1.8": {
 				"en": "Log-compress empty lead/trail on the time bar past first/last pictogram",
-				"de": "Leere Vor-/Nachlaufzeiten am Zeitbalken logarithmisch komprimiert"
+				"de": "Leere Vor-/Nachlaufzeiten am Zeitbalken logarithmisch komprimiert",
+				"ru": "Логарифмическое сжатие пустых участков шкалы времени",
+				"pt": "Compressão logarítmica de espaços vazios na barra temporal",
+				"nl": "Log-compressie van lege ruimte op tijdbalk",
+				"fr": "Compression log des marges vides sur la barre temporelle",
+				"it": "Compressione log degli spazi vuoti sulla barra temporale",
+				"es": "Compresión log de huecos en la barra de tiempo",
+				"pl": "Logarytmiczna kompresja pustych odcinków paska czasu",
+				"uk": "Логарифмічне стиснення порожніх ділянок часової шкали",
+				"zh-cn": "时间条首尾空白对数压缩"
 			},
 			"0.1.7": {
 				"en": "Fix period toggles; keep fixed pictogram size and grow period bar instead",
-				"de": "Tagesbereich-Schalter repariert; feste Piktogramm-Größe, Balken wächst bei kurzen Zeiten"
+				"de": "Tagesbereich-Schalter repariert; feste Piktogramm-Größe, Balken wächst bei kurzen Zeiten",
+				"ru": "Исправлены переключатели периодов; фиксированный размер пиктограмм",
+				"pt": "Correção dos interruptores de período; tamanho fixo dos pictogramas",
+				"nl": "Periode-schakelaars gerepareerd; vaste pictogramgrootte",
+				"fr": "Interrupteurs de période corrigés; taille fixe des pictogrammes",
+				"it": "Corretti interruttori periodo; dimensione pittogrammi fissa",
+				"es": "Corregidos interruptores de periodo; tamaño fijo de pictogramas",
+				"pl": "Naprawiono przełączniki okresów; stały rozmiar piktogramów",
+				"uk": "Виправлено перемикачі періодів; фіксований розмір пiktogram",
+				"zh-cn": "修复时段开关；固定 pictogram 尺寸"
 			},
 			"0.1.6": {
 				"en": "Shared scroll; no duplicate pictograms; thin time border; 2-column overlaps",
-				"de": "Gemeinsames Scrollen; keine doppelten Piktogramme; dünner Zeitrahmen; 2 Spalten bei Überlappung"
+				"de": "Gemeinsames Scrollen; keine doppelten Piktogramme; dünner Zeitrahmen; 2 Spalten bei Überlappung",
+				"ru": "Общая прокрутка; без дубликатов; тонкая рамка; 2 колонки при пересечении",
+				"pt": "Scroll partilhado; sem pictogramas duplicados; 2 colunas em sobreposição",
+				"nl": "Gedeeld scrollen; geen dubbele pictogrammen; 2 kolommen bij overlap",
+				"fr": "Défilement partagé; pas de doublons; 2 colonnes si chevauchement",
+				"it": "Scroll condiviso; niente duplicati; 2 colonne se sovrapposti",
+				"es": "Scroll compartido; sin pictogramas duplicados; 2 columnas si solapan",
+				"pl": "Wspólne przewijanie; bez duplikatów; 2 kolumny przy nakładaniu",
+				"uk": "Спільна прокрутка; без дублікатів; 2 колонки при перетині",
+				"zh-cn": "共享滚动；无重复 pictogram；重叠时双列"
 			},
 			"0.1.5": {
 				"en": "Stretch period bar by pictogram count; now marker stays clock-accurate per period",
-				"de": "Tagesbereich-Balken nach Piktogramm-Anzahl gestreckt; Jetzt-Marker bleibt zeitlich korrekt"
-			},
-			"0.1.4": {
-				"en": "Fix schedule bar: time-proportional layout with gaps and period boundaries",
-				"de": "Zeitbalken korrigiert: zeitproportionale Anordnung inkl. Lücken und Tagesbereiche"
-			},
-			"0.1.3": {
-				"en": "Time bar follows pictogram times/count; toggle day periods in Config",
-				"de": "Zeitbalken folgt Piktogramm-Zeiten/Anzahl; Tagesbereiche im Config ein/aus"
-			},
-			"0.1.2": {
-				"en": "Fix ARASAAC search thumbnails; configurable pictogram size",
-				"de": "ARASAAC-Suchvorschaubilder repariert; Piktogramm-Größe einstellbar"
-			},
-			"0.1.1": {
-				"en": "Daily schedule with time bar, day periods, ARASAAC (external) + custom pictograms",
-				"de": "Tagesplan mit Zeitbalken, Tagesbereiche, ARASAAC (extern) + eigene Piktogramme"
-			},
-			"0.0.17": {
-				"en": "Geometry-aligned segment ticks; optional colored border",
-				"de": "Segmentstriche an Geometrie; optionaler farbiger Rahmen"
-			},
-			"0.0.16": {
-				"en": "Remaining color uses circular wipe from center (no odd edge shapes)",
-				"de": "Restfarbe verschwindet kreisförmig vom Zentrum (keine kantigen Restformen)"
-			},
-			"0.0.15": {
-				"en": "Icons updated to square default geometry",
-				"de": "Icons an Standard-Geometrie Quadrat angepasst"
-			},
-			"0.0.14": {
-				"en": "Configurable geometry (square default; no full circle)",
-				"de": "Geometrie wählbar (Standard Quadrat; kein voller Kreis)"
-			},
-			"0.0.13": {
-				"en": "Square ring ends, no outer clipping; 100% width = filled disc",
-				"de": "Eckige Ringenden, kein Abschneiden außen; 100% Breite = Scheibe"
-			},
-			"0.0.12": {
-				"en": "Configurable ring width (default twice as thick)",
-				"de": "Ringbreite einstellbar (Standard doppelt so dick)"
-			},
-			"0.0.11": {
-				"en": "New ring design with orange default color (configurable) to avoid Time Timer look-alike",
-				"de": "Neues Ring-Design mit orange als Standardfarbe (anpassbar), ohne Time-Timer-Ähnlichkeit"
-			},
-			"0.0.10": {
-				"en": "Rename Time Timer to Visual Countdown",
-				"de": "Umbenennung Time Timer in Visual Countdown"
-			},
-			"0.0.9": {
-				"en": "Fix CI lint errors (JSDoc/prettier)",
-				"de": "CI-Lint-Fehler behoben (JSDoc/Prettier)"
-			},
-			"0.0.8": {
-				"en": "New adapter icon: Visual Countdown circle at 45 minutes",
-				"de": "Neues Adapter-Icon: Visual-Countdown-Kreisdiagramm mit 45 Minuten"
+				"de": "Tagesbereich-Balken nach Piktogramm-Anzahl gestreckt; Jetzt-Marker bleibt zeitlich korrekt",
+				"ru": "Шкала периода по числу пиктограмм; маркер «сейчас» точен",
+				"pt": "Barra de período por número de pictogramas; marcador agora preciso",
+				"nl": "Periodebalk naar aantal pictogrammen; nu-marker klopt met klok",
+				"fr": "Barre de période selon pictogrammes; marqueur maintenant précis",
+				"it": "Barra periodo per numero pittogrammi; indicatore ora preciso",
+				"es": "Barra de periodo según pictogramas; marcador ahora preciso",
+				"pl": "Pasek okresu wg liczby piktogramów; znacznik teraz dokładny",
+				"uk": "Смуга періоду за кількістю пiktogram; маркер «зараз» точний",
+				"zh-cn": "按 pictogram 数量拉伸时段条；现在标记保持时钟准确"
 			}
 		},
 		"titleLang": {
@@ -138,6 +149,8 @@
 		],
 		"mode": "daemon",
 		"type": "general",
+		"connectionType": "local",
+		"dataSource": "poll",
 		"compact": true,
 		"messagebox": true,
 		"adminUI": {
@@ -208,7 +221,7 @@
 		],
 		"globalDependencies": [
 			{
-				"admin": ">=7.0.23"
+				"admin": ">=7.6.17"
 			}
 		]
 	},

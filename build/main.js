@@ -55,15 +55,21 @@ class AutismSupport extends utils.Adapter {
     this.dayPeriods = (0, import_day_periods.dayPeriodsFromConfig)(this.config);
     await this.createTimerStates();
     await this.createScheduleStates();
-    this.timerManager = new import_timer_manager.TimerManager(async (snapshot) => {
-      await this.publishTimerSnapshot(snapshot);
-    });
+    this.timerManager = new import_timer_manager.TimerManager(
+      async (snapshot) => {
+        await this.publishTimerSnapshot(snapshot);
+      },
+      {
+        setInterval: (handler, ms) => this.setInterval(handler, ms),
+        clearInterval: (handle) => this.clearInterval(handle)
+      }
+    );
     await this.timerManager.setDuration(defaultSeconds, maxHours);
     await this.publishTimerSnapshot(this.timerManager.getSnapshot());
     await this.publishScheduleRuntime();
     this.subscribeStates(`${this.namespace}.${TIMER_CHANNEL}.*`);
     this.subscribeStates(`${this.namespace}.${SCHEDULE_CHANNEL}.*`);
-    this.scheduleTick = setInterval(() => {
+    this.scheduleTick = this.setInterval(() => {
       void this.publishScheduleRuntime();
     }, 3e4);
     this.log.info("Autism Support adapter ready \u2013 Visual Countdown + Daily Schedule");
@@ -488,8 +494,8 @@ class AutismSupport extends utils.Adapter {
   }
   onUnload(callback) {
     var _a;
-    if (this.scheduleTick) {
-      clearInterval(this.scheduleTick);
+    if (this.scheduleTick !== void 0 && this.scheduleTick !== null) {
+      this.clearInterval(this.scheduleTick);
       this.scheduleTick = null;
     }
     (_a = this.timerManager) == null ? void 0 : _a.destroy();
