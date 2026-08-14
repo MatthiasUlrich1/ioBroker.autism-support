@@ -105,28 +105,40 @@
 					"label": "period_enabled",
 					"default": true,
 					"xs": 12,
-					"sm": 3
+					"sm": 3,
+					"md": 3,
+					"lg": 3,
+					"xl": 3
 				},
 				"periodMorningStart": {
 					"type": "text",
 					"label": "period_start",
 					"default": "06:00",
 					"xs": 12,
-					"sm": 3
+					"sm": 3,
+					"md": 3,
+					"lg": 3,
+					"xl": 3
 				},
 				"periodMorningEnd": {
 					"type": "text",
 					"label": "period_end",
 					"default": "09:00",
 					"xs": 12,
-					"sm": 3
+					"sm": 3,
+					"md": 3,
+					"lg": 3,
+					"xl": 3
 				},
 				"periodMorningColor": {
 					"type": "color",
 					"label": "period_color",
 					"default": "#FFE082",
 					"xs": 12,
-					"sm": 3
+					"sm": 3,
+					"md": 3,
+					"lg": 3,
+					"xl": 3
 				},
 
 				"_forenoonHeader": {
@@ -145,28 +157,40 @@
 					"label": "period_enabled",
 					"default": true,
 					"xs": 12,
-					"sm": 3
+					"sm": 3,
+					"md": 3,
+					"lg": 3,
+					"xl": 3
 				},
 				"periodForenoonStart": {
 					"type": "text",
 					"label": "period_start",
 					"default": "09:00",
 					"xs": 12,
-					"sm": 3
+					"sm": 3,
+					"md": 3,
+					"lg": 3,
+					"xl": 3
 				},
 				"periodForenoonEnd": {
 					"type": "text",
 					"label": "period_end",
 					"default": "12:00",
 					"xs": 12,
-					"sm": 3
+					"sm": 3,
+					"md": 3,
+					"lg": 3,
+					"xl": 3
 				},
 				"periodForenoonColor": {
 					"type": "color",
 					"label": "period_color",
 					"default": "#FFCC80",
 					"xs": 12,
-					"sm": 3
+					"sm": 3,
+					"md": 3,
+					"lg": 3,
+					"xl": 3
 				},
 
 				"_noonHeader": {
@@ -185,28 +209,40 @@
 					"label": "period_enabled",
 					"default": true,
 					"xs": 12,
-					"sm": 3
+					"sm": 3,
+					"md": 3,
+					"lg": 3,
+					"xl": 3
 				},
 				"periodNoonStart": {
 					"type": "text",
 					"label": "period_start",
 					"default": "12:00",
 					"xs": 12,
-					"sm": 3
+					"sm": 3,
+					"md": 3,
+					"lg": 3,
+					"xl": 3
 				},
 				"periodNoonEnd": {
 					"type": "text",
 					"label": "period_end",
 					"default": "14:00",
 					"xs": 12,
-					"sm": 3
+					"sm": 3,
+					"md": 3,
+					"lg": 3,
+					"xl": 3
 				},
 				"periodNoonColor": {
 					"type": "color",
 					"label": "period_color",
 					"default": "#FFAB91",
 					"xs": 12,
-					"sm": 3
+					"sm": 3,
+					"md": 3,
+					"lg": 3,
+					"xl": 3
 				},
 
 				"_afternoonHeader": {
@@ -225,28 +261,40 @@
 					"label": "period_enabled",
 					"default": true,
 					"xs": 12,
-					"sm": 3
+					"sm": 3,
+					"md": 3,
+					"lg": 3,
+					"xl": 3
 				},
 				"periodAfternoonStart": {
 					"type": "text",
 					"label": "period_start",
 					"default": "14:00",
 					"xs": 12,
-					"sm": 3
+					"sm": 3,
+					"md": 3,
+					"lg": 3,
+					"xl": 3
 				},
 				"periodAfternoonEnd": {
 					"type": "text",
 					"label": "period_end",
 					"default": "17:00",
 					"xs": 12,
-					"sm": 3
+					"sm": 3,
+					"md": 3,
+					"lg": 3,
+					"xl": 3
 				},
 				"periodAfternoonColor": {
 					"type": "color",
 					"label": "period_color",
 					"default": "#81C784",
 					"xs": 12,
-					"sm": 3
+					"sm": 3,
+					"md": 3,
+					"lg": 3,
+					"xl": 3
 				},
 
 				"_eveningHeader": {
@@ -265,28 +313,40 @@
 					"label": "period_enabled",
 					"default": true,
 					"xs": 12,
-					"sm": 3
+					"sm": 3,
+					"md": 3,
+					"lg": 3,
+					"xl": 3
 				},
 				"periodEveningStart": {
 					"type": "text",
 					"label": "period_start",
 					"default": "17:00",
 					"xs": 12,
-					"sm": 3
+					"sm": 3,
+					"md": 3,
+					"lg": 3,
+					"xl": 3
 				},
 				"periodEveningEnd": {
 					"type": "text",
 					"label": "period_end",
 					"default": "21:00",
 					"xs": 12,
-					"sm": 3
+					"sm": 3,
+					"md": 3,
+					"lg": 3,
+					"xl": 3
 				},
 				"periodEveningColor": {
 					"type": "color",
 					"label": "period_color",
 					"default": "#7986CB",
 					"xs": 12,
-					"sm": 3
+					"sm": 3,
+					"md": 3,
+					"lg": 3,
+					"xl": 3
 				},
 
 				"_nightHeader": {
@@ -305,28 +365,40 @@
 					"label": "period_enabled",
 					"default": true,
 					"xs": 12,
-					"sm": 3
+					"sm": 3,
+					"md": 3,
+					"lg": 3,
+					"xl": 3
 				},
 				"periodNightStart": {
 					"type": "text",
 					"label": "period_start",
 					"default": "21:00",
 					"xs": 12,
-					"sm": 3
+					"sm": 3,
+					"md": 3,
+					"lg": 3,
+					"xl": 3
 				},
 				"periodNightEnd": {
 					"type": "text",
 					"label": "period_end",
 					"default": "06:00",
 					"xs": 12,
-					"sm": 3
+					"sm": 3,
+					"md": 3,
+					"lg": 3,
+					"xl": 3
 				},
 				"periodNightColor": {
 					"type": "color",
 					"label": "period_color",
 					"default": "#5C6BC0",
 					"xs": 12,
-					"sm": 3
+					"sm": 3,
+					"md": 3,
+					"lg": 3,
+					"xl": 3
 				},
 				"_nightWrapHint": {
 					"type": "staticText",

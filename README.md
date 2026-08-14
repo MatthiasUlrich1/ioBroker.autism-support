@@ -79,6 +79,9 @@ npm run start
 
 See [CHANGELOG_OLD.md](CHANGELOG_OLD.md) for older entries.
 
+### 0.1.12
+- Fix ioBroker repository checker issues (admin UI sizes, README license, CI Node 24)
+
 ### 0.1.11
 - Fix ioBroker repository checker issues (admin UI, workflows, metadata)
 
@@ -100,7 +103,13 @@ See [CHANGELOG_OLD.md](CHANGELOG_OLD.md) for older entries.
 ### 0.1.5
 - Stretch period bar by pictogram count; clock-accurate now marker
 
+## Author
+
+Matthias Ulrich ([@MatthiasUlrich1](https://github.com/MatthiasUlrich1))
+
 ## License
+
+Copyright (c) 2026 Matthias Ulrich <MatthiasUlrich1@gmail.com>
 
 ### This adapter
 
@@ -125,7 +134,3 @@ Official terms: [ARASAAC Terms of Use](https://aulaabierta.arasaac.org/en/terms-
 ### Custom / uploaded pictograms
 
 You are responsible for having the required rights for uploads. The adapter stores files locally in the instance only; they are not shipped in the npm/GitHub package.
-
-## Author
-
-Matthias Ulrich ([@MatthiasUlrich1](https://github.com/MatthiasUlrich1))

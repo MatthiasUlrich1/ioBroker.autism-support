@@ -1,8 +1,21 @@
 {
 	"common": {
 		"name": "autism-support",
-		"version": "0.1.11",
+		"version": "0.1.12",
 		"news": {
+			"0.1.12": {
+				"en": "Repository checker fixes: admin UI sizes, README license, CI Node 24",
+				"de": "Repository-Checker: Admin-UI-Größen, README-Lizenz, CI Node 24",
+				"ru": "Исправления repository checker: размеры admin UI, лицензия README, CI Node 24",
+				"pt": "Correções do repository checker: tamanhos admin UI, licença README, CI Node 24",
+				"nl": "Repository-checker fixes: admin UI groottes, README-licentie, CI Node 24",
+				"fr": "Corrections repository checker: tailles admin UI, licence README, CI Node 24",
+				"it": "Correzioni repository checker: dimensioni admin UI, licenza README, CI Node 24",
+				"es": "Correcciones repository checker: tamaños admin UI, licencia README, CI Node 24",
+				"pl": "Poprawki repository checker: rozmiary admin UI, licencja README, CI Node 24",
+				"uk": "Виправлення repository checker: розміри admin UI, ліцензія README, CI Node 24",
+				"zh-cn": "修复仓库检查器：管理界面尺寸、README 许可证、CI Node 24"
+			},
 			"0.1.11": {
 				"en": "Fix repository checker issues; admin UI and CI workflow updates",
 				"de": "Repository-Checker-Meldungen behoben; Admin-UI und CI-Workflow aktualisiert",
@@ -28,71 +41,6 @@
 				"pl": "Naprawiono pole auto-czyszczenia; aktywne piktogram wg czasu",
 				"uk": "Виправлено прапорець автоочищення; активний пiktogram за часом",
 				"zh-cn": "修复到期自动清除复选框；按当前时间高亮活动 pictogram"
-			},
-			"0.1.9": {
-				"en": "Schedule reset with confirm; optional auto-clear after last pictogram",
-				"de": "Tagesplan-Reset mit Bestätigung; optional automatisch nach letztem Piktogramm löschen",
-				"ru": "Сброс расписания с подтверждением; опциональная автоочистка",
-				"pt": "Repor horário com confirmação; limpeza automática opcional",
-				"nl": "Planning reset met bevestiging; optioneel auto-wissen na laatste pictogram",
-				"fr": "Réinitialisation avec confirmation; effacement auto optionnel",
-				"it": "Reset programma con conferma; auto-cancellazione opzionale",
-				"es": "Reinicio del plan con confirmación; borrado automático opcional",
-				"pl": "Reset planu z potwierdzeniem; opcjonalne auto-czyszczenie",
-				"uk": "Скидання плану з підтвердженням; опційне автоочищення",
-				"zh-cn": "带确认的日程重置；可选在最后 pictogram 后自动清除"
-			},
-			"0.1.8": {
-				"en": "Log-compress empty lead/trail on the time bar past first/last pictogram",
-				"de": "Leere Vor-/Nachlaufzeiten am Zeitbalken logarithmisch komprimiert",
-				"ru": "Логарифмическое сжатие пустых участков шкалы времени",
-				"pt": "Compressão logarítmica de espaços vazios na barra temporal",
-				"nl": "Log-compressie van lege ruimte op tijdbalk",
-				"fr": "Compression log des marges vides sur la barre temporelle",
-				"it": "Compressione log degli spazi vuoti sulla barra temporale",
-				"es": "Compresión log de huecos en la barra de tiempo",
-				"pl": "Logarytmiczna kompresja pustych odcinków paska czasu",
-				"uk": "Логарифмічне стиснення порожніх ділянок часової шкали",
-				"zh-cn": "时间条首尾空白对数压缩"
-			},
-			"0.1.7": {
-				"en": "Fix period toggles; keep fixed pictogram size and grow period bar instead",
-				"de": "Tagesbereich-Schalter repariert; feste Piktogramm-Größe, Balken wächst bei kurzen Zeiten",
-				"ru": "Исправлены переключатели периодов; фиксированный размер пиктограмм",
-				"pt": "Correção dos interruptores de período; tamanho fixo dos pictogramas",
-				"nl": "Periode-schakelaars gerepareerd; vaste pictogramgrootte",
-				"fr": "Interrupteurs de période corrigés; taille fixe des pictogrammes",
-				"it": "Corretti interruttori periodo; dimensione pittogrammi fissa",
-				"es": "Corregidos interruptores de periodo; tamaño fijo de pictogramas",
-				"pl": "Naprawiono przełączniki okresów; stały rozmiar piktogramów",
-				"uk": "Виправлено перемикачі періодів; фіксований розмір пiktogram",
-				"zh-cn": "修复时段开关；固定 pictogram 尺寸"
-			},
-			"0.1.6": {
-				"en": "Shared scroll; no duplicate pictograms; thin time border; 2-column overlaps",
-				"de": "Gemeinsames Scrollen; keine doppelten Piktogramme; dünner Zeitrahmen; 2 Spalten bei Überlappung",
-				"ru": "Общая прокрутка; без дубликатов; тонкая рамка; 2 колонки при пересечении",
-				"pt": "Scroll partilhado; sem pictogramas duplicados; 2 colunas em sobreposição",
-				"nl": "Gedeeld scrollen; geen dubbele pictogrammen; 2 kolommen bij overlap",
-				"fr": "Défilement partagé; pas de doublons; 2 colonnes si chevauchement",
-				"it": "Scroll condiviso; niente duplicati; 2 colonne se sovrapposti",
-				"es": "Scroll compartido; sin pictogramas duplicados; 2 columnas si solapan",
-				"pl": "Wspólne przewijanie; bez duplikatów; 2 kolumny przy nakładaniu",
-				"uk": "Спільна прокрутка; без дублікатів; 2 колонки при перетині",
-				"zh-cn": "共享滚动；无重复 pictogram；重叠时双列"
-			},
-			"0.1.5": {
-				"en": "Stretch period bar by pictogram count; now marker stays clock-accurate per period",
-				"de": "Tagesbereich-Balken nach Piktogramm-Anzahl gestreckt; Jetzt-Marker bleibt zeitlich korrekt",
-				"ru": "Шкала периода по числу пиктограмм; маркер «сейчас» точен",
-				"pt": "Barra de período por número de pictogramas; marcador agora preciso",
-				"nl": "Periodebalk naar aantal pictogrammen; nu-marker klopt met klok",
-				"fr": "Barre de période selon pictogrammes; marqueur maintenant précis",
-				"it": "Barra periodo per numero pittogrammi; indicatore ora preciso",
-				"es": "Barra de periodo según pictogramas; marcador ahora preciso",
-				"pl": "Pasek okresu wg liczby piktogramów; znacznik teraz dokładny",
-				"uk": "Смуга періоду за кількістю пiktogram; маркер «зараз» точний",
-				"zh-cn": "按 pictogram 数量拉伸时段条；现在标记保持时钟准确"
 			}
 		},
 		"titleLang": {
@@ -221,7 +169,7 @@
 		],
 		"globalDependencies": [
 			{
-				"admin": ">=7.6.17"
+				"admin": ">=7.6.20"
 			}
 		]
 	},

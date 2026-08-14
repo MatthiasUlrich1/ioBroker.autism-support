@@ -2,6 +2,21 @@
 
 Entries moved here when removed from `io-package.json` (repository builder keeps at most 7 news items).
 
+## 0.1.9
+- Schedule reset with confirmation; optional auto-clear after last pictogram
+
+## 0.1.8
+- Log-compress empty lead/trail on the time bar past first/last pictogram
+
+## 0.1.7
+- Fix period toggles; fixed pictogram size, period bar grows for short spans
+
+## 0.1.6
+- Shared scroll; no duplicate pictograms; thin time border; 2-column overlaps
+
+## 0.1.5
+- Stretch period bar by pictogram count; clock-accurate now marker
+
 ## 0.1.4
 - Fix schedule bar: time-proportional layout with gaps and period boundaries
 
