@@ -46,6 +46,20 @@ export function parseTimeToMinutes(value: string): number {
 	return h * 60 + m;
 }
 
+/** True when clock time falls inside the item's [start, end) window (supports overnight). */
+export function isItemActiveAt(item: ScheduleItem, nowMinutes: number): boolean {
+	const s = parseTimeToMinutes(item.start);
+	const e = parseTimeToMinutes(item.end);
+	const t = ((nowMinutes % 1440) + 1440) % 1440;
+	if (s === e) {
+		return false;
+	}
+	if (s < e) {
+		return t >= s && t < e;
+	}
+	return t >= s || t < e;
+}
+
 export function parseSchedulePlan(raw: unknown): SchedulePlan {
 	try {
 		const data = typeof raw === "string" ? JSON.parse(raw) : raw;

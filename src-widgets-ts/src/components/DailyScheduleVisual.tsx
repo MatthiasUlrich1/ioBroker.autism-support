@@ -9,13 +9,13 @@ import {
 	type SchedulePlan,
 	parseTimeToMinutes,
 	resolveItemImageUrl,
+	isItemActiveAt,
 } from "../lib/schedule";
 
 export interface DailyScheduleVisualProps {
 	plan: SchedulePlan;
 	periods: DayPeriodDefinition[];
 	nowMinutes: number;
-	currentItemIndex: number;
 	adapterInstance?: string;
 	locale?: string;
 	/** Pictogram display size in px (default 64). */
@@ -373,12 +373,12 @@ export function buildScheduleLayout(
 function renderItemCard(
 	placement: ItemPlacement,
 	laneCount: number,
-	currentItemIndex: number,
+	nowMinutes: number,
 	adapterInstance: string,
 	pictoPx: number,
 ): React.JSX.Element {
-	const { item, itemIndex, topPx, heightPx, lane } = placement;
-	const active = itemIndex === currentItemIndex;
+	const { item, topPx, heightPx, lane } = placement;
+	const active = isItemActiveAt(item, nowMinutes);
 	const img = resolveItemImageUrl(item, adapterInstance);
 	const widthPct = 100 / laneCount;
 	const leftPct = lane * widthPct;
@@ -457,7 +457,6 @@ export default function DailyScheduleVisual({
 	plan,
 	periods,
 	nowMinutes,
-	currentItemIndex,
 	adapterInstance = "autism-support.0",
 	locale = "de",
 	pictogramSize = 64,
@@ -518,7 +517,7 @@ export default function DailyScheduleVisual({
 									{renderItemCard(
 										placement,
 										laneCount,
-										currentItemIndex,
+										nowMinutes,
 										adapterInstance,
 										pictoPx,
 									)}

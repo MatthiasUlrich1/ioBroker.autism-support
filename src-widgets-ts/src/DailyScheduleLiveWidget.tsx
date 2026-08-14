@@ -116,9 +116,6 @@ export default class DailyScheduleLiveWidget extends (window.visRxWidget as type
 		const overrides = parsePeriodOverrides(this.state.values[`${overridesOid}.val`]);
 		const periods = applyPeriodOverrides(basePeriods, overrides);
 		const nowMinutes = Number(this.state.values[`${this.state.rxData.oidNowMinutes}.val`] ?? 0);
-		const currentItemIndex = Number(
-			this.state.values[`${this.state.rxData.oidCurrentItemIndex}.val`] ?? -1,
-		);
 
 		return (
 			<Box sx={{ width: "100%", height: "100%", bgcolor: "transparent" }}>
@@ -126,7 +123,6 @@ export default class DailyScheduleLiveWidget extends (window.visRxWidget as type
 					plan={plan}
 					periods={periods}
 					nowMinutes={nowMinutes}
-					currentItemIndex={currentItemIndex}
 					adapterInstance={this.state.rxData.adapterInstance || "autism-support.0"}
 					pictogramSize={Number(this.state.rxData.pictogramSize) || 64}
 					locale={this.props.context?.lang || "de"}

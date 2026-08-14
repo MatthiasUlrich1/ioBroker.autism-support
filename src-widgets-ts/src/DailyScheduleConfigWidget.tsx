@@ -50,6 +50,8 @@ interface DailyScheduleConfigState extends VisRxWidgetState {
 	busy: boolean;
 	/** Optimistic day-period on/off until ioBroker state catches up. */
 	localPeriodOverrides: Record<string, boolean>;
+	/** Optimistic clear-after-last toggle until ioBroker state catches up. */
+	localClearAfterLast?: boolean;
 }
 
 function newItem(): ScheduleItem {
@@ -172,6 +174,7 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 	componentDidMount(): void {
 		super.componentDidMount();
 		this.syncDraftFromState();
+		void this.bootstrapClearAfterLast();
 	}
 
 	onStateUpdated(id: string, _state: ioBroker.State | null | undefined): void {
@@ -191,6 +194,13 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 				}
 				return { localPeriodOverrides: nextLocal };
 			});
+		}
+		const clearAfterLastOid = this.getClearAfterLastOid();
+		if (id === clearAfterLastOid) {
+			const server = Boolean(this.state.values[`${clearAfterLastOid}.val`]);
+			this.setState(prev => ({
+				localClearAfterLast: prev.localClearAfterLast === server ? undefined : prev.localClearAfterLast,
+			}));
 		}
 	}
 
@@ -239,6 +249,30 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 		);
 	}
 
+	private getClearAfterLastChecked(): boolean {
+		if (this.state.localClearAfterLast !== undefined) {
+			return this.state.localClearAfterLast;
+		}
+		const oid = this.getClearAfterLastOid();
+		return Boolean(this.state.values[`${oid}.val`]);
+	}
+
+	private async bootstrapClearAfterLast(): Promise<void> {
+		const oid = this.getClearAfterLastOid();
+		const socket = this.props.context?.socket;
+		if (!oid || !socket || this.state.values[`${oid}.val`] !== undefined) {
+			return;
+		}
+		try {
+			const state = await socket.getState(oid);
+			if (state?.val !== undefined && state?.val !== null) {
+				this.setState({ localClearAfterLast: Boolean(state.val) });
+			}
+		} catch {
+			// Widget still works via optimistic toggle even if initial read fails.
+		}
+	}
+
 	private async resetPlan(): Promise<void> {
 		const lang = this.props.context?.lang || "de";
 		const message = lang.startsWith("de")
@@ -261,10 +295,12 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 
 	private async setClearAfterLast(enabled: boolean): Promise<void> {
 		const oid = this.getClearAfterLastOid();
+		this.setState({ localClearAfterLast: enabled });
 		try {
 			await this.props.context.socket.setState(oid, enabled, false);
 		} catch (error) {
 			this.setState({
+				localClearAfterLast: undefined,
 				searchError: (error as Error).message || "Option konnte nicht gespeichert werden",
 			});
 		}
@@ -358,9 +394,6 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 		const overrides = this.getMergedPeriodOverrides();
 		const periods = applyPeriodOverrides(basePeriods, overrides);
 		const nowMinutes = Number(this.state.values[`${this.state.rxData.oidNowMinutes}.val`] ?? 0);
-		const currentItemIndex = Number(
-			this.state.values[`${this.state.rxData.oidCurrentItemIndex}.val`] ?? -1,
-		);
 		const selected =
 			this.state.selectedIndex >= 0 ? this.state.draft.items[this.state.selectedIndex] : null;
 
@@ -426,9 +459,7 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 							control={
 								<Checkbox
 									size="small"
-									checked={Boolean(
-										this.state.values[`${this.getClearAfterLastOid()}.val`],
-									)}
+									checked={this.getClearAfterLastChecked()}
 									onChange={(_, checked) => void this.setClearAfterLast(checked)}
 								/>
 							}
@@ -657,7 +688,6 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 							plan={this.state.draft}
 							periods={periods}
 							nowMinutes={nowMinutes}
-							currentItemIndex={currentItemIndex}
 							adapterInstance={this.state.rxData.adapterInstance || "autism-support.0"}
 							pictogramSize={Number(this.state.rxData.pictogramSize) || 64}
 							locale={this.props.context?.lang || "de"}

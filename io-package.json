@@ -1,8 +1,12 @@
 {
 	"common": {
 		"name": "autism-support",
-		"version": "0.1.9",
+		"version": "0.1.10",
 		"news": {
+			"0.1.10": {
+				"en": "Fix clear-after-last checkbox; highlight active pictogram by current time",
+				"de": "Checkbox „Plan nach Ablauf löschen“ repariert; aktives Piktogramm nach Uhrzeit hervorgehoben"
+			},
 			"0.1.9": {
 				"en": "Schedule reset with confirm; optional auto-clear after last pictogram",
 				"de": "Tagesplan-Reset mit Bestätigung; optional automatisch nach letztem Piktogramm löschen"
