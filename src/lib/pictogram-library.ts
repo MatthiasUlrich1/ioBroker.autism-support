@@ -4,12 +4,17 @@
  */
 
 export const PICTOGRAM_FILE_ADAPTER = "vis-2.0";
-/** vis-2 project folder (created by the adapter / vis-2 setup). */
+/** vis-2 project folder (created by vis-2 when the project is set up). */
 export const VIS_PROJECT = "Autismus Unterstützung";
 export const PICTOGRAM_SUBFOLDER = "pictograms";
-/** Path inside vis-2.0, e.g. Autismus Unterstützung/pictograms */
+/** Path inside vis-2.0 for image files, e.g. Autismus Unterstützung/pictograms */
 export const PICTOGRAM_DIR = `${VIS_PROJECT}/${PICTOGRAM_SUBFOLDER}`;
-export const LIBRARY_FILE = `${PICTOGRAM_DIR}/_library.json`;
+/** Library metadata lives in the adapter file store (not vis-2). */
+export const ADAPTER_LIBRARY_FILE = "pictograms/_library.json";
+/** Visible placeholder so the vis-2 folder shows up in Admin file manager. */
+export const PICTOGRAM_PLACEHOLDER_FILE = "HIER_BILDER_HOCHLADEN.txt";
+/** @deprecated Legacy vis-2 library path – removed on startup. */
+export const LEGACY_VIS_LIBRARY_FILE = `${PICTOGRAM_DIR}/_library.json`;
 /** Legacy path from versions before 0.1.21. */
 export const LEGACY_PICTOGRAM_DIR = "main/autism-support/pictograms";
 
@@ -35,6 +40,10 @@ export function emptyLibrary(): PictogramLibrary {
 
 export function pictogramStoragePath(filename: string): string {
 	return `${PICTOGRAM_DIR}/${filename}`;
+}
+
+export function isIgnoredPictogramFile(filename: string): boolean {
+	return filename === "_library.json" || filename === PICTOGRAM_PLACEHOLDER_FILE || filename.startsWith(".");
 }
 
 /** Public URL as used in vis-2 views, e.g. /vis-2.0/Autismus Unterstützung/pictograms/foo.png */

@@ -1,8 +1,21 @@
 {
 	"common": {
 		"name": "autism-support",
-		"version": "0.1.21",
+		"version": "0.1.22",
 		"news": {
+			"0.1.22": {
+				"en": "Fix pictogram folder: library in adapter store, placeholder in vis-2; remove broken _library.json",
+				"de": "Piktogramm-Ordner repariert: Metadaten im Adapter, Platzhalter in vis-2; _library.json entfernt",
+				"ru": "Исправлена папка pictogram: метаданные в адаптере, vis-2 placeholder",
+				"pt": "Corrigida pasta pictogramas: metadados no adaptador, placeholder vis-2",
+				"nl": "Pictogrammap gerepareerd: metadata in adapter, placeholder in vis-2",
+				"fr": "Dossier pictogrammes corrige: metadonnees dans adaptateur, placeholder vis-2",
+				"it": "Cartella pittogrammi corretta: metadati nell adapter, placeholder vis-2",
+				"es": "Carpeta pictogramas corregida: metadatos en adaptador, placeholder vis-2",
+				"pl": "Naprawiono folder piktogramow: metadane w adapterze, placeholder vis-2",
+				"uk": "Виправлено папку pictogram: метадані в адаптері, placeholder vis-2",
+				"zh-cn": "修复象形图文件夹：元数据在适配器，vis-2 占位文件"
+			},
 			"0.1.21": {
 				"en": "Pictogram path: vis-2.0/Autismus Unterstützung/pictograms; auto-create folder",
 				"de": "Piktogramm-Pfad: vis-2.0/Autismus Unterstützung/pictograms; Ordner wird automatisch angelegt",

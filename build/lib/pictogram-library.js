@@ -18,14 +18,17 @@ var __copyProps = (to, from, except, desc) => {
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 var pictogram_library_exports = {};
 __export(pictogram_library_exports, {
+  ADAPTER_LIBRARY_FILE: () => ADAPTER_LIBRARY_FILE,
   LEGACY_PICTOGRAM_DIR: () => LEGACY_PICTOGRAM_DIR,
-  LIBRARY_FILE: () => LIBRARY_FILE,
+  LEGACY_VIS_LIBRARY_FILE: () => LEGACY_VIS_LIBRARY_FILE,
   PICTOGRAM_DIR: () => PICTOGRAM_DIR,
   PICTOGRAM_FILE_ADAPTER: () => PICTOGRAM_FILE_ADAPTER,
+  PICTOGRAM_PLACEHOLDER_FILE: () => PICTOGRAM_PLACEHOLDER_FILE,
   PICTOGRAM_SUBFOLDER: () => PICTOGRAM_SUBFOLDER,
   VIS_PROJECT: () => VIS_PROJECT,
   emptyLibrary: () => emptyLibrary,
   fileRefToPath: () => fileRefToPath,
+  isIgnoredPictogramFile: () => isIgnoredPictogramFile,
   libraryFromNativeRows: () => libraryFromNativeRows,
   matchesPictogramKey: () => matchesPictogramKey,
   matchesPictogramQuery: () => matchesPictogramQuery,
@@ -42,13 +45,18 @@ const PICTOGRAM_FILE_ADAPTER = "vis-2.0";
 const VIS_PROJECT = "Autismus Unterst\xFCtzung";
 const PICTOGRAM_SUBFOLDER = "pictograms";
 const PICTOGRAM_DIR = `${VIS_PROJECT}/${PICTOGRAM_SUBFOLDER}`;
-const LIBRARY_FILE = `${PICTOGRAM_DIR}/_library.json`;
+const ADAPTER_LIBRARY_FILE = "pictograms/_library.json";
+const PICTOGRAM_PLACEHOLDER_FILE = "HIER_BILDER_HOCHLADEN.txt";
+const LEGACY_VIS_LIBRARY_FILE = `${PICTOGRAM_DIR}/_library.json`;
 const LEGACY_PICTOGRAM_DIR = "main/autism-support/pictograms";
 function emptyLibrary() {
   return { version: 1, items: [] };
 }
 function pictogramStoragePath(filename) {
   return `${PICTOGRAM_DIR}/${filename}`;
+}
+function isIgnoredPictogramFile(filename) {
+  return filename === "_library.json" || filename === PICTOGRAM_PLACEHOLDER_FILE || filename.startsWith(".");
 }
 function pictogramPublicUrl(storagePath) {
   const path = fileRefToPath(storagePath);
@@ -205,14 +213,17 @@ function syncCustomPictogramRows(filenames, existingRows) {
 }
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
+  ADAPTER_LIBRARY_FILE,
   LEGACY_PICTOGRAM_DIR,
-  LIBRARY_FILE,
+  LEGACY_VIS_LIBRARY_FILE,
   PICTOGRAM_DIR,
   PICTOGRAM_FILE_ADAPTER,
+  PICTOGRAM_PLACEHOLDER_FILE,
   PICTOGRAM_SUBFOLDER,
   VIS_PROJECT,
   emptyLibrary,
   fileRefToPath,
+  isIgnoredPictogramFile,
   libraryFromNativeRows,
   matchesPictogramKey,
   matchesPictogramQuery,

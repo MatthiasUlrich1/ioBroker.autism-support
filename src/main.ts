@@ -12,11 +12,13 @@ import {
 } from "./lib/day-periods";
 import { findCurrentItemIndex, isPlanFullyExpired, parseSchedulePlan, type SchedulePlan } from "./lib/schedule-types";
 import {
-	LIBRARY_FILE,
+	ADAPTER_LIBRARY_FILE,
 	PICTOGRAM_DIR,
 	PICTOGRAM_FILE_ADAPTER,
-	VIS_PROJECT,
+	PICTOGRAM_PLACEHOLDER_FILE,
+	LEGACY_VIS_LIBRARY_FILE,
 	emptyLibrary,
+	isIgnoredPictogramFile,
 	libraryFromNativeRows,
 	matchesPictogramKey,
 	mergePictogramSources,
@@ -370,11 +372,48 @@ class AutismSupport extends utils.Adapter {
 
 	private async ensurePictogramStore(): Promise<void> {
 		try {
-			await this.readDirAsync(PICTOGRAM_FILE_ADAPTER, PICTOGRAM_DIR);
+			await this.readFileAsync(this.namespace, ADAPTER_LIBRARY_FILE);
 		} catch {
-			await this.writeFileAsync(PICTOGRAM_FILE_ADAPTER, LIBRARY_FILE, JSON.stringify(emptyLibrary(), null, 2));
-			this.log.info(
-				`Created pictograms folder ${PICTOGRAM_FILE_ADAPTER}/${PICTOGRAM_DIR} (vis project: ${VIS_PROJECT})`,
+			try {
+				await this.writeFileAsync(
+					this.namespace,
+					ADAPTER_LIBRARY_FILE,
+					JSON.stringify(emptyLibrary(), null, 2),
+				);
+				this.log.info(`Created adapter pictogram library ${this.namespace}/${ADAPTER_LIBRARY_FILE}`);
+			} catch (error) {
+				this.log.error(`Could not create adapter pictogram library: ${(error as Error).message}`);
+			}
+		}
+
+		try {
+			const legacy = await this.readFileAsync(PICTOGRAM_FILE_ADAPTER, LEGACY_VIS_LIBRARY_FILE);
+			const raw = typeof legacy.file === "string" ? legacy.file : Buffer.from(legacy.file).toString("utf8");
+			const migrated = parseLibrary(raw);
+			if (migrated.items.length) {
+				await this.writeFileAsync(this.namespace, ADAPTER_LIBRARY_FILE, JSON.stringify(migrated, null, 2));
+				this.log.info(`Migrated pictogram library from vis-2 to ${this.namespace}`);
+			}
+		} catch {
+			// no legacy library in vis-2
+		}
+
+		try {
+			await this.unlinkAsync(PICTOGRAM_FILE_ADAPTER, LEGACY_VIS_LIBRARY_FILE);
+		} catch {
+			// ignore
+		}
+
+		try {
+			const hint =
+				"Piktogramm-Bilder (PNG, JPEG, GIF, WebP, SVG) hier hochladen.\n" +
+				"Keine neuen Ordner anlegen (Dateimanager zeigt dann oft „doppelter Name“).\n" +
+				"Stattdessen oben auf Hochladen klicken und Bilder in DIESEN Ordner legen.\n";
+			await this.writeFileAsync(PICTOGRAM_FILE_ADAPTER, `${PICTOGRAM_DIR}/${PICTOGRAM_PLACEHOLDER_FILE}`, hint);
+			this.log.info(`Ensured vis-2 pictogram folder ${PICTOGRAM_FILE_ADAPTER}/${PICTOGRAM_DIR}`);
+		} catch (error) {
+			this.log.error(
+				`Could not write ${PICTOGRAM_FILE_ADAPTER}/${PICTOGRAM_DIR}/${PICTOGRAM_PLACEHOLDER_FILE}: ${(error as Error).message}`,
 			);
 		}
 	}
@@ -547,7 +586,7 @@ class AutismSupport extends utils.Adapter {
 
 	private async loadPictogramLibrary(): Promise<PictogramLibrary> {
 		try {
-			const file = await this.readFileAsync(PICTOGRAM_FILE_ADAPTER, LIBRARY_FILE);
+			const file = await this.readFileAsync(this.namespace, ADAPTER_LIBRARY_FILE);
 			const raw = typeof file.file === "string" ? file.file : Buffer.from(file.file).toString("utf8");
 			return parseLibrary(raw);
 		} catch {
@@ -556,7 +595,7 @@ class AutismSupport extends utils.Adapter {
 	}
 
 	private async savePictogramLibrary(library: PictogramLibrary): Promise<void> {
-		await this.writeFileAsync(PICTOGRAM_FILE_ADAPTER, LIBRARY_FILE, JSON.stringify(library, null, 2));
+		await this.writeFileAsync(this.namespace, ADAPTER_LIBRARY_FILE, JSON.stringify(library, null, 2));
 		await this.setState(`${SCHEDULE_CHANNEL}.pictogramLibrary`, JSON.stringify(library), true);
 	}
 
@@ -564,7 +603,7 @@ class AutismSupport extends utils.Adapter {
 		try {
 			const result = await this.readDirAsync(PICTOGRAM_FILE_ADAPTER, PICTOGRAM_DIR);
 			return (result || [])
-				.filter(entry => !entry.isDir && entry.file !== "_library.json")
+				.filter(entry => !entry.isDir && !isIgnoredPictogramFile(entry.file))
 				.map(entry => entry.file);
 		} catch {
 			return null;
@@ -611,6 +650,7 @@ class AutismSupport extends utils.Adapter {
 
 		try {
 			if (obj.command === "syncPictogramTable") {
+				await this.ensurePictogramStore();
 				const rows = await this.buildCustomPictogramRows();
 				await this.extendObject(`system.adapter.${this.namespace}`, {
 					native: { customPictograms: rows },

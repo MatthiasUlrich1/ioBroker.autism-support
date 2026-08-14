@@ -329,11 +329,40 @@ class AutismSupport extends utils.Adapter {
   }
   async ensurePictogramStore() {
     try {
-      await this.readDirAsync(import_pictogram_library.PICTOGRAM_FILE_ADAPTER, import_pictogram_library.PICTOGRAM_DIR);
+      await this.readFileAsync(this.namespace, import_pictogram_library.ADAPTER_LIBRARY_FILE);
     } catch {
-      await this.writeFileAsync(import_pictogram_library.PICTOGRAM_FILE_ADAPTER, import_pictogram_library.LIBRARY_FILE, JSON.stringify((0, import_pictogram_library.emptyLibrary)(), null, 2));
-      this.log.info(
-        `Created pictograms folder ${import_pictogram_library.PICTOGRAM_FILE_ADAPTER}/${import_pictogram_library.PICTOGRAM_DIR} (vis project: ${import_pictogram_library.VIS_PROJECT})`
+      try {
+        await this.writeFileAsync(
+          this.namespace,
+          import_pictogram_library.ADAPTER_LIBRARY_FILE,
+          JSON.stringify((0, import_pictogram_library.emptyLibrary)(), null, 2)
+        );
+        this.log.info(`Created adapter pictogram library ${this.namespace}/${import_pictogram_library.ADAPTER_LIBRARY_FILE}`);
+      } catch (error) {
+        this.log.error(`Could not create adapter pictogram library: ${error.message}`);
+      }
+    }
+    try {
+      const legacy = await this.readFileAsync(import_pictogram_library.PICTOGRAM_FILE_ADAPTER, import_pictogram_library.LEGACY_VIS_LIBRARY_FILE);
+      const raw = typeof legacy.file === "string" ? legacy.file : Buffer.from(legacy.file).toString("utf8");
+      const migrated = (0, import_pictogram_library.parseLibrary)(raw);
+      if (migrated.items.length) {
+        await this.writeFileAsync(this.namespace, import_pictogram_library.ADAPTER_LIBRARY_FILE, JSON.stringify(migrated, null, 2));
+        this.log.info(`Migrated pictogram library from vis-2 to ${this.namespace}`);
+      }
+    } catch {
+    }
+    try {
+      await this.unlinkAsync(import_pictogram_library.PICTOGRAM_FILE_ADAPTER, import_pictogram_library.LEGACY_VIS_LIBRARY_FILE);
+    } catch {
+    }
+    try {
+      const hint = "Piktogramm-Bilder (PNG, JPEG, GIF, WebP, SVG) hier hochladen.\nKeine neuen Ordner anlegen (Dateimanager zeigt dann oft \u201Edoppelter Name\u201C).\nStattdessen oben auf Hochladen klicken und Bilder in DIESEN Ordner legen.\n";
+      await this.writeFileAsync(import_pictogram_library.PICTOGRAM_FILE_ADAPTER, `${import_pictogram_library.PICTOGRAM_DIR}/${import_pictogram_library.PICTOGRAM_PLACEHOLDER_FILE}`, hint);
+      this.log.info(`Ensured vis-2 pictogram folder ${import_pictogram_library.PICTOGRAM_FILE_ADAPTER}/${import_pictogram_library.PICTOGRAM_DIR}`);
+    } catch (error) {
+      this.log.error(
+        `Could not write ${import_pictogram_library.PICTOGRAM_FILE_ADAPTER}/${import_pictogram_library.PICTOGRAM_DIR}/${import_pictogram_library.PICTOGRAM_PLACEHOLDER_FILE}: ${error.message}`
       );
     }
   }
@@ -483,7 +512,7 @@ class AutismSupport extends utils.Adapter {
   }
   async loadPictogramLibrary() {
     try {
-      const file = await this.readFileAsync(import_pictogram_library.PICTOGRAM_FILE_ADAPTER, import_pictogram_library.LIBRARY_FILE);
+      const file = await this.readFileAsync(this.namespace, import_pictogram_library.ADAPTER_LIBRARY_FILE);
       const raw = typeof file.file === "string" ? file.file : Buffer.from(file.file).toString("utf8");
       return (0, import_pictogram_library.parseLibrary)(raw);
     } catch {
@@ -491,13 +520,13 @@ class AutismSupport extends utils.Adapter {
     }
   }
   async savePictogramLibrary(library) {
-    await this.writeFileAsync(import_pictogram_library.PICTOGRAM_FILE_ADAPTER, import_pictogram_library.LIBRARY_FILE, JSON.stringify(library, null, 2));
+    await this.writeFileAsync(this.namespace, import_pictogram_library.ADAPTER_LIBRARY_FILE, JSON.stringify(library, null, 2));
     await this.setState(`${SCHEDULE_CHANNEL}.pictogramLibrary`, JSON.stringify(library), true);
   }
   async listPictogramFiles() {
     try {
       const result = await this.readDirAsync(import_pictogram_library.PICTOGRAM_FILE_ADAPTER, import_pictogram_library.PICTOGRAM_DIR);
-      return (result || []).filter((entry) => !entry.isDir && entry.file !== "_library.json").map((entry) => entry.file);
+      return (result || []).filter((entry) => !entry.isDir && !(0, import_pictogram_library.isIgnoredPictogramFile)(entry.file)).map((entry) => entry.file);
     } catch {
       return null;
     }
@@ -540,6 +569,7 @@ class AutismSupport extends utils.Adapter {
     }
     try {
       if (obj.command === "syncPictogramTable") {
+        await this.ensurePictogramStore();
         const rows = await this.buildCustomPictogramRows();
         await this.extendObject(`system.adapter.${this.namespace}`, {
           native: { customPictograms: rows }

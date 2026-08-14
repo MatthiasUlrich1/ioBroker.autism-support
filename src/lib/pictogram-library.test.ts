@@ -8,6 +8,7 @@ import {
 	parseLibrary,
 	pictogramPublicUrl,
 	pictogramStoragePath,
+	isIgnoredPictogramFile,
 	syncCustomPictogramRows,
 	uniquePictogramFilename,
 } from "./pictogram-library";
@@ -62,6 +63,12 @@ describe("pictogram-library", () => {
 		expect(pictogramPublicUrl("Autismus Unterstützung/pictograms/brush.png")).to.equal(
 			"/vis-2.0/Autismus Unterstützung/pictograms/brush.png",
 		);
+	});
+
+	it("ignores placeholder and library files in folder listings", () => {
+		expect(isIgnoredPictogramFile("_library.json")).to.equal(true);
+		expect(isIgnoredPictogramFile("HIER_BILDER_HOCHLADEN.txt")).to.equal(true);
+		expect(isIgnoredPictogramFile("brush.png")).to.equal(false);
 	});
 
 	it("parses an empty library on invalid JSON", () => {
