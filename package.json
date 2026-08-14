@@ -24,7 +24,7 @@
     "url": "https://github.com/MatthiasUlrich1/ioBroker.autism-support.git"
   },
   "engines": {
-    "node": ">= 20"
+    "node": ">= 22"
   },
   "dependencies": {
     "@iobroker/adapter-core": "^3.4.3"
