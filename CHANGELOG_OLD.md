@@ -2,6 +2,39 @@
 
 Entries moved here when removed from `io-package.json` (repository builder keeps at most 7 news items).
 
+## 0.1.21
+- Pictogram path: `vis-2.0/Autismus Unterstützung/pictograms`; auto-create pictograms folder on start
+
+## 0.1.20
+- Fix Admin GUI: link to ioBroker file manager; auto-list pictograms from vis-2 folder (no custom upload component)
+
+## 0.1.19
+- Store pictograms in `vis-2.0/main/autism-support/pictograms` (vis-2 file store)
+
+## 0.1.17
+- Fix pictogram upload: store files in the adapter (not vis.0) and upload from the computer
+
+## 0.1.16
+- Fix Admin GUI crash on open: file upload helper instead of fileSelector
+
+## 0.1.15
+- Fix Admin GUI crash when adding pictogram rows; upload images via a dedicated file selector
+
+## 0.1.14
+- Fix Admin pictogram upload: table with image file manager instead of JSON accordion import
+
+## 0.1.13
+- Move custom pictogram upload and tags to Admin instance settings; vis widget searches and selects own images
+
+## 0.1.12
+- Fix ioBroker repository checker issues (admin UI sizes, README license, CI Node 24)
+
+## 0.1.11
+- Fix ioBroker repository checker issues (admin UI, workflows, metadata)
+
+## 0.1.10
+- Fix clear-after-last checkbox; highlight active pictogram by current time
+
 ## 0.1.9
 - Schedule reset with confirmation; optional auto-clear after last pictogram
 
@@ -28,36 +61,3 @@ Entries moved here when removed from `io-package.json` (repository builder keeps
 
 ## 0.1.1
 - Daily schedule with time bar, day periods, ARASAAC (external) + custom pictograms
-
-## 0.0.17
-- Geometry-aligned segment ticks; optional colored border
-
-## 0.0.16
-- Remaining color uses circular wipe from center
-
-## 0.0.15
-- Icons updated to square default geometry
-
-## 0.0.14
-- Configurable geometry (square default)
-
-## 0.0.13
-- Square ring ends; 100% width = filled disc
-
-## 0.0.12
-- Configurable ring width
-
-## 0.0.11
-- New ring design with orange default color
-
-## 0.0.10
-- Rename Time Timer to Visual Countdown
-
-## 0.0.9
-- Fix CI lint errors
-
-## 0.0.8
-- New adapter icon: Visual Countdown circle at 45 minutes
-
-## 0.0.7
-- Replace hour bars with small full-hour circle diagrams

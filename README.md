@@ -2,6 +2,8 @@
 
 Support for people with autism in ioBroker: **Visual Countdown**, **daily schedule with time bar**, and pictograms.
 
+Pictogram source and terms: [ARASAAC](https://arasaac.org). Display is intended for tablet, wall display or similar via **VIS-2**.
+
 ## Visual Countdown
 
 Visual countdown as a geometry frame (default: square) with circular progress wipe from the center.
@@ -81,6 +83,9 @@ npm run start
 
 See [CHANGELOG_OLD.md](CHANGELOG_OLD.md) for older entries.
 
+### 0.1.27
+- ioBroker compliance: max 7 news entries, jsonConfig schema, admin i18n keys, English title/desc
+
 ### 0.1.26
 - Config: new pictogram starts where the selected one ends (same duration)
 - Config: Duplicate selected pictogram (disabled when 3 already overlap)
@@ -98,56 +103,8 @@ See [CHANGELOG_OLD.md](CHANGELOG_OLD.md) for older entries.
 ### 0.1.22
 - Fix pictogram folder creation: metadata in adapter store, images in vis-2; remove broken `_library.json` from vis-2 path
 
-### 0.1.21
-- Pictogram path: `vis-2.0/Autismus Unterstützung/pictograms`; auto-create pictograms folder on start
-
-### 0.1.20
-- Fix Admin GUI: link to ioBroker file manager; auto-list pictograms from vis-2 folder (no custom upload component)
-
-### 0.1.19
-- Store pictograms in `vis-2.0/main/autism-support/pictograms` (vis-2 file store)
-
 ### 0.1.18
 - Fix Admin GUI crash: custom pictogram upload from computer via adapter (no vis file dialog)
-
-### 0.1.17
-- Fix pictogram upload: store files in the adapter (not vis.0) and upload from the computer
-
-### 0.1.16
-- Fix Admin GUI crash on open: file upload helper instead of fileSelector
-
-### 0.1.15
-- Fix Admin GUI crash when adding pictogram rows; upload images via a dedicated file selector
-
-### 0.1.14
-- Fix Admin pictogram upload: table with image file manager instead of JSON accordion import
-
-### 0.1.13
-- Move custom pictogram upload and tags to Admin instance settings; vis widget searches and selects own images
-
-### 0.1.12
-- Fix ioBroker repository checker issues (admin UI sizes, README license, CI Node 24)
-
-### 0.1.11
-- Fix ioBroker repository checker issues (admin UI, workflows, metadata)
-
-### 0.1.10
-- Fix clear-after-last checkbox; highlight active pictogram by current time
-
-### 0.1.9
-- Schedule reset with confirmation; optional auto-clear after last pictogram
-
-### 0.1.8
-- Log-compress empty lead/trail on the time bar
-
-### 0.1.7
-- Fix period toggles; fixed pictogram size, period bar grows for short spans
-
-### 0.1.6
-- Shared scroll; single pictogram cards; overlap columns
-
-### 0.1.5
-- Stretch period bar by pictogram count; clock-accurate now marker
 
 ## Author
 

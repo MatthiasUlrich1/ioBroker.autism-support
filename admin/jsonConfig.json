@@ -510,7 +510,7 @@
 							"title": "custom_pictogram_file",
 							"width": "45%",
 							"default": "",
-							"disabled": true
+							"disabled": "true"
 						},
 						{
 							"type": "text",

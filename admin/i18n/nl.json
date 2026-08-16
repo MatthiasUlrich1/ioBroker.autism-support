@@ -26,8 +26,9 @@
 	"custom_pictogram_info": "Upload en tag hier eigen pictogrammen. Bestanden in autism-support.X/pictograms/. Het config-widget kan op tags zoeken en beelden kiezen. Alleen beelden met gebruiksrecht. Geen ARASAAC-bestanden – gebruik het externe ID.",
 	"custom_pictograms_hint": "Upload een bestand van de computer via de uploadknop naast de lijst (niet vis.0). Bestanden in autism-support.X/pictograms. Optioneel naam/tags in de tabel, daarna instantie opslaan.",
 	"custom_pictograms_table": "Eigen pictogrammen",
-	"custom_pictogram_upload": "Afbeelding uploaden",
 	"custom_pictogram_file": "Afbeelding",
 	"custom_pictogram_label": "Naam",
-	"custom_pictogram_tags": "Tags (komma)"
+	"custom_pictogram_tags": "Tags (komma)",
+	"custom_pictogram_open_files": "Bestandsbeheer openen (vis-2.0/Autismus Unterstützung/pictograms)",
+	"custom_pictogram_refresh": "Lijst vernieuwen"
 }

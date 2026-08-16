@@ -26,8 +26,9 @@
 	"custom_pictogram_info": "Загружайте и помечайте свои pictogramмы здесь. Файлы в autism-support.X/pictograms/. Виджет настройки может искать теги и выбирать изображения. Только изображения с правами. Не загружайте файлы ARASAAC – используйте внешний ID.",
 	"custom_pictograms_hint": "Загрузите изображение с компьютера кнопкой upload рядом со списком (не vis.0). Файлы в autism-support.X/pictograms. Имя/теги в таблице по желанию, затем сохраните экземпляр.",
 	"custom_pictograms_table": "Свои pictogramмы",
-	"custom_pictogram_upload": "Загрузить изображение",
 	"custom_pictogram_file": "Изображение",
 	"custom_pictogram_label": "Имя",
-	"custom_pictogram_tags": "Теги (запятая)"
+	"custom_pictogram_tags": "Теги (запятая)",
+	"custom_pictogram_open_files": "Открыть файловый менеджер (vis-2.0/Autismus Unterstützung/pictograms)",
+	"custom_pictogram_refresh": "Обновить список"
 }

@@ -26,8 +26,9 @@
 	"custom_pictogram_info": "Carica e assegna tag ai pittogrammi qui. File in autism-support.X/pictograms/. Il widget di configurazione può cercare i tag e selezionare le immagini. Solo immagini con diritti d'uso. Non caricare file ARASAAC – usa l'ID esterno.",
 	"custom_pictograms_hint": "Carica un'immagine dal computer con il pulsante upload accanto all'elenco (non vis.0). File in autism-support.X/pictograms. Nome/tag opzionali in tabella, poi salva l'istanza.",
 	"custom_pictograms_table": "Pittogrammi personali",
-	"custom_pictogram_upload": "Carica immagine",
 	"custom_pictogram_file": "Immagine",
 	"custom_pictogram_label": "Nome",
-	"custom_pictogram_tags": "Tag (virgola)"
+	"custom_pictogram_tags": "Tag (virgola)",
+	"custom_pictogram_open_files": "Apri gestore file (vis-2.0/Autismus Unterstützung/pictograms)",
+	"custom_pictogram_refresh": "Aggiorna elenco"
 }

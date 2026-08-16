@@ -1,6 +1,6 @@
 {
   "name": "iobroker.autism-support",
-  "version": "0.1.26",
+  "version": "0.1.27",
   "description": "Unterstützung für Menschen mit Autismus: Visual Countdown, Bild-Ablaufpläne und Piktogramme",
   "author": {
     "name": "Matthias Ulrich",
@@ -72,7 +72,7 @@
     "build:ts": "build-adapter ts",
     "watch:ts": "build-adapter ts --watch",
     "test:ts": "mocha --config test/mocharc.custom.json src/**/*.test.ts",
-    "test:package": "mocha test/package --exit",
+    "test:package": "mocha test/package.js test/io-package-policy.js --exit",
     "test:integration": "mocha test/integration --exit",
     "test": "npm run test:ts && npm run test:package",
     "check": "tsc --noEmit",

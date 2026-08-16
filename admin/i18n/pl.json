@@ -26,8 +26,9 @@
 	"custom_pictogram_info": "Przesylaj i taguj wlasne piktogramy tutaj. Pliki w autism-support.X/pictograms/. Widget konfiguracji moze szukac tagow i wybierac obrazy. Tylko obrazy z prawami. Nie przesylaj plikow ARASAAC – uzyj zewnetrznego ID.",
 	"custom_pictograms_hint": "Wgraj obraz z komputera przyciskiem upload obok listy (nie vis.0). Pliki w autism-support.X/pictograms. Opcjonalnie nazwa/tagi w tabeli, potem zapisz instancje.",
 	"custom_pictograms_table": "Wlasne piktogramy",
-	"custom_pictogram_upload": "Wgraj obraz",
 	"custom_pictogram_file": "Obraz",
 	"custom_pictogram_label": "Nazwa",
-	"custom_pictogram_tags": "Tagi (przecinek)"
+	"custom_pictogram_tags": "Tagi (przecinek)",
+	"custom_pictogram_open_files": "Otwórz menedżer plików (vis-2.0/Autismus Unterstützung/pictograms)",
+	"custom_pictogram_refresh": "Odśwież listę"
 }
