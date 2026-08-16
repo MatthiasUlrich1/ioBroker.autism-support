@@ -1,8 +1,21 @@
 {
 	"common": {
 		"name": "autism-support",
-		"version": "0.1.25",
+		"version": "0.1.26",
 		"news": {
+			"0.1.26": {
+				"en": "Config: new pictogram continues after selected; duplicate with max 3 parallel",
+				"de": "Config: neues Piktogramm schließt an Auswahl an; Duplizieren max. 3 parallel",
+				"ru": "Config: новый pictogram после выбранного; дублирование макс. 3 параллельно",
+				"pt": "Config: novo pictograma apos o selecionado; duplicar max. 3 em paralelo",
+				"nl": "Config: nieuw pictogram sluit aan op selectie; dupliceren max. 3 parallel",
+				"fr": "Config: nouveau pictogramme apres la selection; dupliquer max. 3 en parallele",
+				"it": "Config: nuovo pittogramma dopo la selezione; duplica max. 3 in parallelo",
+				"es": "Config: nuevo pictograma tras la seleccion; duplicar max. 3 en paralelo",
+				"pl": "Config: nowy piktogram po wybranym; duplikowanie max. 3 rownolegle",
+				"uk": "Config: новий pictogram після вибраного; дублювання макс. 3 паралельно",
+				"zh-cn": "配置：新象形图接在所选之后；最多并行复制 3 个"
+			},
 			"0.1.25": {
 				"en": "Fix Config schedule preview after save; allow 3 nested pictogram columns",
 				"de": "Config-Vorschau nach Speichern repariert; bis zu 3 verschachtelte Piktogramm-Spalten",

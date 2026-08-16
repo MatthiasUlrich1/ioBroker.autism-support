@@ -46,6 +46,119 @@ export function parseTimeToMinutes(value: string): number {
 	return h * 60 + m;
 }
 
+/** Format minutes-of-day as HH:MM (wraps at 24h). */
+export function minutesToClock(totalMinutes: number): string {
+	const m = ((Math.round(totalMinutes) % 1440) + 1440) % 1440;
+	const hh = Math.floor(m / 60);
+	const mm = m % 60;
+	return `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}`;
+}
+
+/** Duration in minutes; overnight supported. Empty/zero range → 60. */
+export function scheduleItemDurationMin(item: Pick<ScheduleItem, "start" | "end">): number {
+	const s = parseTimeToMinutes(item.start);
+	const e = parseTimeToMinutes(item.end);
+	if (e > s) {
+		return Math.max(1, e - s);
+	}
+	if (e < s) {
+		return Math.max(1, 1440 - s + e);
+	}
+	return 60;
+}
+
+/** Max nested columns for overlapping pictograms. */
+export const MAX_PARALLEL_SCHEDULE_ITEMS = 3;
+
+/**
+ * Half-open interval overlap on a linear day timeline.
+ * Overnight items are split into [start,1440) and [0,end).
+ */
+export function scheduleRangesOverlap(
+	aStart: number,
+	aEnd: number,
+	bStart: number,
+	bEnd: number,
+): boolean {
+	const expand = (s: number, e: number): Array<{ s: number; e: number }> => {
+		if (s === e) {
+			return [];
+		}
+		if (s < e) {
+			return [{ s, e }];
+		}
+		return [
+			{ s, e: 1440 },
+			{ s: 0, e },
+		];
+	};
+	for (const a of expand(aStart, aEnd)) {
+		for (const b of expand(bStart, bEnd)) {
+			if (a.s < b.e && b.s < a.e) {
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+export function countItemsOverlappingRange(
+	items: ScheduleItem[],
+	start: string,
+	end: string,
+): number {
+	const s = parseTimeToMinutes(start);
+	const e = parseTimeToMinutes(end);
+	return items.filter(item =>
+		scheduleRangesOverlap(s, e, parseTimeToMinutes(item.start), parseTimeToMinutes(item.end)),
+	).length;
+}
+
+/** True when duplicating `item` would stay within the parallel-column limit. */
+export function canDuplicateScheduleItem(items: ScheduleItem[], item: ScheduleItem): boolean {
+	return countItemsOverlappingRange(items, item.start, item.end) < MAX_PARALLEL_SCHEDULE_ITEMS;
+}
+
+/** New empty item starting where `anchor` ends (same duration). */
+export function createScheduleItemAfter(anchor: ScheduleItem | null | undefined): ScheduleItem {
+	if (!anchor) {
+		return {
+			id: `item-${Date.now()}`,
+			label: "",
+			start: "08:00",
+			end: "09:00",
+			source: "arasaac",
+			arasaacId: undefined,
+			customRef: "",
+		};
+	}
+	const duration = scheduleItemDurationMin(anchor);
+	const startMin = parseTimeToMinutes(anchor.end);
+	return {
+		id: `item-${Date.now()}`,
+		label: "",
+		start: minutesToClock(startMin),
+		end: minutesToClock(startMin + duration),
+		source: "arasaac",
+		arasaacId: undefined,
+		customRef: "",
+	};
+}
+
+/** Deep-ish copy of an item with a new id (same time window and pictogram). */
+export function duplicateScheduleItem(item: ScheduleItem): ScheduleItem {
+	return {
+		...item,
+		id: `item-${Date.now()}`,
+		label: item.label,
+		start: item.start,
+		end: item.end,
+		source: item.source,
+		arasaacId: item.arasaacId,
+		customRef: item.customRef,
+	};
+}
+
 /** True when clock time falls inside the item's [start, end) window (supports overnight). */
 export function isItemActiveAt(item: ScheduleItem, nowMinutes: number): boolean {
 	const s = parseTimeToMinutes(item.start);

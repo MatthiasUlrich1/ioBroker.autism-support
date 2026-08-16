@@ -30,6 +30,9 @@ import {
 } from "./lib/custom-pictograms";
 import {
 	applyPeriodOverrides,
+	canDuplicateScheduleItem,
+	createScheduleItemAfter,
+	duplicateScheduleItem,
 	parseDayPeriods,
 	parsePeriodOverrides,
 	parseSchedulePlan,
@@ -64,18 +67,6 @@ interface DailyScheduleConfigState extends VisRxWidgetState {
 	localPeriodOverrides: Record<string, boolean>;
 	/** Optimistic clear-after-last toggle until ioBroker state catches up. */
 	localClearAfterLast?: boolean;
-}
-
-function newItem(): ScheduleItem {
-	return {
-		id: `item-${Date.now()}`,
-		label: "",
-		start: "08:00",
-		end: "09:00",
-		source: "arasaac",
-		arasaacId: undefined,
-		customRef: "",
-	};
 }
 
 export default class DailyScheduleConfigWidget extends (window.visRxWidget as typeof VisRxWidget)<
@@ -266,6 +257,39 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 			const items = prev.draft.items.map((item, i) => (i === index ? { ...item, ...patch } : item));
 			return { draft: { version: 1, items } };
 		});
+	}
+
+	private addItemAfterSelected(): void {
+		this.setState(prev => {
+			const anchor = prev.selectedIndex >= 0 ? prev.draft.items[prev.selectedIndex] : undefined;
+			const item = createScheduleItemAfter(anchor);
+			return {
+				draft: { version: 1, items: [...prev.draft.items, item] },
+				selectedIndex: prev.draft.items.length,
+			};
+		});
+	}
+
+	private duplicateSelectedItem(): void {
+		this.setState(prev => {
+			const selected = prev.selectedIndex >= 0 ? prev.draft.items[prev.selectedIndex] : null;
+			if (!selected || !canDuplicateScheduleItem(prev.draft.items, selected)) {
+				return null;
+			}
+			const copy = duplicateScheduleItem(selected);
+			return {
+				draft: { version: 1, items: [...prev.draft.items, copy] },
+				selectedIndex: prev.draft.items.length,
+			};
+		});
+	}
+
+	private canDuplicateSelected(): boolean {
+		const selected = this.state.selectedIndex >= 0 ? this.state.draft.items[this.state.selectedIndex] : null;
+		if (!selected) {
+			return false;
+		}
+		return canDuplicateScheduleItem(this.state.draft.items, selected);
 	}
 
 	private async savePlan(): Promise<void> {
@@ -627,14 +651,22 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 								size="small"
 								variant="outlined"
 								disabled={this.state.busy}
-								onClick={() =>
-									this.setState(prev => ({
-										draft: { version: 1, items: [...prev.draft.items, newItem()] },
-										selectedIndex: prev.draft.items.length,
-									}))
-								}
+								onClick={() => this.addItemAfterSelected()}
 							>
-								+ Item
+								{this.isDe() ? "+ Piktogramm" : "+ Item"}
+							</Button>
+							<Button
+								size="small"
+								variant="outlined"
+								disabled={this.state.busy || !this.canDuplicateSelected()}
+								title={
+									this.isDe()
+										? "Kopie des ausgewählten Piktogramms (gleicher Zeitraum). Max. 3 parallel."
+										: "Copy the selected pictogram (same time range). Max. 3 in parallel."
+								}
+								onClick={() => this.duplicateSelectedItem()}
+							>
+								{this.isDe() ? "Duplizieren" : "Duplicate"}
 							</Button>
 							<Button
 								size="small"
@@ -651,7 +683,7 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 									})
 								}
 							>
-								Delete
+								{this.isDe() ? "Löschen" : "Delete"}
 							</Button>
 							<Button
 								size="small"

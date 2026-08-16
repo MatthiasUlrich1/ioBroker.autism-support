@@ -81,6 +81,10 @@ npm run start
 
 See [CHANGELOG_OLD.md](CHANGELOG_OLD.md) for older entries.
 
+### 0.1.26
+- Config: new pictogram starts where the selected one ends (same duration)
+- Config: Duplicate selected pictogram (disabled when 3 already overlap)
+
 ### 0.1.25
 - Fix Config widget showing the previous plan after save
 - Allow up to 3 nested pictogram columns for overlapping schedule items

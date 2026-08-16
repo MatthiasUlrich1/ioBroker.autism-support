@@ -4,6 +4,7 @@ import {
 	type DayPeriodDefinition,
 	type ScheduleItem,
 	type SchedulePlan,
+	MAX_PARALLEL_SCHEDULE_ITEMS,
 	parseTimeToMinutes,
 	resolveItemImageUrl,
 	isItemActiveAt,
@@ -198,8 +199,11 @@ export function computeNowMarkerTop(blocks: PeriodBlockLayout[], nowMinutes: num
 	return null;
 }
 
-/** Greedy lane packing for overlaps; at most 3 nested columns. */
-export function assignLanes(placements: Array<{ startMin: number; endMin: number }>, maxLanes = 3): number[] {
+/** Greedy lane packing for overlaps; at most MAX_PARALLEL_SCHEDULE_ITEMS nested columns. */
+export function assignLanes(
+	placements: Array<{ startMin: number; endMin: number }>,
+	maxLanes = MAX_PARALLEL_SCHEDULE_ITEMS,
+): number[] {
 	const order = placements
 		.map((p, index) => ({ index, startMin: p.startMin, endMin: p.endMin }))
 		.sort((a, b) => a.startMin - b.startMin || b.endMin - a.endMin);
