@@ -18,6 +18,7 @@ const config = {
 				"./VisualCountdownConfigWidget": "./src/VisualCountdownConfigWidget",
 				"./DailyScheduleLiveWidget": "./src/DailyScheduleLiveWidget",
 				"./DailyScheduleConfigWidget": "./src/DailyScheduleConfigWidget",
+				"./WeeklyScheduleLiveWidget": "./src/WeeklyScheduleLiveWidget",
 				"./translations": "./src/translations",
 			},
 			remotes: {},

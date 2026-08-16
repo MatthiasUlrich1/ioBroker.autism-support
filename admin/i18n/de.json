@@ -30,5 +30,22 @@
 	"custom_pictogram_refresh": "Liste aktualisieren",
 	"custom_pictogram_file": "Bild",
 	"custom_pictogram_label": "Name",
-	"custom_pictogram_tags": "Tags (Komma-getrennt)"
+	"custom_pictogram_tags": "Tags (Komma-getrennt)",
+	"weekly_tab": "Wochenplan",
+	"weekly_header": "Wochenplan – Wochentagsfarben und Vorlagen",
+	"weekly_colors_hint": "Hintergrundfarben der Wochentage für das Live-Widget „Wochenübersicht“.",
+	"weekday_mon": "Montag",
+	"weekday_tue": "Dienstag",
+	"weekday_wed": "Mittwoch",
+	"weekday_thu": "Donnerstag",
+	"weekday_fri": "Freitag",
+	"weekday_sat": "Samstag",
+	"weekday_sun": "Sonntag",
+	"weekly_plans_header": "Gespeicherte Wochenpläne",
+	"weekly_plans_hint": "Namen bearbeiten oder Zeilen löschen, dann „Liste aktualisieren“ und Instanz speichern. „●“ markiert den gerade geladenen/aktiven Plan (wird im Config-Widget gesetzt).",
+	"weekly_plans_refresh": "Liste aktualisieren",
+	"weekly_plans_table": "Gespeicherte Wochenpläne",
+	"weekly_plan_id": "ID",
+	"weekly_plan_name": "Name",
+	"weekly_plan_active": "Aktiv"
 }

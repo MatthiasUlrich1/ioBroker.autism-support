@@ -34,11 +34,19 @@ Flexible list of pictograms with individual time spans. A **colored day-period b
 
 In the admin tab **Day periods** you can configure start/end (HH:MM) and color per period. Night may wrap past midnight (e.g. 21:00–06:00). In the **Daily Schedule (Config)** widget, periods can additionally be enabled or disabled.
 
+### Weekly plan
+
+The **Daily / Weekly Schedule (Config)** widget edits a full week (Mo–Su tabs), can copy a day to other weekdays, and save/load named weekly templates. Admin tab **Weekly plan** sets weekday background colors and lists saved templates (rename/delete; **●** = currently loaded/active). Enable **Load daily plan from weekly plan each day** so `schedule.plan` is filled from today’s weekday slot automatically.
+
 ### States (`autism-support.0.schedule.*`)
 
 | State | Description |
 |-------|-------------|
-| `plan` | JSON plan with entries (label, start/end, pictogram source) |
+| `plan` | JSON daily plan with entries (label, start/end, pictogram source) |
+| `weeklyPlan` | Active weekly plan (JSON, Mon–Sun daily plans) |
+| `weeklyPlansLibrary` | Saved weekly templates + `activeId` of the loaded plan |
+| `loadDailyFromWeekly` | Copy today’s weekly slot into `plan` each day |
+| `weekdayColors` | Weekday colors from admin (JSON, read-only) |
 | `periods` | Day periods from admin config (JSON, read-only) |
 | `periodOverrides` | On/off overrides from config widget (JSON, writable) |
 | `clearAfterLast` | Clear plan after last pictogram ends (boolean) |
@@ -50,8 +58,9 @@ In the admin tab **Day periods** you can configure start/end (HH:MM) and color p
 
 | Widget | Purpose |
 |--------|---------|
-| **Daily Schedule (Live)** | Pictograms + time bar display |
-| **Daily Schedule (Config)** | Edit entries, reset, auto-clear, period toggles, ARASAAC, select own images |
+| **Daily Schedule (Live)** | Today’s pictograms + time bar |
+| **Weekly Schedule (Live)** | Week overview with Admin weekday colors |
+| **Daily / Weekly Schedule (Config)** | Weekday tabs, copy days, save/load templates, daily sync, ARASAAC/custom pictograms |
 
 ### Pictogram sources
 
@@ -83,6 +92,11 @@ npm run start
 
 See [CHANGELOG_OLD.md](CHANGELOG_OLD.md) for older entries.
 
+### 0.2.1
+- Weekly plans: weekday tabs in Config, copy to other days, named templates (save/load)
+- Admin: weekday colors + list of saved plans with active/loaded marker
+- New Live widget: week overview; optional daily sync from weekly plan
+
 ### 0.1.27
 - ioBroker compliance: max 7 news entries, jsonConfig schema, admin i18n keys, English title/desc
 
@@ -102,9 +116,6 @@ See [CHANGELOG_OLD.md](CHANGELOG_OLD.md) for older entries.
 
 ### 0.1.22
 - Fix pictogram folder creation: metadata in adapter store, images in vis-2; remove broken `_library.json` from vis-2 path
-
-### 0.1.18
-- Fix Admin GUI crash: custom pictogram upload from computer via adapter (no vis file dialog)
 
 ## Author
 

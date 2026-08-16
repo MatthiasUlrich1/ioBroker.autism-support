@@ -10,6 +10,8 @@ import {
 	MenuItem,
 	Select,
 	Stack,
+	Tab,
+	Tabs,
 	TextField,
 	Typography,
 } from "@mui/material";
@@ -35,15 +37,30 @@ import {
 	duplicateScheduleItem,
 	parseDayPeriods,
 	parsePeriodOverrides,
-	parseSchedulePlan,
 	resolveItemImageUrl,
 	type DayPeriodDefinition,
 	type ScheduleItem,
 	type SchedulePlan,
 } from "./lib/schedule";
+import {
+	WEEKDAY_KEYS,
+	WEEKDAY_LABELS_DE,
+	WEEKDAY_LABELS_EN,
+	cloneDayPlan,
+	createEmptyWeeklyPlan,
+	parseWeeklyPlan,
+	parseWeeklyPlansLibrary,
+	weekdayKeyFromDate,
+	type WeekdayKey,
+	type WeeklyPlanData,
+	type WeeklyPlansLibrary,
+} from "./lib/weekly-plan";
 
 interface DailyScheduleConfigRxData {
 	oidPlan: string;
+	oidWeeklyPlan: string;
+	oidWeeklyPlansLibrary: string;
+	oidLoadDailyFromWeekly: string;
 	oidPeriods: string;
 	oidPeriodOverrides: string;
 	oidClearAfterLast: string;
@@ -57,6 +74,11 @@ interface DailyScheduleConfigRxData {
 
 interface DailyScheduleConfigState extends VisRxWidgetState {
 	draft: SchedulePlan;
+	weeklyDraft: WeeklyPlanData;
+	activeWeekday: WeekdayKey;
+	copyTargets: Partial<Record<WeekdayKey, boolean>>;
+	templateName: string;
+	loadTemplateId: string;
 	selectedIndex: number;
 	searchQuery: string;
 	searchHits: ArasaacSearchHit[];
@@ -67,6 +89,7 @@ interface DailyScheduleConfigState extends VisRxWidgetState {
 	localPeriodOverrides: Record<string, boolean>;
 	/** Optimistic clear-after-last toggle until ioBroker state catches up. */
 	localClearAfterLast?: boolean;
+	localLoadDailyFromWeekly?: boolean;
 }
 
 export default class DailyScheduleConfigWidget extends (window.visRxWidget as typeof VisRxWidget)<
@@ -88,6 +111,24 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 					name: "schedule",
 					label: "schedule_states",
 					fields: [
+						{
+							name: "oidWeeklyPlan",
+							type: "id",
+							label: "oid_weekly_plan",
+							default: "autism-support.0.schedule.weeklyPlan",
+						},
+						{
+							name: "oidWeeklyPlansLibrary",
+							type: "id",
+							label: "oid_weekly_plans_library",
+							default: "autism-support.0.schedule.weeklyPlansLibrary",
+						},
+						{
+							name: "oidLoadDailyFromWeekly",
+							type: "id",
+							label: "oid_load_daily_from_weekly",
+							default: "autism-support.0.schedule.loadDailyFromWeekly",
+						},
 						{
 							name: "oidPlan",
 							type: "id",
@@ -160,9 +201,16 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 
 	constructor(props: VisRxWidgetProps) {
 		super(props);
+		const today = weekdayKeyFromDate(new Date());
+		const emptyWeekly = createEmptyWeeklyPlan();
 		this.state = {
 			...this.state,
-			draft: { version: 1, items: [] },
+			draft: emptyWeekly.days[today],
+			weeklyDraft: emptyWeekly,
+			activeWeekday: today,
+			copyTargets: {},
+			templateName: "",
+			loadTemplateId: "",
 			selectedIndex: -1,
 			searchQuery: "",
 			searchHits: [],
@@ -183,20 +231,19 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 
 	componentDidMount(): void {
 		super.componentDidMount();
-		this.syncDraftFromState();
+		this.syncWeeklyFromState();
 		void this.bootstrapClearAfterLast();
+		void this.bootstrapLoadDailyFromWeekly();
 		this.syncLibraryFromState();
 		void this.bootstrapLibrary();
 	}
 
 	onStateUpdated(id: string, state: ioBroker.State | null | undefined): void {
-		if (id === this.state.rxData.oidPlan) {
-			// Mid-save: keep the draft we just wrote; this.state.values may still be stale.
+		if (id === this.getWeeklyPlanOid()) {
 			if (this.state.busy) {
 				return;
 			}
-			// Prefer callback state.val — this.state.values can lag behind the event.
-			this.syncDraftFromState(state?.val);
+			this.syncWeeklyFromState(state?.val);
 		}
 		if (id === this.libraryOid()) {
 			this.syncLibraryFromState();
@@ -222,6 +269,35 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 				localClearAfterLast: prev.localClearAfterLast === server ? undefined : prev.localClearAfterLast,
 			}));
 		}
+		const loadDailyOid = this.getLoadDailyFromWeeklyOid();
+		if (id === loadDailyOid) {
+			const server = Boolean(this.state.values[`${loadDailyOid}.val`]);
+			this.setState(prev => ({
+				localLoadDailyFromWeekly:
+					prev.localLoadDailyFromWeekly === server ? undefined : prev.localLoadDailyFromWeekly,
+			}));
+		}
+	}
+
+	private getWeeklyPlanOid(): string {
+		return (
+			this.state.rxData.oidWeeklyPlan ||
+			`${this.state.rxData.adapterInstance || "autism-support.0"}.schedule.weeklyPlan`
+		);
+	}
+
+	private getWeeklyPlansLibraryOid(): string {
+		return (
+			this.state.rxData.oidWeeklyPlansLibrary ||
+			`${this.state.rxData.adapterInstance || "autism-support.0"}.schedule.weeklyPlansLibrary`
+		);
+	}
+
+	private getLoadDailyFromWeeklyOid(): string {
+		return (
+			this.state.rxData.oidLoadDailyFromWeekly ||
+			`${this.state.rxData.adapterInstance || "autism-support.0"}.schedule.loadDailyFromWeekly`
+		);
 	}
 
 	private getPeriodOverridesOid(): string {
@@ -237,18 +313,47 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 		return { ...fromState, ...this.state.localPeriodOverrides };
 	}
 
-	private syncDraftFromState(raw?: unknown): void {
-		const plan = parseSchedulePlan(
-			raw !== undefined ? raw : this.state.values[`${this.state.rxData.oidPlan}.val`],
+	private flushDraftIntoWeekly(prev: DailyScheduleConfigState = this.state): WeeklyPlanData {
+		return {
+			version: 1,
+			days: {
+				...prev.weeklyDraft.days,
+				[prev.activeWeekday]: prev.draft,
+			},
+		};
+	}
+
+	private syncWeeklyFromState(raw?: unknown): void {
+		const weekly = parseWeeklyPlan(
+			raw !== undefined ? raw : this.state.values[`${this.getWeeklyPlanOid()}.val`],
 		);
 		this.setState(prev => {
+			const day = prev.activeWeekday;
+			const plan = weekly.days[day];
 			const nextIndex =
 				plan.items.length === 0
 					? -1
 					: prev.selectedIndex >= 0 && prev.selectedIndex < plan.items.length
 						? prev.selectedIndex
 						: 0;
-			return { draft: plan, selectedIndex: nextIndex };
+			return { weeklyDraft: weekly, draft: plan, selectedIndex: nextIndex };
+		});
+	}
+
+	private setActiveWeekday(day: WeekdayKey): void {
+		if (day === this.state.activeWeekday) {
+			return;
+		}
+		this.setState(prev => {
+			const weeklyDraft = this.flushDraftIntoWeekly(prev);
+			const plan = weeklyDraft.days[day];
+			return {
+				weeklyDraft,
+				activeWeekday: day,
+				draft: plan,
+				selectedIndex: plan.items.length ? 0 : -1,
+				searchError: "",
+			};
 		});
 	}
 
@@ -293,16 +398,111 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 	}
 
 	private async savePlan(): Promise<void> {
-		const oid = this.state.rxData.oidPlan;
+		const oid = this.getWeeklyPlanOid();
 		if (!oid) {
 			return;
 		}
-		const toSave = this.state.draft;
-		this.setState({ busy: true });
+		const weekly = this.flushDraftIntoWeekly();
+		this.setState({ busy: true, weeklyDraft: weekly, draft: weekly.days[this.state.activeWeekday] });
 		try {
-			await this.props.context.socket.setState(oid, JSON.stringify(toSave), false);
-			// Keep the saved draft visible even if a stale state echo arrives next.
-			this.setState({ draft: toSave });
+			await this.props.context.socket.setState(oid, JSON.stringify(weekly), false);
+			const today = weekdayKeyFromDate(new Date());
+			const dailyOid = this.state.rxData.oidPlan;
+			if (dailyOid && this.getLoadDailyFromWeeklyChecked()) {
+				await this.props.context.socket.setState(dailyOid, JSON.stringify(weekly.days[today]), false);
+			}
+		} finally {
+			this.setState({ busy: false });
+		}
+	}
+
+	private async applyCurrentDayToDailyPlan(): Promise<void> {
+		const dailyOid = this.state.rxData.oidPlan;
+		if (!dailyOid) {
+			return;
+		}
+		const weekly = this.flushDraftIntoWeekly();
+		this.setState({ busy: true, weeklyDraft: weekly, draft: weekly.days[this.state.activeWeekday] });
+		try {
+			await this.props.context.socket.setState(dailyOid, JSON.stringify(weekly.days[this.state.activeWeekday]), false);
+			await this.props.context.socket.setState(this.getWeeklyPlanOid(), JSON.stringify(weekly), false);
+		} finally {
+			this.setState({ busy: false });
+		}
+	}
+
+	private copyPlanToTargets(): void {
+		this.setState(prev => {
+			const weekly = this.flushDraftIntoWeekly(prev);
+			const source = weekly.days[prev.activeWeekday];
+			const days = { ...weekly.days };
+			for (const key of WEEKDAY_KEYS) {
+				if (prev.copyTargets[key] && key !== prev.activeWeekday) {
+					days[key] = cloneDayPlan(source, key);
+				}
+			}
+			return {
+				weeklyDraft: { version: 1, days },
+				draft: days[prev.activeWeekday],
+				copyTargets: {},
+			};
+		});
+	}
+
+	private getLibraryFromState(): WeeklyPlansLibrary {
+		return parseWeeklyPlansLibrary(this.state.values[`${this.getWeeklyPlansLibraryOid()}.val`]);
+	}
+
+	private async saveAsTemplate(): Promise<void> {
+		const name = this.state.templateName.trim();
+		if (!name) {
+			this.setState({
+				searchError: this.isDe() ? "Bitte einen Namen für den Wochenplan eingeben." : "Enter a name for the weekly plan.",
+			});
+			return;
+		}
+		const weekly = this.flushDraftIntoWeekly();
+		const library = this.getLibraryFromState();
+		const id = `wp-${Date.now().toString(36)}`;
+		const next: WeeklyPlansLibrary = {
+			version: 1,
+			activeId: id,
+			plans: [
+				...library.plans.filter(p => p.id !== id),
+				{ id, name, data: weekly, updatedAt: new Date().toISOString() },
+			],
+		};
+		this.setState({ busy: true, weeklyDraft: weekly, draft: weekly.days[this.state.activeWeekday], templateName: "" });
+		try {
+			await this.props.context.socket.setState(this.getWeeklyPlanOid(), JSON.stringify(weekly), false);
+			await this.props.context.socket.setState(this.getWeeklyPlansLibraryOid(), JSON.stringify(next), false);
+		} finally {
+			this.setState({ busy: false });
+		}
+	}
+
+	private async loadTemplate(): Promise<void> {
+		const id = this.state.loadTemplateId;
+		const library = this.getLibraryFromState();
+		const saved = library.plans.find(p => p.id === id);
+		if (!saved) {
+			this.setState({
+				searchError: this.isDe() ? "Bitte einen gespeicherten Wochenplan wählen." : "Select a saved weekly plan.",
+			});
+			return;
+		}
+		const weekly = parseWeeklyPlan(saved.data);
+		const day = this.state.activeWeekday;
+		const nextLib: WeeklyPlansLibrary = { ...library, activeId: saved.id };
+		this.setState({
+			busy: true,
+			weeklyDraft: weekly,
+			draft: weekly.days[day],
+			selectedIndex: weekly.days[day].items.length ? 0 : -1,
+		});
+		try {
+			await this.props.context.socket.setState(this.getWeeklyPlanOid(), JSON.stringify(weekly), false);
+			await this.props.context.socket.setState(this.getWeeklyPlansLibraryOid(), JSON.stringify(nextLib), false);
 		} finally {
 			this.setState({ busy: false });
 		}
@@ -323,6 +523,14 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 		return Boolean(this.state.values[`${oid}.val`]);
 	}
 
+	private getLoadDailyFromWeeklyChecked(): boolean {
+		if (this.state.localLoadDailyFromWeekly !== undefined) {
+			return this.state.localLoadDailyFromWeekly;
+		}
+		const oid = this.getLoadDailyFromWeeklyOid();
+		return Boolean(this.state.values[`${oid}.val`]);
+	}
+
 	private async bootstrapClearAfterLast(): Promise<void> {
 		const oid = this.getClearAfterLastOid();
 		const socket = this.props.context?.socket;
@@ -339,21 +547,36 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 		}
 	}
 
+	private async bootstrapLoadDailyFromWeekly(): Promise<void> {
+		const oid = this.getLoadDailyFromWeeklyOid();
+		const socket = this.props.context?.socket;
+		if (!oid || !socket || this.state.values[`${oid}.val`] !== undefined) {
+			return;
+		}
+		try {
+			const state = await socket.getState(oid);
+			if (state?.val !== undefined && state?.val !== null) {
+				this.setState({ localLoadDailyFromWeekly: Boolean(state.val) });
+			}
+		} catch {
+			// ignore
+		}
+	}
+
 	private async resetPlan(): Promise<void> {
 		const lang = this.props.context?.lang || "de";
 		const message = lang.startsWith("de")
-			? "Tagesplan wirklich löschen? Alle Piktogramme werden entfernt."
-			: "Really delete the daily schedule? All pictograms will be removed.";
+			? "Plan für diesen Wochentag wirklich löschen? Alle Piktogramme werden entfernt."
+			: "Really clear this weekday plan? All pictograms will be removed.";
 		if (!window.confirm(message)) {
 			return;
 		}
 		const empty: SchedulePlan = { version: 1, items: [] };
-		const oid = this.state.rxData.oidPlan;
-		this.setState({ busy: true, draft: empty, selectedIndex: -1 });
+		const weekly = this.flushDraftIntoWeekly();
+		weekly.days[this.state.activeWeekday] = empty;
+		this.setState({ busy: true, weeklyDraft: weekly, draft: empty, selectedIndex: -1 });
 		try {
-			if (oid) {
-				await this.props.context.socket.setState(oid, JSON.stringify(empty), false);
-			}
+			await this.props.context.socket.setState(this.getWeeklyPlanOid(), JSON.stringify(weekly), false);
 		} finally {
 			this.setState({ busy: false });
 		}
@@ -370,6 +593,38 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 				searchError: (error as Error).message || "Option konnte nicht gespeichert werden",
 			});
 		}
+	}
+
+	private async setLoadDailyFromWeekly(enabled: boolean): Promise<void> {
+		const oid = this.getLoadDailyFromWeeklyOid();
+		this.setState({ localLoadDailyFromWeekly: enabled });
+		try {
+			await this.props.context.socket.setState(oid, enabled, false);
+		} catch (error) {
+			this.setState({
+				localLoadDailyFromWeekly: undefined,
+				searchError: (error as Error).message || "Option konnte nicht gespeichert werden",
+			});
+		}
+	}
+
+	private weekdayLabel(key: WeekdayKey): string {
+		return this.isDe() ? WEEKDAY_LABELS_DE[key] : WEEKDAY_LABELS_EN[key];
+	}
+
+	private activeTemplateLabel(): string {
+		const library = this.getLibraryFromState();
+		if (!library.activeId) {
+			return this.isDe() ? "Kein gespeicherter Plan aktiv" : "No saved plan active";
+		}
+		const plan = library.plans.find(p => p.id === library.activeId);
+		return plan
+			? this.isDe()
+				? `Aktiv: ${plan.name}`
+				: `Active: ${plan.name}`
+			: this.isDe()
+				? "Kein gespeicherter Plan aktiv"
+				: "No saved plan active";
 	}
 
 	private async setPeriodEnabled(periodId: string, enabled: boolean): Promise<void> {
@@ -640,8 +895,128 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 							variant="subtitle1"
 							sx={{ mb: 1, fontWeight: 700 }}
 						>
-							Schedule
+							{this.isDe() ? "Wochenplan" : "Weekly schedule"}
 						</Typography>
+						<Typography
+							variant="caption"
+							sx={{ display: "block", mb: 1, opacity: 0.85 }}
+						>
+							{this.activeTemplateLabel()}
+						</Typography>
+						<Tabs
+							value={this.state.activeWeekday}
+							onChange={(_, value: WeekdayKey) => this.setActiveWeekday(value)}
+							variant="scrollable"
+							scrollButtons="auto"
+							sx={{ mb: 1, minHeight: 36 }}
+						>
+							{WEEKDAY_KEYS.map(key => (
+								<Tab
+									key={key}
+									value={key}
+									label={this.weekdayLabel(key)}
+									sx={{ minHeight: 36, py: 0.5 }}
+								/>
+							))}
+						</Tabs>
+
+						<Stack
+							direction="row"
+							spacing={1}
+							sx={{ mb: 1, flexWrap: "wrap", alignItems: "center" }}
+						>
+							<Typography
+								variant="caption"
+								sx={{ fontWeight: 700, mr: 0.5 }}
+							>
+								{this.isDe() ? "Kopieren nach:" : "Copy to:"}
+							</Typography>
+							{WEEKDAY_KEYS.filter(key => key !== this.state.activeWeekday).map(key => (
+								<FormControlLabel
+									key={key}
+									sx={{ mr: 0.5 }}
+									control={
+										<Checkbox
+											size="small"
+											checked={Boolean(this.state.copyTargets[key])}
+											onChange={(_, checked) =>
+												this.setState(prev => ({
+													copyTargets: { ...prev.copyTargets, [key]: checked },
+												}))
+											}
+										/>
+									}
+									label={this.weekdayLabel(key)}
+								/>
+							))}
+							<Button
+								size="small"
+								variant="outlined"
+								disabled={this.state.busy || !WEEKDAY_KEYS.some(k => this.state.copyTargets[k])}
+								onClick={() => this.copyPlanToTargets()}
+							>
+								{this.isDe() ? "Übernehmen" : "Apply"}
+							</Button>
+						</Stack>
+
+						<Stack
+							direction={{ xs: "column", sm: "row" }}
+							spacing={1}
+							sx={{ mb: 1, flexWrap: "wrap" }}
+						>
+							<TextField
+								size="small"
+								label={this.isDe() ? "Name speichern" : "Save as name"}
+								value={this.state.templateName}
+								onChange={e => this.setState({ templateName: e.target.value })}
+								sx={{ minWidth: 160 }}
+							/>
+							<Button
+								size="small"
+								variant="outlined"
+								disabled={this.state.busy}
+								onClick={() => void this.saveAsTemplate()}
+							>
+								{this.isDe() ? "Wochenplan speichern" : "Save weekly plan"}
+							</Button>
+							<FormControl
+								size="small"
+								sx={{ minWidth: 180 }}
+							>
+								<InputLabel>{this.isDe() ? "Laden" : "Load"}</InputLabel>
+								<Select
+									label={this.isDe() ? "Laden" : "Load"}
+									value={this.state.loadTemplateId}
+									onChange={e => this.setState({ loadTemplateId: String(e.target.value) })}
+								>
+									<MenuItem value="">
+										<em>{this.isDe() ? "— wählen —" : "— select —"}</em>
+									</MenuItem>
+									{this.getLibraryFromState().plans.map(plan => (
+										<MenuItem
+											key={plan.id}
+											value={plan.id}
+										>
+											{plan.name}
+											{this.getLibraryFromState().activeId === plan.id
+												? this.isDe()
+													? " ● aktiv"
+													: " ● active"
+												: ""}
+										</MenuItem>
+									))}
+								</Select>
+							</FormControl>
+							<Button
+								size="small"
+								variant="outlined"
+								disabled={this.state.busy || !this.state.loadTemplateId}
+								onClick={() => void this.loadTemplate()}
+							>
+								{this.isDe() ? "Wochenplan laden" : "Load weekly plan"}
+							</Button>
+						</Stack>
+
 						<Stack
 							direction="row"
 							spacing={1}
@@ -691,7 +1066,15 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 								disabled={this.state.busy}
 								onClick={() => void this.savePlan()}
 							>
-								Save
+								{this.isDe() ? "Speichern" : "Save"}
+							</Button>
+							<Button
+								size="small"
+								variant="outlined"
+								disabled={this.state.busy}
+								onClick={() => void this.applyCurrentDayToDailyPlan()}
+							>
+								{this.isDe() ? "Als Tagesplan" : "To daily plan"}
 							</Button>
 							<Button
 								size="small"
@@ -703,6 +1086,22 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 								Reset
 							</Button>
 						</Stack>
+
+						<FormControlLabel
+							sx={{ mb: 0.5 }}
+							control={
+								<Checkbox
+									size="small"
+									checked={this.getLoadDailyFromWeeklyChecked()}
+									onChange={(_, checked) => void this.setLoadDailyFromWeekly(checked)}
+								/>
+							}
+							label={
+								this.isDe()
+									? "Tagesplan täglich aus Wochenplan laden"
+									: "Load daily plan from weekly plan each day"
+							}
+						/>
 
 						<FormControlLabel
 							sx={{ mb: 1 }}

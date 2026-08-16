@@ -34,7 +34,15 @@ declare global {
 			periodNightStart: string;
 			periodNightEnd: string;
 			periodNightColor: string;
+			weekdayColorMon: string;
+			weekdayColorTue: string;
+			weekdayColorWed: string;
+			weekdayColorThu: string;
+			weekdayColorFri: string;
+			weekdayColorSat: string;
+			weekdayColorSun: string;
 			customPictograms: Array<{ file?: string; label?: string; tags?: string }>;
+			weeklyPlanRows: Array<{ id?: string; name?: string; active?: string }>;
 		}
 	}
 }

@@ -413,6 +413,173 @@
 				}
 			}
 		},
+		"_weeklyTab": {
+			"type": "panel",
+			"label": "weekly_tab",
+			"items": {
+				"_weeklyHeader": {
+					"type": "header",
+					"text": "weekly_header",
+					"size": 1,
+					"xs": 12,
+					"sm": 12,
+					"md": 12,
+					"lg": 12,
+					"xl": 12
+				},
+				"_weeklyColorsHint": {
+					"type": "staticText",
+					"text": "weekly_colors_hint",
+					"style": { "fontSize": "0.9em", "opacity": 0.85 },
+					"xs": 12,
+					"sm": 12,
+					"md": 12,
+					"lg": 12,
+					"xl": 12
+				},
+				"weekdayColorMon": {
+					"type": "color",
+					"label": "weekday_mon",
+					"newLine": true,
+					"xs": 12,
+					"sm": 6,
+					"md": 3,
+					"lg": 3,
+					"xl": 3
+				},
+				"weekdayColorTue": {
+					"type": "color",
+					"label": "weekday_tue",
+					"xs": 12,
+					"sm": 6,
+					"md": 3,
+					"lg": 3,
+					"xl": 3
+				},
+				"weekdayColorWed": {
+					"type": "color",
+					"label": "weekday_wed",
+					"xs": 12,
+					"sm": 6,
+					"md": 3,
+					"lg": 3,
+					"xl": 3
+				},
+				"weekdayColorThu": {
+					"type": "color",
+					"label": "weekday_thu",
+					"xs": 12,
+					"sm": 6,
+					"md": 3,
+					"lg": 3,
+					"xl": 3
+				},
+				"weekdayColorFri": {
+					"type": "color",
+					"label": "weekday_fri",
+					"newLine": true,
+					"xs": 12,
+					"sm": 6,
+					"md": 3,
+					"lg": 3,
+					"xl": 3
+				},
+				"weekdayColorSat": {
+					"type": "color",
+					"label": "weekday_sat",
+					"xs": 12,
+					"sm": 6,
+					"md": 3,
+					"lg": 3,
+					"xl": 3
+				},
+				"weekdayColorSun": {
+					"type": "color",
+					"label": "weekday_sun",
+					"xs": 12,
+					"sm": 6,
+					"md": 3,
+					"lg": 3,
+					"xl": 3
+				},
+				"_weeklyPlansHeader": {
+					"type": "header",
+					"text": "weekly_plans_header",
+					"size": 2,
+					"newLine": true,
+					"xs": 12,
+					"sm": 12,
+					"md": 12,
+					"lg": 12,
+					"xl": 12
+				},
+				"_weeklyPlansHint": {
+					"type": "staticText",
+					"text": "weekly_plans_hint",
+					"style": { "fontSize": "0.9em", "opacity": 0.85 },
+					"xs": 12,
+					"sm": 12,
+					"md": 12,
+					"lg": 12,
+					"xl": 12
+				},
+				"_syncWeeklyPlans": {
+					"type": "sendTo",
+					"label": "weekly_plans_refresh",
+					"command": "syncWeeklyPlansTable",
+					"useNative": true,
+					"onLoaded": true,
+					"showProcess": true,
+					"variant": "outlined",
+					"icon": "search",
+					"newLine": true,
+					"xs": 12,
+					"sm": 12,
+					"md": 12,
+					"lg": 12,
+					"xl": 12
+				},
+				"weeklyPlanRows": {
+					"type": "table",
+					"label": "weekly_plans_table",
+					"noDelete": false,
+					"clone": false,
+					"import": false,
+					"export": false,
+					"newLine": true,
+					"xs": 12,
+					"sm": 12,
+					"md": 12,
+					"lg": 12,
+					"xl": 12,
+					"items": [
+						{
+							"type": "text",
+							"attr": "id",
+							"title": "weekly_plan_id",
+							"width": "30%",
+							"default": "",
+							"disabled": "true"
+						},
+						{
+							"type": "text",
+							"attr": "name",
+							"title": "weekly_plan_name",
+							"width": "45%",
+							"default": ""
+						},
+						{
+							"type": "text",
+							"attr": "active",
+							"title": "weekly_plan_active",
+							"width": "25%",
+							"default": "",
+							"disabled": "true"
+						}
+					]
+				}
+			}
+		},
 		"_pictogramsTab": {
 			"type": "panel",
 			"label": "pictograms_tab",

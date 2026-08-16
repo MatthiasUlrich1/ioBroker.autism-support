@@ -26,6 +26,7 @@ var import_timer_manager = require("./lib/timer-manager");
 var import_day_periods = require("./lib/day-periods");
 var import_schedule_types = require("./lib/schedule-types");
 var import_pictogram_library = require("./lib/pictogram-library");
+var import_weekly_plan = require("./lib/weekly-plan");
 const TIMER_CHANNEL = "timer";
 const SCHEDULE_CHANNEL = "schedule";
 function secondsToParts(totalSeconds) {
@@ -39,6 +40,8 @@ class AutismSupport extends utils.Adapter {
   timerManager = null;
   scheduleTick = null;
   dayPeriods = [];
+  weekdayColors = (0, import_weekly_plan.weekdayColorsFromConfig)({});
+  lastAppliedWeekday = null;
   constructor(options = {}) {
     super({
       ...options,
@@ -54,10 +57,15 @@ class AutismSupport extends utils.Adapter {
     const maxHours = (_a = this.config.maxDurationHours) != null ? _a : 24;
     const defaultSeconds = this.getDefaultDurationSeconds(maxHours);
     this.dayPeriods = (0, import_day_periods.dayPeriodsFromConfig)(this.config);
+    this.weekdayColors = (0, import_weekly_plan.weekdayColorsFromConfig)(this.config);
     await this.createTimerStates();
     await this.ensurePictogramStore();
     await this.syncCustomPictogramsConfig();
     await this.createScheduleStates();
+    if (Array.isArray(this.config.weeklyPlanRows) && this.config.weeklyPlanRows.length > 0) {
+      await this.applyWeeklyPlanRowsFromConfig();
+    }
+    await this.syncWeeklyPlansTableToNative();
     this.timerManager = new import_timer_manager.TimerManager(
       async (snapshot) => {
         await this.publishTimerSnapshot(snapshot);
@@ -75,7 +83,7 @@ class AutismSupport extends utils.Adapter {
     this.scheduleTick = this.setInterval(() => {
       void this.publishScheduleRuntime();
     }, 3e4);
-    this.log.info("Autism Support adapter ready \u2013 Visual Countdown + Daily Schedule");
+    this.log.info("Autism Support adapter ready \u2013 Visual Countdown + Weekly Schedule");
   }
   getDefaultDurationSeconds(maxHours) {
     var _a, _b;
@@ -300,6 +308,53 @@ class AutismSupport extends utils.Adapter {
       },
       native: {}
     });
+    await this.setObjectNotExistsAsync(`${SCHEDULE_CHANNEL}.weeklyPlan`, {
+      type: "state",
+      common: {
+        name: "Active weekly plan (JSON, Mon\u2013Sun)",
+        type: "string",
+        role: "json",
+        read: true,
+        write: true,
+        def: JSON.stringify((0, import_weekly_plan.createEmptyWeeklyPlan)())
+      },
+      native: {}
+    });
+    await this.setObjectNotExistsAsync(`${SCHEDULE_CHANNEL}.weeklyPlansLibrary`, {
+      type: "state",
+      common: {
+        name: "Saved weekly plans library (JSON)",
+        type: "string",
+        role: "json",
+        read: true,
+        write: true,
+        def: JSON.stringify({ version: 1, activeId: null, plans: [] })
+      },
+      native: {}
+    });
+    await this.setObjectNotExistsAsync(`${SCHEDULE_CHANNEL}.loadDailyFromWeekly`, {
+      type: "state",
+      common: {
+        name: "Load daily plan from active weekly plan each day",
+        type: "boolean",
+        role: "switch",
+        read: true,
+        write: true,
+        def: false
+      },
+      native: {}
+    });
+    await this.setObjectNotExistsAsync(`${SCHEDULE_CHANNEL}.weekdayColors`, {
+      type: "state",
+      common: {
+        name: "Weekday background colors from admin (JSON)",
+        type: "string",
+        role: "json",
+        read: true,
+        write: false
+      },
+      native: {}
+    });
     const planState = await this.getStateAsync(`${SCHEDULE_CHANNEL}.plan`);
     if ((planState == null ? void 0 : planState.val) == null || planState.val === "") {
       await this.setState(`${SCHEDULE_CHANNEL}.plan`, JSON.stringify({ version: 1, items: [] }), true);
@@ -312,7 +367,29 @@ class AutismSupport extends utils.Adapter {
     if ((clearAfterState == null ? void 0 : clearAfterState.val) == null) {
       await this.setState(`${SCHEDULE_CHANNEL}.clearAfterLast`, false, true);
     }
+    const loadDailyState = await this.getStateAsync(`${SCHEDULE_CHANNEL}.loadDailyFromWeekly`);
+    if ((loadDailyState == null ? void 0 : loadDailyState.val) == null) {
+      await this.setState(`${SCHEDULE_CHANNEL}.loadDailyFromWeekly`, false, true);
+    }
+    const weeklyState = await this.getStateAsync(`${SCHEDULE_CHANNEL}.weeklyPlan`);
+    if ((weeklyState == null ? void 0 : weeklyState.val) == null || weeklyState.val === "") {
+      const seed = (0, import_schedule_types.parseSchedulePlan)(planState == null ? void 0 : planState.val);
+      await this.setState(
+        `${SCHEDULE_CHANNEL}.weeklyPlan`,
+        JSON.stringify((0, import_weekly_plan.createEmptyWeeklyPlan)(seed.items.length ? seed : void 0)),
+        true
+      );
+    }
+    const libraryState = await this.getStateAsync(`${SCHEDULE_CHANNEL}.weeklyPlansLibrary`);
+    if ((libraryState == null ? void 0 : libraryState.val) == null || libraryState.val === "") {
+      await this.setState(
+        `${SCHEDULE_CHANNEL}.weeklyPlansLibrary`,
+        JSON.stringify({ version: 1, activeId: null, plans: [] }),
+        true
+      );
+    }
     await this.setState(`${SCHEDULE_CHANNEL}.periods`, JSON.stringify(this.dayPeriods), true);
+    await this.setState(`${SCHEDULE_CHANNEL}.weekdayColors`, JSON.stringify(this.weekdayColors), true);
     await this.publishPictogramLibrary();
   }
   async buildCustomPictogramRows() {
@@ -404,8 +481,48 @@ class AutismSupport extends utils.Adapter {
       enabled: overrides[period.id] === void 0 ? period.enabled : Boolean(overrides[period.id])
     }));
   }
+  async getWeeklyPlan() {
+    const state = await this.getStateAsync(`${SCHEDULE_CHANNEL}.weeklyPlan`);
+    return (0, import_weekly_plan.parseWeeklyPlan)(state == null ? void 0 : state.val);
+  }
+  async getWeeklyPlansLibrary() {
+    const state = await this.getStateAsync(`${SCHEDULE_CHANNEL}.weeklyPlansLibrary`);
+    return (0, import_weekly_plan.parseWeeklyPlansLibrary)(state == null ? void 0 : state.val);
+  }
+  async syncWeeklyPlansTableToNative() {
+    const library = await this.getWeeklyPlansLibrary();
+    const rows = (0, import_weekly_plan.weeklyPlanRowsFromLibrary)(library);
+    await this.extendObject(`system.adapter.${this.namespace}`, {
+      native: { weeklyPlanRows: rows }
+    });
+    this.config.weeklyPlanRows = rows;
+  }
+  async applyWeeklyPlanRowsFromConfig() {
+    const library = await this.getWeeklyPlansLibrary();
+    const next = (0, import_weekly_plan.applyWeeklyPlanRowsToLibrary)(library, this.config.weeklyPlanRows);
+    if (JSON.stringify(next) !== JSON.stringify(library)) {
+      await this.setState(`${SCHEDULE_CHANNEL}.weeklyPlansLibrary`, JSON.stringify(next), true);
+    }
+  }
+  async maybeApplyWeeklyToDaily() {
+    const loadState = await this.getStateAsync(`${SCHEDULE_CHANNEL}.loadDailyFromWeekly`);
+    if (!(loadState == null ? void 0 : loadState.val)) {
+      return;
+    }
+    const weekday = (0, import_weekly_plan.weekdayKeyFromDate)(/* @__PURE__ */ new Date());
+    const weekly = await this.getWeeklyPlan();
+    const dayPlan = weekly.days[weekday];
+    const current = await this.getPlan();
+    if (this.lastAppliedWeekday === weekday && (0, import_weekly_plan.schedulePlansEqual)(current, dayPlan)) {
+      return;
+    }
+    await this.setState(`${SCHEDULE_CHANNEL}.plan`, JSON.stringify(dayPlan), true);
+    this.lastAppliedWeekday = weekday;
+    this.log.debug(`Daily plan loaded from weekly plan (${weekday})`);
+  }
   async publishScheduleRuntime() {
     var _a;
+    await this.maybeApplyWeeklyToDaily();
     const now = /* @__PURE__ */ new Date();
     const minutes = now.getHours() * 60 + now.getMinutes();
     const periods = await this.getEffectivePeriods();
@@ -420,6 +537,7 @@ class AutismSupport extends utils.Adapter {
     }
     const itemIndex = (0, import_schedule_types.findCurrentItemIndex)(plan, minutes, import_day_periods.parseTimeToMinutes);
     await this.setState(`${SCHEDULE_CHANNEL}.periods`, JSON.stringify(this.dayPeriods), true);
+    await this.setState(`${SCHEDULE_CHANNEL}.weekdayColors`, JSON.stringify(this.weekdayColors), true);
     await this.setState(`${SCHEDULE_CHANNEL}.nowMinutes`, minutes, true);
     await this.setState(`${SCHEDULE_CHANNEL}.currentPeriod`, (_a = period == null ? void 0 : period.id) != null ? _a : "", true);
     await this.setState(`${SCHEDULE_CHANNEL}.currentItemIndex`, itemIndex, true);
@@ -446,6 +564,19 @@ class AutismSupport extends utils.Adapter {
         }
       } else if (localId2 === "clearAfterLast") {
         await this.setState(`${SCHEDULE_CHANNEL}.clearAfterLast`, Boolean(state.val), true);
+        await this.publishScheduleRuntime();
+      } else if (localId2 === "weeklyPlan") {
+        const weekly = (0, import_weekly_plan.parseWeeklyPlan)(state.val);
+        await this.setState(`${SCHEDULE_CHANNEL}.weeklyPlan`, JSON.stringify(weekly), true);
+        this.lastAppliedWeekday = null;
+        await this.publishScheduleRuntime();
+      } else if (localId2 === "weeklyPlansLibrary") {
+        const library = (0, import_weekly_plan.parseWeeklyPlansLibrary)(state.val);
+        await this.setState(`${SCHEDULE_CHANNEL}.weeklyPlansLibrary`, JSON.stringify(library), true);
+        await this.syncWeeklyPlansTableToNative();
+      } else if (localId2 === "loadDailyFromWeekly") {
+        await this.setState(`${SCHEDULE_CHANNEL}.loadDailyFromWeekly`, Boolean(state.val), true);
+        this.lastAppliedWeekday = null;
         await this.publishScheduleRuntime();
       }
       return;
@@ -577,6 +708,21 @@ class AutismSupport extends utils.Adapter {
         this.config.customPictograms = rows;
         await this.publishPictogramLibrary();
         this.reply(obj, { ok: true, native: { customPictograms: rows } });
+        return;
+      }
+      if (obj.command === "syncWeeklyPlansTable") {
+        const nativeMsg = obj.message;
+        if (Array.isArray(nativeMsg == null ? void 0 : nativeMsg.weeklyPlanRows)) {
+          this.config.weeklyPlanRows = nativeMsg.weeklyPlanRows;
+          await this.applyWeeklyPlanRowsFromConfig();
+        }
+        await this.syncWeeklyPlansTableToNative();
+        const library = await this.getWeeklyPlansLibrary();
+        this.reply(obj, {
+          ok: true,
+          native: { weeklyPlanRows: this.config.weeklyPlanRows || [] },
+          activeId: library.activeId
+        });
         return;
       }
       if (obj.command === "uploadPictogram") {

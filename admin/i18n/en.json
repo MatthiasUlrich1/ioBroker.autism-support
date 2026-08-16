@@ -30,5 +30,22 @@
 	"custom_pictogram_refresh": "Refresh list",
 	"custom_pictogram_file": "Image",
 	"custom_pictogram_label": "Name",
-	"custom_pictogram_tags": "Tags (comma-separated)"
+	"custom_pictogram_tags": "Tags (comma-separated)",
+	"weekly_tab": "Weekly plan",
+	"weekly_header": "Weekly plan – weekday colors and templates",
+	"weekly_colors_hint": "Background colors for weekdays in the Weekly Overview live widget.",
+	"weekday_mon": "Monday",
+	"weekday_tue": "Tuesday",
+	"weekday_wed": "Wednesday",
+	"weekday_thu": "Thursday",
+	"weekday_fri": "Friday",
+	"weekday_sat": "Saturday",
+	"weekday_sun": "Sunday",
+	"weekly_plans_header": "Saved weekly plans",
+	"weekly_plans_hint": "Edit names or delete rows, then refresh the list and save the instance. “●” marks the currently loaded/active plan (set in the Config widget).",
+	"weekly_plans_refresh": "Refresh list",
+	"weekly_plans_table": "Saved weekly plans",
+	"weekly_plan_id": "ID",
+	"weekly_plan_name": "Name",
+	"weekly_plan_active": "Active"
 }

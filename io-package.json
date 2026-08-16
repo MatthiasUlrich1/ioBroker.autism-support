@@ -1,8 +1,21 @@
 {
 	"common": {
 		"name": "autism-support",
-		"version": "0.1.27",
+		"version": "0.2.1",
 		"news": {
+			"0.2.1": {
+				"en": "Weekly plans: weekday tabs, templates, Admin colors, week live overview, daily sync",
+				"de": "Wochenpläne: Wochentags-Tabs, Vorlagen, Admin-Farben, Live-Wochenübersicht, Tages-Sync",
+				"ru": "Weekly plans: weekday tabs, templates, Admin colors, week live overview, daily sync",
+				"pt": "Weekly plans: weekday tabs, templates, Admin colors, week live overview, daily sync",
+				"nl": "Weekly plans: weekday tabs, templates, Admin colors, week live overview, daily sync",
+				"fr": "Weekly plans: weekday tabs, templates, Admin colors, week live overview, daily sync",
+				"it": "Weekly plans: weekday tabs, templates, Admin colors, week live overview, daily sync",
+				"es": "Weekly plans: weekday tabs, templates, Admin colors, week live overview, daily sync",
+				"pl": "Weekly plans: weekday tabs, templates, Admin colors, week live overview, daily sync",
+				"uk": "Weekly plans: weekday tabs, templates, Admin colors, week live overview, daily sync",
+				"zh-cn": "Weekly plans: weekday tabs, templates, Admin colors, week live overview, daily sync"
+			},
 			"0.1.27": {
 				"en": "ioBroker compliance: news trim, jsonConfig, i18n; keep package checker-ready",
 				"de": "ioBroker-Konformität: News gekürzt, jsonConfig, i18n; Adapter-Checker bereit",
@@ -80,19 +93,6 @@
 				"pl": "Fix pictogram folder: library in adapter store, placeholder in vis-2; remove broken _library.json",
 				"uk": "Fix pictogram folder: library in adapter store, placeholder in vis-2; remove broken _library.json",
 				"zh-cn": "Fix pictogram folder: library in adapter store, placeholder in vis-2; remove broken _library.json"
-			},
-			"0.1.18": {
-				"en": "Fix Admin GUI crash: custom pictogram upload from computer via adapter",
-				"de": "GUI-Absturz behoben: eigener Piktogramm-Upload vom Computer ueber Adapter",
-				"ru": "Fix Admin GUI crash: custom pictogram upload from computer via adapter",
-				"pt": "Fix Admin GUI crash: custom pictogram upload from computer via adapter",
-				"nl": "Fix Admin GUI crash: custom pictogram upload from computer via adapter",
-				"fr": "Fix Admin GUI crash: custom pictogram upload from computer via adapter",
-				"it": "Fix Admin GUI crash: custom pictogram upload from computer via adapter",
-				"es": "Fix Admin GUI crash: custom pictogram upload from computer via adapter",
-				"pl": "Fix Admin GUI crash: custom pictogram upload from computer via adapter",
-				"uk": "Fix Admin GUI crash: custom pictogram upload from computer via adapter",
-				"zh-cn": "Fix Admin GUI crash: custom pictogram upload from computer via adapter"
 			}
 		},
 		"titleLang": {
@@ -193,6 +193,15 @@
 				"components": [
 					"DailyScheduleConfigWidget"
 				]
+			},
+			"asWeeklyScheduleLive": {
+				"i18n": "component",
+				"name": "asWeeklyScheduleLive",
+				"url": "autism-support/customWidgets.js",
+				"bundlerType": "module",
+				"components": [
+					"WeeklyScheduleLiveWidget"
+				]
 			}
 		},
 		"dependencies": [
@@ -237,7 +246,15 @@
 		"periodNightStart": "21:00",
 		"periodNightEnd": "06:00",
 		"periodNightColor": "#5C6BC0",
-		"customPictograms": []
+		"weekdayColorMon": "#BBDEFB",
+		"weekdayColorTue": "#C8E6C9",
+		"weekdayColorWed": "#FFF9C4",
+		"weekdayColorThu": "#FFE0B2",
+		"weekdayColorFri": "#F8BBD0",
+		"weekdayColorSat": "#E1BEE7",
+		"weekdayColorSun": "#B2EBF2",
+		"customPictograms": [],
+		"weeklyPlanRows": []
 	},
 	"objects": []
 }
