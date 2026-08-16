@@ -81,6 +81,10 @@ npm run start
 
 See [CHANGELOG_OLD.md](CHANGELOG_OLD.md) for older entries.
 
+### 0.1.25
+- Fix Config widget showing the previous plan after save
+- Allow up to 3 nested pictogram columns for overlapping schedule items
+
 ### 0.1.24
 - Sun/moon pictograms on the day-period time bar in Live and Config Daily Schedule widgets
 

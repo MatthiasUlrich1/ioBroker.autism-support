@@ -1,8 +1,21 @@
 {
 	"common": {
 		"name": "autism-support",
-		"version": "0.1.24",
+		"version": "0.1.25",
 		"news": {
+			"0.1.25": {
+				"en": "Fix Config schedule preview after save; allow 3 nested pictogram columns",
+				"de": "Config-Vorschau nach Speichern repariert; bis zu 3 verschachtelte Piktogramm-Spalten",
+				"ru": "Исправлено превью Config после сохранения; до 3 вложенных колонок",
+				"pt": "Corrigida previa Config apos guardar; ate 3 colunas aninhadas",
+				"nl": "Config-voorbeeld na opslaan hersteld; tot 3 geneste kolommen",
+				"fr": "Apercu Config apres enregistrement corrige; jusqu a 3 colonnes imbriquees",
+				"it": "Anteprima Config dopo salvataggio corretta; fino a 3 colonne annidate",
+				"es": "Vista previa Config tras guardar corregida; hasta 3 columnas anidadas",
+				"pl": "Naprawiono podglad Config po zapisie; do 3 zagniezdzonych kolumn",
+				"uk": "Виправлено прев’ю Config після збереження; до 3 вкладених колонок",
+				"zh-cn": "修复配置预览保存后回退；支持最多 3 列嵌套象形图"
+			},
 			"0.1.24": {
 				"en": "Sun/moon pictograms on the day-period time bar in Live and Config schedule widgets",
 				"de": "Sonnen-/Mond-Piktogramme auf der Tagesbereich-Leiste in Live- und Config-Ablaufplan",

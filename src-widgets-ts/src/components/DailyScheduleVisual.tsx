@@ -198,8 +198,8 @@ export function computeNowMarkerTop(blocks: PeriodBlockLayout[], nowMinutes: num
 	return null;
 }
 
-/** Greedy lane packing for overlaps; at most 2 columns. */
-export function assignLanes(placements: Array<{ startMin: number; endMin: number }>, maxLanes = 2): number[] {
+/** Greedy lane packing for overlaps; at most 3 nested columns. */
+export function assignLanes(placements: Array<{ startMin: number; endMin: number }>, maxLanes = 3): number[] {
 	const order = placements
 		.map((p, index) => ({ index, startMin: p.startMin, endMin: p.endMin }))
 		.sort((a, b) => a.startMin - b.startMin || b.endMin - a.endMin);
@@ -374,9 +374,9 @@ function renderItemCard(
 	const active = isItemActiveAt(item, nowMinutes);
 	const img = resolveItemImageUrl(item, adapterInstance);
 	const inset = 2;
-	// Column 2 starts after column-1 pictogram so images never overlap,
-	// but both frames still reach the time bar (nested).
-	const leftPx = lane === 0 ? inset : inset + pictoPx + 12;
+	// Each further lane starts after the previous pictogram so images never overlap,
+	// but frames still reach the time bar (nested columns).
+	const leftPx = inset + lane * (pictoPx + 12);
 	const zIndex = (lane + 1) * 4 + (active ? 2 : 0);
 
 	return (
@@ -448,7 +448,7 @@ function renderItemCard(
 }
 
 /**
- * Stretched period bar + fixed-size pictograms; overlaps use a 2nd column.
+ * Stretched period bar + fixed-size pictograms; overlaps use up to 3 nested columns.
  * Pictograms and bar share one scroll container.
  */
 export default function DailyScheduleVisual({
@@ -502,7 +502,7 @@ export default function DailyScheduleVisual({
 								flex: 1,
 								position: "relative",
 								height: totalHeight,
-								minWidth: pictoPx * 2 + 36,
+								minWidth: pictoPx * Math.max(1, laneCount) + (Math.max(1, laneCount) - 1) * 12 + 36,
 							}}
 						>
 							{placements.map(placement => (
@@ -600,8 +600,8 @@ export default function DailyScheduleVisual({
 
 			<div style={{ fontSize: 11, opacity: 0.7 }}>
 				{locale.startsWith("de")
-					? `${sorted.length} Piktogramm${sorted.length === 1 ? "" : "e"} · ${barBlocks.length} Tagesbereich${barBlocks.length === 1 ? "" : "e"}${laneCount > 1 ? " · 2 Spalten" : ""}`
-					: `${sorted.length} pictogram${sorted.length === 1 ? "" : "s"} · ${barBlocks.length} day period${barBlocks.length === 1 ? "" : "s"}${laneCount > 1 ? " · 2 columns" : ""}`}
+					? `${sorted.length} Piktogramm${sorted.length === 1 ? "" : "e"} · ${barBlocks.length} Tagesbereich${barBlocks.length === 1 ? "" : "e"}${laneCount > 1 ? ` · ${laneCount} Spalten` : ""}`
+					: `${sorted.length} pictogram${sorted.length === 1 ? "" : "s"} · ${barBlocks.length} day period${barBlocks.length === 1 ? "" : "s"}${laneCount > 1 ? ` · ${laneCount} columns` : ""}`}
 			</div>
 
 			<div style={{ display: "flex", flexWrap: "wrap", gap: 8, fontSize: 12 }}>

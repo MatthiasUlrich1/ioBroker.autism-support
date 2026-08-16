@@ -198,9 +198,14 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 		void this.bootstrapLibrary();
 	}
 
-	onStateUpdated(id: string, _state: ioBroker.State | null | undefined): void {
+	onStateUpdated(id: string, state: ioBroker.State | null | undefined): void {
 		if (id === this.state.rxData.oidPlan) {
-			this.syncDraftFromState();
+			// Mid-save: keep the draft we just wrote; this.state.values may still be stale.
+			if (this.state.busy) {
+				return;
+			}
+			// Prefer callback state.val — this.state.values can lag behind the event.
+			this.syncDraftFromState(state?.val);
 		}
 		if (id === this.libraryOid()) {
 			this.syncLibraryFromState();
@@ -241,9 +246,19 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 		return { ...fromState, ...this.state.localPeriodOverrides };
 	}
 
-	private syncDraftFromState(): void {
-		const plan = parseSchedulePlan(this.state.values[`${this.state.rxData.oidPlan}.val`]);
-		this.setState({ draft: plan, selectedIndex: plan.items.length ? 0 : -1 });
+	private syncDraftFromState(raw?: unknown): void {
+		const plan = parseSchedulePlan(
+			raw !== undefined ? raw : this.state.values[`${this.state.rxData.oidPlan}.val`],
+		);
+		this.setState(prev => {
+			const nextIndex =
+				plan.items.length === 0
+					? -1
+					: prev.selectedIndex >= 0 && prev.selectedIndex < plan.items.length
+						? prev.selectedIndex
+						: 0;
+			return { draft: plan, selectedIndex: nextIndex };
+		});
 	}
 
 	private updateItem(index: number, patch: Partial<ScheduleItem>): void {
@@ -258,9 +273,12 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 		if (!oid) {
 			return;
 		}
+		const toSave = this.state.draft;
 		this.setState({ busy: true });
 		try {
-			await this.props.context.socket.setState(oid, JSON.stringify(this.state.draft), false);
+			await this.props.context.socket.setState(oid, JSON.stringify(toSave), false);
+			// Keep the saved draft visible even if a stale state echo arrives next.
+			this.setState({ draft: toSave });
 		} finally {
 			this.setState({ busy: false });
 		}
