@@ -144,7 +144,7 @@ class AutismSupport extends utils.Adapter {
 		> = {
 			duration: {
 				type: "number",
-				role: "value.interval",
+				role: "level.timer",
 				name: "Timer duration (seconds)",
 				read: true,
 				write: true,
@@ -154,7 +154,7 @@ class AutismSupport extends utils.Adapter {
 			},
 			remaining: {
 				type: "number",
-				role: "value.interval",
+				role: "value.timer",
 				name: "Timer remaining (seconds)",
 				read: true,
 				write: false,
@@ -162,7 +162,7 @@ class AutismSupport extends utils.Adapter {
 			},
 			elapsed: {
 				type: "number",
-				role: "value.interval",
+				role: "value.timer",
 				name: "Timer elapsed (seconds)",
 				read: true,
 				write: false,
@@ -262,9 +262,9 @@ class AutismSupport extends utils.Adapter {
 	/** Update roles/read flags on existing timer states (object-structure compliance). */
 	private async migrateTimerStateRoles(): Promise<void> {
 		const patches: Record<string, { role?: string; read?: boolean }> = {
-			duration: { role: "value.interval" },
-			remaining: { role: "value.interval" },
-			elapsed: { role: "value.interval" },
+			duration: { role: "level.timer" },
+			remaining: { role: "value.timer" },
+			elapsed: { role: "value.timer" },
 			start: { read: false },
 			pause: { read: false },
 			resume: { read: false },

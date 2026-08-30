@@ -1,8 +1,21 @@
 {
 	"common": {
 		"name": "autism-support",
-		"version": "0.2.2",
+		"version": "0.2.3",
 		"news": {
+			"0.2.3": {
+				"en": "Fix timer duration role: level.timer (writable), value.timer for remaining/elapsed",
+				"de": "Timer-Rolle korrigiert: level.timer (schreibbar), value.timer für remaining/elapsed",
+				"ru": "Исправлена роль таймера: level.timer (запись), value.timer для remaining/elapsed",
+				"pt": "Corrigida role do timer: level.timer (gravável), value.timer para remaining/elapsed",
+				"nl": "Timer-rol gecorrigeerd: level.timer (schrijfbaar), value.timer voor remaining/elapsed",
+				"fr": "Rôle timer corrigé : level.timer (écriture), value.timer pour remaining/elapsed",
+				"it": "Ruolo timer corretto: level.timer (scrivibile), value.timer per remaining/elapsed",
+				"es": "Rol timer corregido: level.timer (escribible), value.timer para remaining/elapsed",
+				"pl": "Poprawiono rolę timera: level.timer (zapis), value.timer dla remaining/elapsed",
+				"uk": "Виправлено роль таймера: level.timer (запис), value.timer для remaining/elapsed",
+				"zh-cn": "修复计时器角色：level.timer（可写），remaining/elapsed 用 value.timer"
+			},
 			"0.2.2": {
 				"en": "Fix object structure: timer channel, value.interval roles, button read flags",
 				"de": "Objektstruktur repariert: Timer-Kanal, value.interval-Rollen, Button read-Flags",
