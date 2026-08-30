@@ -30,9 +30,10 @@ describe("io-package policy", () => {
 		assert.ok(newsKeys.includes(version), `news missing current version ${version}`);
 	});
 
-	it("common.title is set (English short name)", () => {
-		assert.ok(typeof ioPackage.common.title === "string" && ioPackage.common.title.length > 0);
-		assert.ok(!/iobroker|adapter/i.test(ioPackage.common.title));
+	it("common.titleLang.en is set (English short name)", () => {
+		const title = ioPackage.common.titleLang?.en || ioPackage.common.title;
+		assert.ok(typeof title === "string" && title.length > 0);
+		assert.ok(!/iobroker|adapter/i.test(title));
 	});
 
 	it("common.desc.en is English (not German boilerplate)", () => {
