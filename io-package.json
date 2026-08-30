@@ -1,8 +1,21 @@
 {
 	"common": {
 		"name": "autism-support",
-		"version": "0.2.4",
+		"version": "0.2.5",
 		"news": {
+			"0.2.5": {
+				"en": "Fix system.adapter config path; trim news for ioBroker E1032 (CI release)",
+				"de": "system.adapter-Konfig-Pfad repariert; News gekürzt für ioBroker E1032 (CI-Release)",
+				"ru": "Исправлен путь system.adapter; news сокращены для E1032 (CI release)",
+				"pt": "Corrigido caminho system.adapter; news reduzidas para E1032 (release CI)",
+				"nl": "system.adapter-pad gerepareerd; news ingekort voor E1032 (CI-release)",
+				"fr": "Chemin system.adapter corrigé ; news réduites pour E1032 (release CI)",
+				"it": "Percorso system.adapter corretto; news ridotte per E1032 (release CI)",
+				"es": "Ruta system.adapter corregida; news recortadas para E1032 (release CI)",
+				"pl": "Naprawiono ścieżkę system.adapter; news skrócone dla E1032 (release CI)",
+				"uk": "Виправлено шлях system.adapter; news скорочено для E1032 (CI release)",
+				"zh-cn": "修复 system.adapter 路径；精简 news 以通过 E1032（CI 发布）"
+			},
 			"0.2.4": {
 				"en": "Fix instance config path: use extendForeignObject for system.adapter (remove misplaced object)",
 				"de": "Instanz-Konfig-Pfad repariert: extendForeignObject für system.adapter (falsches Objekt entfernen)",
@@ -80,45 +93,6 @@
 				"pl": "Config: nowy piktogram po wybranym; duplikuj max. 3 równolegle",
 				"uk": "Config: новий піктограм після вибраного; дублювання макс. 3 паралельно",
 				"zh-cn": "Config：新象形图接所选项之后；复制最多 3 个并行"
-			},
-			"0.1.25": {
-				"en": "Fix Config schedule preview after save; allow 3 nested pictogram columns",
-				"de": "Config-Vorschau nach Speichern repariert; bis zu 3 verschachtelte Piktogramm-Spalten",
-				"ru": "Исправлен предпросмотр Config после сохранения; до 3 вложенных колонок",
-				"pt": "Corrigida pré-visualização Config após guardar; até 3 colunas aninhadas",
-				"nl": "Config-voorbeeld na opslaan gerepareerd; tot 3 geneste kolommen",
-				"fr": "Aperçu Config après enregistrement corrigé ; jusqu'à 3 colonnes imbriquées",
-				"it": "Anteprima Config dopo salvataggio corretta; fino a 3 colonne annidate",
-				"es": "Vista previa Config tras guardar corregida; hasta 3 columnas anidadas",
-				"pl": "Podgląd Config po zapisie naprawiony; do 3 zagnieżdżonych kolumn",
-				"uk": "Виправлено попередній перегляд Config після збереження; до 3 вкладених колонок",
-				"zh-cn": "修复 Config 保存后预览；最多 3 列嵌套象形图"
-			},
-			"0.1.24": {
-				"en": "Sun/moon pictograms on the day-period time bar in Live and Config schedule widgets",
-				"de": "Sonnen-/Mond-Piktogramme auf der Tagesbereich-Leiste in Live- und Config-Ablaufplan",
-				"ru": "Пиктограммы солнца/луны на шкале периодов дня в Live и Config",
-				"pt": "Pictogramas sol/lua na barra de períodos do dia em Live e Config",
-				"nl": "Zon/maan-pictogrammen op dagperiode-balk in Live en Config",
-				"fr": "Pictogrammes soleil/lune sur la barre des périodes en Live et Config",
-				"it": "Pittogrammi sole/luna sulla barra periodi in Live e Config",
-				"es": "Pictogramas sol/luna en la barra de periodos del día en Live y Config",
-				"pl": "Piktogramy słońca/księżyca na pasku okresów dnia w Live i Config",
-				"uk": "Піктограми сонця/місяця на смузі періодів дня в Live і Config",
-				"zh-cn": "Live 与 Config 日程条上的日月象形图"
-			},
-			"0.1.23": {
-				"en": "Fix custom pictogram preview: encode vis-2 path (spaces/umlauts) and /files fallback",
-				"de": "Piktogramm-Vorschau repariert: vis-2-Pfad kodieren (Leerzeichen/Umlaute) und /files-Fallback",
-				"ru": "Исправлен предпросмотр pictogram: кодирование пути vis-2 и fallback /files",
-				"pt": "Pré-visualização pictograma corrigida: codificar caminho vis-2 e fallback /files",
-				"nl": "Pictogram-voorbeeld gerepareerd: vis-2-pad coderen en /files-fallback",
-				"fr": "Aperçu pictogramme corrigé : encoder le chemin vis-2 et repli /files",
-				"it": "Anteprima pittogramma corretta: codifica percorso vis-2 e fallback /files",
-				"es": "Vista previa pictograma corregida: codificar ruta vis-2 y fallback /files",
-				"pl": "Podgląd piktogramu naprawiony: kodowanie ścieżki vis-2 i fallback /files",
-				"uk": "Виправлено попередній перегляд піктограм: кодування шляху vis-2 і fallback /files",
-				"zh-cn": "修复自定义象形图预览：编码 vis-2 路径与 /files 回退"
 			}
 		},
 		"titleLang": {
