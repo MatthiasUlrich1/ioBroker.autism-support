@@ -133,7 +133,11 @@ class AutismSupport extends utils.Adapter {
 		}
 	}
 
-	/** Write instance native config only when changed — avoids restart loop on every boot. */
+	/**
+	 * Write instance native config only when changed — avoids restart loop on every boot.
+	 *
+	 * @param patch Native fields to compare and optionally write.
+	 */
 	private async patchInstanceNativeIfChanged(
 		patch: Partial<Pick<ioBroker.AdapterConfig, "customPictograms" | "weeklyPlanRows">>,
 	): Promise<boolean> {
@@ -143,9 +147,11 @@ class AutismSupport extends utils.Adapter {
 		const nextNative: Partial<ioBroker.AdapterConfig> = {};
 		let changed = false;
 
-		for (const [key, value] of Object.entries(patch) as Array<
-			["customPictograms" | "weeklyPlanRows", ioBroker.AdapterConfig["customPictograms"] | ioBroker.AdapterConfig["weeklyPlanRows"]]
-		>) {
+		for (const key of Object.keys(patch) as Array<"customPictograms" | "weeklyPlanRows">) {
+			const value = patch[key];
+			if (value === undefined) {
+				continue;
+			}
 			if (!nativeConfigEquals(currentNative[key], value)) {
 				nextNative[key] = value;
 				changed = true;
@@ -627,7 +633,8 @@ class AutismSupport extends utils.Adapter {
 			let needsWrite = true;
 			try {
 				const existing = await this.readFileAsync(PICTOGRAM_FILE_ADAPTER, placeholderPath);
-				const current = typeof existing.file === "string" ? existing.file : Buffer.from(existing.file).toString("utf8");
+				const current =
+					typeof existing.file === "string" ? existing.file : Buffer.from(existing.file).toString("utf8");
 				needsWrite = current !== hint;
 			} catch {
 				// file missing

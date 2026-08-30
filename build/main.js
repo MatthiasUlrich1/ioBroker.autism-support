@@ -100,14 +100,22 @@ class AutismSupport extends utils.Adapter {
       throw error;
     }
   }
-  /** Write instance native config only when changed — avoids restart loop on every boot. */
+  /**
+   * Write instance native config only when changed — avoids restart loop on every boot.
+   *
+   * @param patch Native fields to compare and optionally write.
+   */
   async patchInstanceNativeIfChanged(patch) {
     const id = instanceConfigId(this.namespace);
     const current = await this.getForeignObjectAsync(id);
     const currentNative = (current == null ? void 0 : current.native) || {};
     const nextNative = {};
     let changed = false;
-    for (const [key, value] of Object.entries(patch)) {
+    for (const key of Object.keys(patch)) {
+      const value = patch[key];
+      if (value === void 0) {
+        continue;
+      }
       if (!nativeConfigEquals(currentNative[key], value)) {
         nextNative[key] = value;
         changed = true;

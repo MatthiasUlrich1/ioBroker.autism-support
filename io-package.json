@@ -1,8 +1,21 @@
 {
 	"common": {
 		"name": "autism-support",
-		"version": "0.2.6",
+		"version": "0.2.7",
 		"news": {
+			"0.2.7": {
+				"en": "Fix restart loop (native config diff) and CI lint formatting",
+				"de": "Neustart-Schleife behoben (native Diff) und CI-Lint-Formatierung",
+				"ru": "Исправлен цикл перезапуска (diff native) и форматирование CI lint",
+				"pt": "Corrigido loop de reinício (diff native) e formatação CI lint",
+				"nl": "Herstart-lus opgelost (native diff) en CI lint-opmaak",
+				"fr": "Boucle redémarrage corrigée (diff native) et formatage CI lint",
+				"it": "Corretto loop riavvio (diff native) e formattazione CI lint",
+				"es": "Corregido bucle reinicio (diff native) y formato CI lint",
+				"pl": "Naprawiono pętlę restartu (diff native) i formatowanie CI lint",
+				"uk": "Виправлено цикл перезапуску (diff native) і форматування CI lint",
+				"zh-cn": "修复重启循环（native diff）及 CI lint 格式"
+			},
 			"0.2.6": {
 				"en": "Fix restart loop: only write system.adapter native config when data changed",
 				"de": "Neustart-Schleife behoben: system.adapter native nur bei Änderung schreiben",
@@ -15,19 +28,6 @@
 				"pl": "Naprawiono pętlę restartu: zapis native system.adapter tylko przy zmianie",
 				"uk": "Виправлено цикл перезапуску: native system.adapter лише при зміні",
 				"zh-cn": "修复重启循环：仅在数据变更时写入 system.adapter native"
-			},
-			"0.2.5": {
-				"en": "Fix system.adapter config path; trim news for ioBroker E1032 (CI release)",
-				"de": "system.adapter-Konfig-Pfad repariert; News gekürzt für ioBroker E1032 (CI-Release)",
-				"ru": "Исправлен путь system.adapter; news сокращены для E1032 (CI release)",
-				"pt": "Corrigido caminho system.adapter; news reduzidas para E1032 (release CI)",
-				"nl": "system.adapter-pad gerepareerd; news ingekort voor E1032 (CI-release)",
-				"fr": "Chemin system.adapter corrigé ; news réduites pour E1032 (release CI)",
-				"it": "Percorso system.adapter corretto; news ridotte per E1032 (release CI)",
-				"es": "Ruta system.adapter corregida; news recortadas para E1032 (release CI)",
-				"pl": "Naprawiono ścieżkę system.adapter; news skrócone dla E1032 (release CI)",
-				"uk": "Виправлено шлях system.adapter; news скорочено для E1032 (CI release)",
-				"zh-cn": "修复 system.adapter 路径；精简 news 以通过 E1032（CI 发布）"
 			},
 			"0.2.4": {
 				"en": "Fix instance config path: use extendForeignObject for system.adapter (remove misplaced object)",
