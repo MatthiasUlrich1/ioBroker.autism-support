@@ -1,8 +1,21 @@
 {
 	"common": {
 		"name": "autism-support",
-		"version": "0.2.3",
+		"version": "0.2.4",
 		"news": {
+			"0.2.4": {
+				"en": "Fix instance config path: use extendForeignObject for system.adapter (remove misplaced object)",
+				"de": "Instanz-Konfig-Pfad repariert: extendForeignObject für system.adapter (falsches Objekt entfernen)",
+				"ru": "Исправлен путь конфигурации: extendForeignObject для system.adapter (удалён ошибочный объект)",
+				"pt": "Corrigido caminho de config: extendForeignObject para system.adapter (remove objeto incorreto)",
+				"nl": "Instance-configpad gerepareerd: extendForeignObject voor system.adapter (verkeerd object verwijderd)",
+				"fr": "Chemin config instance corrigé : extendForeignObject pour system.adapter (supprime objet incorrect)",
+				"it": "Percorso config istanza corretto: extendForeignObject per system.adapter (rimuove oggetto errato)",
+				"es": "Ruta de config corregida: extendForeignObject para system.adapter (elimina objeto incorrecto)",
+				"pl": "Naprawiono ścieżkę konfiguracji: extendForeignObject dla system.adapter (usuwa błędny obiekt)",
+				"uk": "Виправлено шлях конфігурації: extendForeignObject для system.adapter (видаляє помилковий об'єкт)",
+				"zh-cn": "修复实例配置路径：对 system.adapter 使用 extendForeignObject（移除错误对象）"
+			},
 			"0.2.3": {
 				"en": "Fix timer duration role: level.timer (writable), value.timer for remaining/elapsed",
 				"de": "Timer-Rolle korrigiert: level.timer (schreibbar), value.timer für remaining/elapsed",

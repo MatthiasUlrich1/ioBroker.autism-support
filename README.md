@@ -92,6 +92,9 @@ npm run start
 
 See [CHANGELOG_OLD.md](CHANGELOG_OLD.md) for older entries.
 
+### 0.2.4
+- Fix instance config path: `extendForeignObjectAsync` for `system.adapter.*` (removes invalid object under instance namespace)
+
 ### 0.2.2
 - Fix object structure for latest-repo review: `timer` channel, `value.interval` roles, button `read: false`
 

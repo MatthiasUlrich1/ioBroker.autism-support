@@ -29,6 +29,12 @@ var import_pictogram_library = require("./lib/pictogram-library");
 var import_weekly_plan = require("./lib/weekly-plan");
 const TIMER_CHANNEL = "timer";
 const SCHEDULE_CHANNEL = "schedule";
+function instanceConfigId(namespace) {
+  return `system.adapter.${namespace}`;
+}
+function legacyMisplacedInstanceConfigId(namespace) {
+  return `${namespace}.system.adapter.${namespace}`;
+}
 function secondsToParts(totalSeconds) {
   const safe = Math.max(0, Math.round(totalSeconds));
   return {
@@ -58,6 +64,7 @@ class AutismSupport extends utils.Adapter {
     const defaultSeconds = this.getDefaultDurationSeconds(maxHours);
     this.dayPeriods = (0, import_day_periods.dayPeriodsFromConfig)(this.config);
     this.weekdayColors = (0, import_weekly_plan.weekdayColorsFromConfig)(this.config);
+    await this.migrateMisplacedInstanceConfig();
     await this.createTimerStates();
     await this.ensurePictogramStore();
     await this.syncCustomPictogramsConfig();
@@ -212,6 +219,42 @@ class AutismSupport extends utils.Adapter {
       });
     }
     await this.migrateTimerStateRoles();
+  }
+  /**
+   * Earlier versions used extendObject() for system.adapter.* which ioBroker resolves
+   * relative to the instance namespace (autism-support.0.system.adapter...).
+   */
+  async migrateMisplacedInstanceConfig() {
+    const legacyId = legacyMisplacedInstanceConfigId(this.namespace);
+    const legacy = await this.getObjectAsync(legacyId);
+    if (!(legacy == null ? void 0 : legacy.native)) {
+      return;
+    }
+    const native = legacy.native;
+    const patch = {};
+    if (Array.isArray(native.customPictograms)) {
+      patch.customPictograms = native.customPictograms;
+    }
+    if (Array.isArray(native.weeklyPlanRows)) {
+      patch.weeklyPlanRows = native.weeklyPlanRows;
+    }
+    if (Object.keys(patch).length) {
+      await this.extendForeignObjectAsync(instanceConfigId(this.namespace), { native: patch });
+      if (patch.customPictograms) {
+        this.config.customPictograms = patch.customPictograms;
+      }
+      if (patch.weeklyPlanRows) {
+        this.config.weeklyPlanRows = patch.weeklyPlanRows;
+      }
+      this.log.info(`Migrated instance native config from misplaced object ${legacyId}`);
+    }
+    await this.delObjectAsync(legacyId);
+    for (const folderId of [`${this.namespace}.system.adapter`, `${this.namespace}.system`]) {
+      try {
+        await this.delObjectAsync(folderId);
+      } catch {
+      }
+    }
   }
   /** Update roles/read flags on existing timer states (object-structure compliance). */
   async migrateTimerStateRoles() {
@@ -426,7 +469,7 @@ class AutismSupport extends utils.Adapter {
   }
   async syncCustomPictogramsConfig() {
     const rows = await this.buildCustomPictogramRows();
-    await this.extendObject(`system.adapter.${this.namespace}`, {
+    await this.extendForeignObjectAsync(instanceConfigId(this.namespace), {
       native: { customPictograms: rows }
     });
     this.config.customPictograms = rows;
@@ -520,7 +563,7 @@ class AutismSupport extends utils.Adapter {
   async syncWeeklyPlansTableToNative() {
     const library = await this.getWeeklyPlansLibrary();
     const rows = (0, import_weekly_plan.weeklyPlanRowsFromLibrary)(library);
-    await this.extendObject(`system.adapter.${this.namespace}`, {
+    await this.extendForeignObjectAsync(instanceConfigId(this.namespace), {
       native: { weeklyPlanRows: rows }
     });
     this.config.weeklyPlanRows = rows;
@@ -730,7 +773,7 @@ class AutismSupport extends utils.Adapter {
       if (obj.command === "syncPictogramTable") {
         await this.ensurePictogramStore();
         const rows = await this.buildCustomPictogramRows();
-        await this.extendObject(`system.adapter.${this.namespace}`, {
+        await this.extendForeignObjectAsync(instanceConfigId(this.namespace), {
           native: { customPictograms: rows }
         });
         this.config.customPictograms = rows;
