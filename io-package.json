@@ -1,8 +1,21 @@
 {
 	"common": {
 		"name": "autism-support",
-		"version": "0.2.5",
+		"version": "0.2.6",
 		"news": {
+			"0.2.6": {
+				"en": "Fix restart loop: only write system.adapter native config when data changed",
+				"de": "Neustart-Schleife behoben: system.adapter native nur bei Änderung schreiben",
+				"ru": "Исправлен цикл перезапуска: запись native system.adapter только при изменениях",
+				"pt": "Corrigido loop de reinício: grava native system.adapter só quando alterado",
+				"nl": "Herstart-lus opgelost: system.adapter native alleen schrijven bij wijziging",
+				"fr": "Boucle de redémarrage corrigée : native system.adapter écrit seulement si modifié",
+				"it": "Corretto loop di riavvio: native system.adapter scritto solo se modificato",
+				"es": "Corregido bucle de reinicio: native system.adapter solo si cambió",
+				"pl": "Naprawiono pętlę restartu: zapis native system.adapter tylko przy zmianie",
+				"uk": "Виправлено цикл перезапуску: native system.adapter лише при зміні",
+				"zh-cn": "修复重启循环：仅在数据变更时写入 system.adapter native"
+			},
 			"0.2.5": {
 				"en": "Fix system.adapter config path; trim news for ioBroker E1032 (CI release)",
 				"de": "system.adapter-Konfig-Pfad repariert; News gekürzt für ioBroker E1032 (CI-Release)",
@@ -80,19 +93,6 @@
 				"pl": "Zgodność ioBroker: skrócone news, jsonConfig, i18n; gotowy do sprawdzenia",
 				"uk": "Відповідність ioBroker: скорочені news, jsonConfig, i18n; готовність до перевірки",
 				"zh-cn": "ioBroker 合规：精简 news、jsonConfig、i18n；适配器检查就绪"
-			},
-			"0.1.26": {
-				"en": "Config: new pictogram continues after selected; duplicate with max 3 parallel",
-				"de": "Config: neues Piktogramm schließt an Auswahl an; Duplizieren max. 3 parallel",
-				"ru": "Config: новый пиктограмма после выбранного; дубликат макс. 3 параллельно",
-				"pt": "Config: novo pictograma após o selecionado; duplicar com máx. 3 em paralelo",
-				"nl": "Config: nieuw pictogram na selectie; dupliceren max. 3 parallel",
-				"fr": "Config : nouveau pictogramme après la sélection ; dupliquer max. 3 en parallèle",
-				"it": "Config: nuovo pittogramma dopo la selezione; duplica max 3 in parallelo",
-				"es": "Config: nuevo pictograma tras el seleccionado; duplicar con máx. 3 en paralelo",
-				"pl": "Config: nowy piktogram po wybranym; duplikuj max. 3 równolegle",
-				"uk": "Config: новий піктограм після вибраного; дублювання макс. 3 паралельно",
-				"zh-cn": "Config：新象形图接所选项之后；复制最多 3 个并行"
 			}
 		},
 		"titleLang": {

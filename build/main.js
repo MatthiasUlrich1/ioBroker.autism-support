@@ -35,6 +35,9 @@ function instanceConfigId(namespace) {
 function legacyMisplacedInstanceConfigId(namespace) {
   return `${namespace}.system.adapter.${namespace}`;
 }
+function nativeConfigEquals(left, right) {
+  return JSON.stringify(left != null ? left : null) === JSON.stringify(right != null ? right : null);
+}
 function secondsToParts(totalSeconds) {
   const safe = Math.max(0, Math.round(totalSeconds));
   return {
@@ -60,37 +63,61 @@ class AutismSupport extends utils.Adapter {
   }
   async onReady() {
     var _a;
-    const maxHours = (_a = this.config.maxDurationHours) != null ? _a : 24;
-    const defaultSeconds = this.getDefaultDurationSeconds(maxHours);
-    this.dayPeriods = (0, import_day_periods.dayPeriodsFromConfig)(this.config);
-    this.weekdayColors = (0, import_weekly_plan.weekdayColorsFromConfig)(this.config);
-    await this.migrateMisplacedInstanceConfig();
-    await this.createTimerStates();
-    await this.ensurePictogramStore();
-    await this.syncCustomPictogramsConfig();
-    await this.createScheduleStates();
-    if (Array.isArray(this.config.weeklyPlanRows) && this.config.weeklyPlanRows.length > 0) {
-      await this.applyWeeklyPlanRowsFromConfig();
-    }
-    await this.syncWeeklyPlansTableToNative();
-    this.timerManager = new import_timer_manager.TimerManager(
-      async (snapshot) => {
-        await this.publishTimerSnapshot(snapshot);
-      },
-      {
-        setInterval: (handler, ms) => this.setInterval(handler, ms),
-        clearInterval: (handle) => this.clearInterval(handle)
+    try {
+      const maxHours = (_a = this.config.maxDurationHours) != null ? _a : 24;
+      const defaultSeconds = this.getDefaultDurationSeconds(maxHours);
+      this.dayPeriods = (0, import_day_periods.dayPeriodsFromConfig)(this.config);
+      this.weekdayColors = (0, import_weekly_plan.weekdayColorsFromConfig)(this.config);
+      await this.migrateMisplacedInstanceConfig();
+      await this.createTimerStates();
+      await this.ensurePictogramStore();
+      await this.syncCustomPictogramsConfig();
+      await this.createScheduleStates();
+      if (Array.isArray(this.config.weeklyPlanRows) && this.config.weeklyPlanRows.length > 0) {
+        await this.applyWeeklyPlanRowsFromConfig();
       }
-    );
-    await this.timerManager.setDuration(defaultSeconds, maxHours);
-    await this.publishTimerSnapshot(this.timerManager.getSnapshot());
-    await this.publishScheduleRuntime();
-    this.subscribeStates(`${this.namespace}.${TIMER_CHANNEL}.*`);
-    this.subscribeStates(`${this.namespace}.${SCHEDULE_CHANNEL}.*`);
-    this.scheduleTick = this.setInterval(() => {
-      void this.publishScheduleRuntime();
-    }, 3e4);
-    this.log.info("Autism Support adapter ready \u2013 Visual Countdown + Weekly Schedule");
+      await this.syncWeeklyPlansTableToNative();
+      this.timerManager = new import_timer_manager.TimerManager(
+        async (snapshot) => {
+          await this.publishTimerSnapshot(snapshot);
+        },
+        {
+          setInterval: (handler, ms) => this.setInterval(handler, ms),
+          clearInterval: (handle) => this.clearInterval(handle)
+        }
+      );
+      await this.timerManager.setDuration(defaultSeconds, maxHours);
+      await this.publishTimerSnapshot(this.timerManager.getSnapshot());
+      await this.publishScheduleRuntime();
+      this.subscribeStates(`${this.namespace}.${TIMER_CHANNEL}.*`);
+      this.subscribeStates(`${this.namespace}.${SCHEDULE_CHANNEL}.*`);
+      this.scheduleTick = this.setInterval(() => {
+        void this.publishScheduleRuntime();
+      }, 3e4);
+      this.log.info("Autism Support adapter ready \u2013 Visual Countdown + Weekly Schedule");
+    } catch (error) {
+      this.log.error(`Startup failed: ${error.message}`);
+      throw error;
+    }
+  }
+  /** Write instance native config only when changed — avoids restart loop on every boot. */
+  async patchInstanceNativeIfChanged(patch) {
+    const id = instanceConfigId(this.namespace);
+    const current = await this.getForeignObjectAsync(id);
+    const currentNative = (current == null ? void 0 : current.native) || {};
+    const nextNative = {};
+    let changed = false;
+    for (const [key, value] of Object.entries(patch)) {
+      if (!nativeConfigEquals(currentNative[key], value)) {
+        nextNative[key] = value;
+        changed = true;
+      }
+    }
+    if (!changed) {
+      return false;
+    }
+    await this.extendForeignObjectAsync(id, { native: nextNative });
+    return true;
   }
   getDefaultDurationSeconds(maxHours) {
     var _a, _b;
@@ -239,7 +266,7 @@ class AutismSupport extends utils.Adapter {
       patch.weeklyPlanRows = native.weeklyPlanRows;
     }
     if (Object.keys(patch).length) {
-      await this.extendForeignObjectAsync(instanceConfigId(this.namespace), { native: patch });
+      await this.patchInstanceNativeIfChanged(patch);
       if (patch.customPictograms) {
         this.config.customPictograms = patch.customPictograms;
       }
@@ -469,9 +496,7 @@ class AutismSupport extends utils.Adapter {
   }
   async syncCustomPictogramsConfig() {
     const rows = await this.buildCustomPictogramRows();
-    await this.extendForeignObjectAsync(instanceConfigId(this.namespace), {
-      native: { customPictograms: rows }
-    });
+    await this.patchInstanceNativeIfChanged({ customPictograms: rows });
     this.config.customPictograms = rows;
     await this.publishPictogramLibrary();
   }
@@ -506,8 +531,18 @@ class AutismSupport extends utils.Adapter {
     }
     try {
       const hint = "Piktogramm-Bilder (PNG, JPEG, GIF, WebP, SVG) hier hochladen.\nKeine neuen Ordner anlegen (Dateimanager zeigt dann oft \u201Edoppelter Name\u201C).\nStattdessen oben auf Hochladen klicken und Bilder in DIESEN Ordner legen.\n";
-      await this.writeFileAsync(import_pictogram_library.PICTOGRAM_FILE_ADAPTER, `${import_pictogram_library.PICTOGRAM_DIR}/${import_pictogram_library.PICTOGRAM_PLACEHOLDER_FILE}`, hint);
-      this.log.info(`Ensured vis-2 pictogram folder ${import_pictogram_library.PICTOGRAM_FILE_ADAPTER}/${import_pictogram_library.PICTOGRAM_DIR}`);
+      const placeholderPath = `${import_pictogram_library.PICTOGRAM_DIR}/${import_pictogram_library.PICTOGRAM_PLACEHOLDER_FILE}`;
+      let needsWrite = true;
+      try {
+        const existing = await this.readFileAsync(import_pictogram_library.PICTOGRAM_FILE_ADAPTER, placeholderPath);
+        const current = typeof existing.file === "string" ? existing.file : Buffer.from(existing.file).toString("utf8");
+        needsWrite = current !== hint;
+      } catch {
+      }
+      if (needsWrite) {
+        await this.writeFileAsync(import_pictogram_library.PICTOGRAM_FILE_ADAPTER, placeholderPath, hint);
+        this.log.info(`Ensured vis-2 pictogram folder ${import_pictogram_library.PICTOGRAM_FILE_ADAPTER}/${import_pictogram_library.PICTOGRAM_DIR}`);
+      }
     } catch (error) {
       this.log.error(
         `Could not write ${import_pictogram_library.PICTOGRAM_FILE_ADAPTER}/${import_pictogram_library.PICTOGRAM_DIR}/${import_pictogram_library.PICTOGRAM_PLACEHOLDER_FILE}: ${error.message}`
@@ -563,9 +598,7 @@ class AutismSupport extends utils.Adapter {
   async syncWeeklyPlansTableToNative() {
     const library = await this.getWeeklyPlansLibrary();
     const rows = (0, import_weekly_plan.weeklyPlanRowsFromLibrary)(library);
-    await this.extendForeignObjectAsync(instanceConfigId(this.namespace), {
-      native: { weeklyPlanRows: rows }
-    });
+    await this.patchInstanceNativeIfChanged({ weeklyPlanRows: rows });
     this.config.weeklyPlanRows = rows;
   }
   async applyWeeklyPlanRowsFromConfig() {
@@ -773,9 +806,7 @@ class AutismSupport extends utils.Adapter {
       if (obj.command === "syncPictogramTable") {
         await this.ensurePictogramStore();
         const rows = await this.buildCustomPictogramRows();
-        await this.extendForeignObjectAsync(instanceConfigId(this.namespace), {
-          native: { customPictograms: rows }
-        });
+        await this.patchInstanceNativeIfChanged({ customPictograms: rows });
         this.config.customPictograms = rows;
         await this.publishPictogramLibrary();
         this.reply(obj, { ok: true, native: { customPictograms: rows } });

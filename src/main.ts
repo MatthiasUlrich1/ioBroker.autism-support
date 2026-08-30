@@ -57,6 +57,10 @@ function legacyMisplacedInstanceConfigId(namespace: string): string {
 	return `${namespace}.system.adapter.${namespace}`;
 }
 
+function nativeConfigEquals(left: unknown, right: unknown): boolean {
+	return JSON.stringify(left ?? null) === JSON.stringify(right ?? null);
+}
+
 function secondsToParts(totalSeconds: number): { hours: number; minutes: number } {
 	const safe = Math.max(0, Math.round(totalSeconds));
 	return {
@@ -84,44 +88,76 @@ class AutismSupport extends utils.Adapter {
 	}
 
 	private async onReady(): Promise<void> {
-		const maxHours = this.config.maxDurationHours ?? 24;
-		const defaultSeconds = this.getDefaultDurationSeconds(maxHours);
-		this.dayPeriods = dayPeriodsFromConfig(this.config);
-		this.weekdayColors = weekdayColorsFromConfig(this.config);
+		try {
+			const maxHours = this.config.maxDurationHours ?? 24;
+			const defaultSeconds = this.getDefaultDurationSeconds(maxHours);
+			this.dayPeriods = dayPeriodsFromConfig(this.config);
+			this.weekdayColors = weekdayColorsFromConfig(this.config);
 
-		await this.migrateMisplacedInstanceConfig();
-		await this.createTimerStates();
-		await this.ensurePictogramStore();
-		await this.syncCustomPictogramsConfig();
-		await this.createScheduleStates();
-		// Only apply Admin name/delete edits when the table already lists plans (avoid wiping on first boot).
-		if (Array.isArray(this.config.weeklyPlanRows) && this.config.weeklyPlanRows.length > 0) {
-			await this.applyWeeklyPlanRowsFromConfig();
+			await this.migrateMisplacedInstanceConfig();
+			await this.createTimerStates();
+			await this.ensurePictogramStore();
+			await this.syncCustomPictogramsConfig();
+			await this.createScheduleStates();
+			// Only apply Admin name/delete edits when the table already lists plans (avoid wiping on first boot).
+			if (Array.isArray(this.config.weeklyPlanRows) && this.config.weeklyPlanRows.length > 0) {
+				await this.applyWeeklyPlanRowsFromConfig();
+			}
+			await this.syncWeeklyPlansTableToNative();
+
+			this.timerManager = new TimerManager(
+				async snapshot => {
+					await this.publishTimerSnapshot(snapshot);
+				},
+				{
+					setInterval: (handler, ms) => this.setInterval(handler, ms),
+					clearInterval: handle => this.clearInterval(handle as ioBroker.Interval),
+				},
+			);
+
+			await this.timerManager.setDuration(defaultSeconds, maxHours);
+			await this.publishTimerSnapshot(this.timerManager.getSnapshot());
+			await this.publishScheduleRuntime();
+
+			this.subscribeStates(`${this.namespace}.${TIMER_CHANNEL}.*`);
+			this.subscribeStates(`${this.namespace}.${SCHEDULE_CHANNEL}.*`);
+
+			this.scheduleTick = this.setInterval(() => {
+				void this.publishScheduleRuntime();
+			}, 30_000);
+
+			this.log.info("Autism Support adapter ready – Visual Countdown + Weekly Schedule");
+		} catch (error) {
+			this.log.error(`Startup failed: ${(error as Error).message}`);
+			throw error;
 		}
-		await this.syncWeeklyPlansTableToNative();
+	}
 
-		this.timerManager = new TimerManager(
-			async snapshot => {
-				await this.publishTimerSnapshot(snapshot);
-			},
-			{
-				setInterval: (handler, ms) => this.setInterval(handler, ms),
-				clearInterval: handle => this.clearInterval(handle as ioBroker.Interval),
-			},
-		);
+	/** Write instance native config only when changed — avoids restart loop on every boot. */
+	private async patchInstanceNativeIfChanged(
+		patch: Partial<Pick<ioBroker.AdapterConfig, "customPictograms" | "weeklyPlanRows">>,
+	): Promise<boolean> {
+		const id = instanceConfigId(this.namespace);
+		const current = await this.getForeignObjectAsync(id);
+		const currentNative = (current?.native || {}) as Partial<ioBroker.AdapterConfig>;
+		const nextNative: Partial<ioBroker.AdapterConfig> = {};
+		let changed = false;
 
-		await this.timerManager.setDuration(defaultSeconds, maxHours);
-		await this.publishTimerSnapshot(this.timerManager.getSnapshot());
-		await this.publishScheduleRuntime();
+		for (const [key, value] of Object.entries(patch) as Array<
+			["customPictograms" | "weeklyPlanRows", ioBroker.AdapterConfig["customPictograms"] | ioBroker.AdapterConfig["weeklyPlanRows"]]
+		>) {
+			if (!nativeConfigEquals(currentNative[key], value)) {
+				nextNative[key] = value;
+				changed = true;
+			}
+		}
 
-		this.subscribeStates(`${this.namespace}.${TIMER_CHANNEL}.*`);
-		this.subscribeStates(`${this.namespace}.${SCHEDULE_CHANNEL}.*`);
+		if (!changed) {
+			return false;
+		}
 
-		this.scheduleTick = this.setInterval(() => {
-			void this.publishScheduleRuntime();
-		}, 30_000);
-
-		this.log.info("Autism Support adapter ready – Visual Countdown + Weekly Schedule");
+		await this.extendForeignObjectAsync(id, { native: nextNative });
+		return true;
 	}
 
 	private getDefaultDurationSeconds(maxHours: number): number {
@@ -291,7 +327,7 @@ class AutismSupport extends utils.Adapter {
 			patch.weeklyPlanRows = native.weeklyPlanRows;
 		}
 		if (Object.keys(patch).length) {
-			await this.extendForeignObjectAsync(instanceConfigId(this.namespace), { native: patch });
+			await this.patchInstanceNativeIfChanged(patch);
 			if (patch.customPictograms) {
 				this.config.customPictograms = patch.customPictograms;
 			}
@@ -543,9 +579,7 @@ class AutismSupport extends utils.Adapter {
 
 	private async syncCustomPictogramsConfig(): Promise<void> {
 		const rows = await this.buildCustomPictogramRows();
-		await this.extendForeignObjectAsync(instanceConfigId(this.namespace), {
-			native: { customPictograms: rows },
-		});
+		await this.patchInstanceNativeIfChanged({ customPictograms: rows });
 		this.config.customPictograms = rows;
 		await this.publishPictogramLibrary();
 	}
@@ -589,8 +623,19 @@ class AutismSupport extends utils.Adapter {
 				"Piktogramm-Bilder (PNG, JPEG, GIF, WebP, SVG) hier hochladen.\n" +
 				"Keine neuen Ordner anlegen (Dateimanager zeigt dann oft „doppelter Name“).\n" +
 				"Stattdessen oben auf Hochladen klicken und Bilder in DIESEN Ordner legen.\n";
-			await this.writeFileAsync(PICTOGRAM_FILE_ADAPTER, `${PICTOGRAM_DIR}/${PICTOGRAM_PLACEHOLDER_FILE}`, hint);
-			this.log.info(`Ensured vis-2 pictogram folder ${PICTOGRAM_FILE_ADAPTER}/${PICTOGRAM_DIR}`);
+			const placeholderPath = `${PICTOGRAM_DIR}/${PICTOGRAM_PLACEHOLDER_FILE}`;
+			let needsWrite = true;
+			try {
+				const existing = await this.readFileAsync(PICTOGRAM_FILE_ADAPTER, placeholderPath);
+				const current = typeof existing.file === "string" ? existing.file : Buffer.from(existing.file).toString("utf8");
+				needsWrite = current !== hint;
+			} catch {
+				// file missing
+			}
+			if (needsWrite) {
+				await this.writeFileAsync(PICTOGRAM_FILE_ADAPTER, placeholderPath, hint);
+				this.log.info(`Ensured vis-2 pictogram folder ${PICTOGRAM_FILE_ADAPTER}/${PICTOGRAM_DIR}`);
+			}
 		} catch (error) {
 			this.log.error(
 				`Could not write ${PICTOGRAM_FILE_ADAPTER}/${PICTOGRAM_DIR}/${PICTOGRAM_PLACEHOLDER_FILE}: ${(error as Error).message}`,
@@ -662,9 +707,7 @@ class AutismSupport extends utils.Adapter {
 	private async syncWeeklyPlansTableToNative(): Promise<void> {
 		const library = await this.getWeeklyPlansLibrary();
 		const rows = weeklyPlanRowsFromLibrary(library);
-		await this.extendForeignObjectAsync(instanceConfigId(this.namespace), {
-			native: { weeklyPlanRows: rows },
-		});
+		await this.patchInstanceNativeIfChanged({ weeklyPlanRows: rows });
 		this.config.weeklyPlanRows = rows;
 	}
 
@@ -892,9 +935,7 @@ class AutismSupport extends utils.Adapter {
 			if (obj.command === "syncPictogramTable") {
 				await this.ensurePictogramStore();
 				const rows = await this.buildCustomPictogramRows();
-				await this.extendForeignObjectAsync(instanceConfigId(this.namespace), {
-					native: { customPictograms: rows },
-				});
+				await this.patchInstanceNativeIfChanged({ customPictograms: rows });
 				this.config.customPictograms = rows;
 				await this.publishPictogramLibrary();
 				this.reply(obj, { ok: true, native: { customPictograms: rows } });
