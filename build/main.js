@@ -51,6 +51,7 @@ class AutismSupport extends utils.Adapter {
   dayPeriods = [];
   weekdayColors = (0, import_weekly_plan.weekdayColorsFromConfig)({});
   lastAppliedWeekday = null;
+  readyRunId = 0;
   constructor(options = {}) {
     super({
       ...options,
@@ -61,23 +62,44 @@ class AutismSupport extends utils.Adapter {
     this.on("message", this.onMessage.bind(this));
     this.on("unload", this.onUnload.bind(this));
   }
+  isStartupCancelled(runId) {
+    return runId !== this.readyRunId;
+  }
   async onReady() {
     var _a;
+    const runId = ++this.readyRunId;
     try {
       const maxHours = (_a = this.config.maxDurationHours) != null ? _a : 24;
       const defaultSeconds = this.getDefaultDurationSeconds(maxHours);
       this.dayPeriods = (0, import_day_periods.dayPeriodsFromConfig)(this.config);
       this.weekdayColors = (0, import_weekly_plan.weekdayColorsFromConfig)(this.config);
       await this.migrateMisplacedInstanceConfig();
+      if (this.isStartupCancelled(runId)) {
+        return;
+      }
       await this.createTimerStates();
+      if (this.isStartupCancelled(runId)) {
+        return;
+      }
       await this.ensurePictogramStore();
-      await this.syncCustomPictogramsConfig();
+      if (this.isStartupCancelled(runId)) {
+        return;
+      }
+      await this.refreshCustomPictogramsFromFiles();
+      if (this.isStartupCancelled(runId)) {
+        return;
+      }
       await this.createScheduleStates();
+      if (this.isStartupCancelled(runId)) {
+        return;
+      }
       if (Array.isArray(this.config.weeklyPlanRows) && this.config.weeklyPlanRows.length > 0) {
         await this.applyWeeklyPlanRowsFromConfig();
       }
-      await this.syncWeeklyPlansTableToNative();
-      this.timerManager = new import_timer_manager.TimerManager(
+      if (this.isStartupCancelled(runId)) {
+        return;
+      }
+      const timerManager = new import_timer_manager.TimerManager(
         async (snapshot) => {
           await this.publishTimerSnapshot(snapshot);
         },
@@ -86,16 +108,26 @@ class AutismSupport extends utils.Adapter {
           clearInterval: (handle) => this.clearInterval(handle)
         }
       );
-      await this.timerManager.setDuration(defaultSeconds, maxHours);
-      await this.publishTimerSnapshot(this.timerManager.getSnapshot());
+      await timerManager.setDuration(defaultSeconds, maxHours);
+      if (this.isStartupCancelled(runId)) {
+        timerManager.destroy();
+        return;
+      }
+      this.timerManager = timerManager;
+      await this.publishTimerSnapshot(timerManager.getSnapshot());
       await this.publishScheduleRuntime();
       this.subscribeStates(`${this.namespace}.${TIMER_CHANNEL}.*`);
       this.subscribeStates(`${this.namespace}.${SCHEDULE_CHANNEL}.*`);
-      this.scheduleTick = this.setInterval(() => {
-        void this.publishScheduleRuntime();
-      }, 3e4);
+      if (!this.isStartupCancelled(runId)) {
+        this.scheduleTick = this.setInterval(() => {
+          void this.publishScheduleRuntime();
+        }, 3e4);
+      }
       this.log.info("Autism Support adapter ready \u2013 Visual Countdown + Weekly Schedule");
     } catch (error) {
+      if (this.isStartupCancelled(runId)) {
+        return;
+      }
       this.log.error(`Startup failed: ${error.message}`);
       throw error;
     }
@@ -501,6 +533,11 @@ class AutismSupport extends utils.Adapter {
   async buildCustomPictogramRows() {
     const files = await this.listPictogramFiles();
     return (0, import_pictogram_library.syncCustomPictogramRows)(files || [], this.config.customPictograms);
+  }
+  async refreshCustomPictogramsFromFiles() {
+    const rows = await this.buildCustomPictogramRows();
+    this.config.customPictograms = rows;
+    await this.publishPictogramLibrary();
   }
   async syncCustomPictogramsConfig() {
     const rows = await this.buildCustomPictogramRows();
@@ -948,6 +985,7 @@ class AutismSupport extends utils.Adapter {
   }
   onUnload(callback) {
     var _a;
+    this.readyRunId++;
     if (this.scheduleTick !== void 0 && this.scheduleTick !== null) {
       this.clearInterval(this.scheduleTick);
       this.scheduleTick = null;

@@ -1,8 +1,21 @@
 {
 	"common": {
 		"name": "autism-support",
-		"version": "0.2.7",
+		"version": "0.2.8",
 		"news": {
+			"0.2.8": {
+				"en": "Fix startup crash/restart loop: no native write on boot, cancel in-flight ready on unload",
+				"de": "Start-Absturz/Neustart-Schleife behoben: kein native-Schreiben beim Boot, ready bei unload abbrechen",
+				"ru": "Исправлен сбой/цикл перезапуска: без записи native при старте, отмена ready при unload",
+				"pt": "Corrigido crash/loop no arranque: sem gravação native no boot, cancelar ready no unload",
+				"nl": "Start-crash/herstart-lus opgelost: geen native schrijven bij boot, ready annuleren bij unload",
+				"fr": "Crash/boucle démarrage corrigés : pas d'écriture native au boot, annulation ready au unload",
+				"it": "Corretto crash/loop avvio: nessuna scrittura native al boot, annulla ready su unload",
+				"es": "Corregido crash/bucle al inicio: sin escritura native al boot, cancelar ready en unload",
+				"pl": "Naprawiono crash/pętlę startu: brak zapisu native przy boot, anulowanie ready przy unload",
+				"uk": "Виправлено збій/цикл запуску: без запису native при boot, скасування ready при unload",
+				"zh-cn": "修复启动崩溃/重启循环：启动时不写 native，unload 时取消 ready"
+			},
 			"0.2.7": {
 				"en": "Fix restart loop (native config diff) and CI lint formatting",
 				"de": "Neustart-Schleife behoben (native Diff) und CI-Lint-Formatierung",
@@ -15,19 +28,6 @@
 				"pl": "Naprawiono pętlę restartu (diff native) i formatowanie CI lint",
 				"uk": "Виправлено цикл перезапуску (diff native) і форматування CI lint",
 				"zh-cn": "修复重启循环（native diff）及 CI lint 格式"
-			},
-			"0.2.6": {
-				"en": "Fix restart loop: only write system.adapter native config when data changed",
-				"de": "Neustart-Schleife behoben: system.adapter native nur bei Änderung schreiben",
-				"ru": "Исправлен цикл перезапуска: запись native system.adapter только при изменениях",
-				"pt": "Corrigido loop de reinício: grava native system.adapter só quando alterado",
-				"nl": "Herstart-lus opgelost: system.adapter native alleen schrijven bij wijziging",
-				"fr": "Boucle de redémarrage corrigée : native system.adapter écrit seulement si modifié",
-				"it": "Corretto loop di riavvio: native system.adapter scritto solo se modificato",
-				"es": "Corregido bucle de reinicio: native system.adapter solo si cambió",
-				"pl": "Naprawiono pętlę restartu: zapis native system.adapter tylko przy zmianie",
-				"uk": "Виправлено цикл перезапуску: native system.adapter лише при зміні",
-				"zh-cn": "修复重启循环：仅在数据变更时写入 system.adapter native"
 			},
 			"0.2.4": {
 				"en": "Fix instance config path: use extendForeignObject for system.adapter (remove misplaced object)",
