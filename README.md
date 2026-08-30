@@ -92,6 +92,9 @@ npm run start
 
 See [CHANGELOG_OLD.md](CHANGELOG_OLD.md) for older entries.
 
+### 0.2.2
+- Fix object structure for latest-repo review: `timer` channel, `value.interval` roles, button `read: false`
+
 ### 0.2.1
 - Weekly plans: weekday tabs in Config, copy to other days, named templates (save/load)
 - Admin: weekday colors + list of saved plans with active/loaded marker

@@ -123,6 +123,12 @@ class AutismSupport extends utils.Adapter {
 	}
 
 	private async createTimerStates(): Promise<void> {
+		await this.setObjectNotExistsAsync(TIMER_CHANNEL, {
+			type: "channel",
+			common: { name: "Visual Countdown" },
+			native: {},
+		});
+
 		const states: Record<
 			string,
 			{
@@ -138,7 +144,7 @@ class AutismSupport extends utils.Adapter {
 		> = {
 			duration: {
 				type: "number",
-				role: "timer",
+				role: "value.interval",
 				name: "Timer duration (seconds)",
 				read: true,
 				write: true,
@@ -148,7 +154,7 @@ class AutismSupport extends utils.Adapter {
 			},
 			remaining: {
 				type: "number",
-				role: "timer",
+				role: "value.interval",
 				name: "Timer remaining (seconds)",
 				read: true,
 				write: false,
@@ -156,7 +162,7 @@ class AutismSupport extends utils.Adapter {
 			},
 			elapsed: {
 				type: "number",
-				role: "timer",
+				role: "value.interval",
 				name: "Timer elapsed (seconds)",
 				read: true,
 				write: false,
@@ -187,28 +193,28 @@ class AutismSupport extends utils.Adapter {
 				type: "boolean",
 				role: "button.start",
 				name: "Start timer",
-				read: true,
+				read: false,
 				write: true,
 			},
 			pause: {
 				type: "boolean",
 				role: "button.pause",
 				name: "Pause timer",
-				read: true,
+				read: false,
 				write: true,
 			},
 			resume: {
 				type: "boolean",
 				role: "button.start",
 				name: "Resume timer",
-				read: true,
+				read: false,
 				write: true,
 			},
 			stop: {
 				type: "boolean",
 				role: "button.stop",
 				name: "Stop timer",
-				read: true,
+				read: false,
 				write: true,
 			},
 			setDurationHours: {
@@ -248,6 +254,31 @@ class AutismSupport extends utils.Adapter {
 				},
 				native: {},
 			});
+		}
+
+		await this.migrateTimerStateRoles();
+	}
+
+	/** Update roles/read flags on existing timer states (object-structure compliance). */
+	private async migrateTimerStateRoles(): Promise<void> {
+		const patches: Record<string, { role?: string; read?: boolean }> = {
+			duration: { role: "value.interval" },
+			remaining: { role: "value.interval" },
+			elapsed: { role: "value.interval" },
+			start: { read: false },
+			pause: { read: false },
+			resume: { read: false },
+			stop: { read: false },
+		};
+		for (const [id, patch] of Object.entries(patches)) {
+			const common: Partial<ioBroker.StateCommon> = {};
+			if (patch.role) {
+				common.role = patch.role;
+			}
+			if (patch.read !== undefined) {
+				common.read = patch.read;
+			}
+			await this.extendObjectAsync(`${TIMER_CHANNEL}.${id}`, { common });
 		}
 	}
 

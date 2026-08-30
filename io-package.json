@@ -1,8 +1,21 @@
 {
 	"common": {
 		"name": "autism-support",
-		"version": "0.2.1",
+		"version": "0.2.2",
 		"news": {
+			"0.2.2": {
+				"en": "Fix object structure: timer channel, value.interval roles, button read flags",
+				"de": "Objektstruktur repariert: Timer-Kanal, value.interval-Rollen, Button read-Flags",
+				"ru": "Исправлена структура объектов: канал timer, роли value.interval, флаги read кнопок",
+				"pt": "Corrigida estrutura de objetos: canal timer, roles value.interval, flags read dos botões",
+				"nl": "Objectstructuur gerepareerd: timer-kanaal, value.interval-rollen, button read-flags",
+				"fr": "Structure d'objets corrigée : canal timer, rôles value.interval, flags read des boutons",
+				"it": "Struttura oggetti corretta: canale timer, ruoli value.interval, flag read pulsanti",
+				"es": "Estructura de objetos corregida: canal timer, roles value.interval, flags read de botones",
+				"pl": "Naprawiono strukturę obiektów: kanał timer, role value.interval, flagi read przycisków",
+				"uk": "Виправлено структуру об'єктів: канал timer, ролі value.interval, прапорці read кнопок",
+				"zh-cn": "修复对象结构：timer 通道、value.interval 角色、按钮 read 标志"
+			},
 			"0.2.1": {
 				"en": "Weekly plans: weekday tabs, templates, Admin colors, week live overview, daily sync",
 				"de": "Wochenpläne: Wochentags-Tabs, Vorlagen, Admin-Farben, Live-Wochenübersicht, Tages-Sync",
@@ -80,19 +93,6 @@
 				"pl": "Podgląd piktogramu naprawiony: kodowanie ścieżki vis-2 i fallback /files",
 				"uk": "Виправлено попередній перегляд піктограм: кодування шляху vis-2 і fallback /files",
 				"zh-cn": "修复自定义象形图预览：编码 vis-2 路径与 /files 回退"
-			},
-			"0.1.22": {
-				"en": "Fix pictogram folder: library in adapter store, placeholder in vis-2; remove broken _library.json",
-				"de": "Piktogramm-Ordner repariert: Metadaten im Adapter, Platzhalter in vis-2; _library.json entfernt",
-				"ru": "Папка pictogram: библиотека в adapter store, placeholder в vis-2; удалён _library.json",
-				"pt": "Pasta pictogramas: biblioteca no adapter store, placeholder em vis-2; remove _library.json",
-				"nl": "Pictogram-map: bibliotheek in adapter store, placeholder in vis-2; _library.json verwijderd",
-				"fr": "Dossier pictogrammes : bibliothèque dans adapter store, placeholder vis-2 ; _library.json supprimé",
-				"it": "Cartella pittogrammi: libreria in adapter store, placeholder in vis-2; rimosso _library.json",
-				"es": "Carpeta pictogramas: biblioteca en adapter store, placeholder en vis-2; elimina _library.json",
-				"pl": "Folder piktogramów: biblioteka w adapter store, placeholder w vis-2; usunięto _library.json",
-				"uk": "Папка піктограм: бібліотека в adapter store, placeholder у vis-2; видалено _library.json",
-				"zh-cn": "修复象形图文件夹：库在 adapter store，vis-2 占位符；移除损坏的 _library.json"
 			}
 		},
 		"titleLang": {
