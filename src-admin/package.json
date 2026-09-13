@@ -12,7 +12,7 @@
 		"@iobroker/json-config": "^9.0.8",
 		"@module-federation/runtime": "^2.8.0",
 		"@module-federation/vite": "^1.19.1",
-		"@mui/icons-material": "^9.2.0",
+		"@mui/icons-material": "^9.4.0",
 		"@mui/material": "^9.2.0",
 		"@types/react": "^19.2.17",
 		"@types/react-dom": "^19.2.3",
