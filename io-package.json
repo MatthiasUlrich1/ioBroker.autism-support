@@ -1,8 +1,21 @@
 {
 	"common": {
 		"name": "autism-support",
-		"version": "0.2.8",
+		"version": "0.2.9",
 		"news": {
+			"0.2.9": {
+				"en": "Repo-check compliance: remove unpublished news versions, update README changelog",
+				"de": "Repo-Check-Konformität: unveröffentlichte News entfernt, README-Changelog aktualisiert",
+				"ru": "Соответствие проверке репозитория: удалены неопубликованные news, обновлён changelog README",
+				"pt": "Conformidade com verificação do repositório: news não publicadas removidas, changelog README atualizado",
+				"nl": "Repo-check-conformiteit: niet-gepubliceerde news verwijderd, README-changelog bijgewerkt",
+				"fr": "Conformité contrôle dépôt : news non publiées retirées, changelog README mis à jour",
+				"it": "Conformità controllo repository: news non pubblicate rimosse, changelog README aggiornato",
+				"es": "Conformidad comprobación repositorio: news no publicadas eliminadas, changelog README actualizado",
+				"pl": "Zgodność z kontrolą repozytorium: usunięto nieopublikowane news, zaktualizowano changelog README",
+				"uk": "Відповідність перевірці репозиторію: видалено неопубліковані news, оновлено changelog README",
+				"zh-cn": "仓库检查合规：移除未发布 news，更新 README 变更日志"
+			},
 			"0.2.8": {
 				"en": "Fix startup crash/restart loop: no native write on boot, cancel in-flight ready on unload",
 				"de": "Start-Absturz/Neustart-Schleife behoben: kein native-Schreiben beim Boot, ready bei unload abbrechen",
@@ -29,31 +42,18 @@
 				"uk": "Виправлено цикл перезапуску (diff native) і форматування CI lint",
 				"zh-cn": "修复重启循环（native diff）及 CI lint 格式"
 			},
-			"0.2.4": {
-				"en": "Fix instance config path: use extendForeignObject for system.adapter (remove misplaced object)",
-				"de": "Instanz-Konfig-Pfad repariert: extendForeignObject für system.adapter (falsches Objekt entfernen)",
-				"ru": "Исправлен путь конфигурации: extendForeignObject для system.adapter (удалён ошибочный объект)",
-				"pt": "Corrigido caminho de config: extendForeignObject para system.adapter (remove objeto incorreto)",
-				"nl": "Instance-configpad gerepareerd: extendForeignObject voor system.adapter (verkeerd object verwijderd)",
-				"fr": "Chemin config instance corrigé : extendForeignObject pour system.adapter (supprime objet incorrect)",
-				"it": "Percorso config istanza corretto: extendForeignObject per system.adapter (rimuove oggetto errato)",
-				"es": "Ruta de config corregida: extendForeignObject para system.adapter (elimina objeto incorrecto)",
-				"pl": "Naprawiono ścieżkę konfiguracji: extendForeignObject dla system.adapter (usuwa błędny obiekt)",
-				"uk": "Виправлено шлях конфігурації: extendForeignObject для system.adapter (видаляє помилковий об'єкт)",
-				"zh-cn": "修复实例配置路径：对 system.adapter 使用 extendForeignObject（移除错误对象）"
-			},
-			"0.2.3": {
-				"en": "Fix timer duration role: level.timer (writable), value.timer for remaining/elapsed",
-				"de": "Timer-Rolle korrigiert: level.timer (schreibbar), value.timer für remaining/elapsed",
-				"ru": "Исправлена роль таймера: level.timer (запись), value.timer для remaining/elapsed",
-				"pt": "Corrigida role do timer: level.timer (gravável), value.timer para remaining/elapsed",
-				"nl": "Timer-rol gecorrigeerd: level.timer (schrijfbaar), value.timer voor remaining/elapsed",
-				"fr": "Rôle timer corrigé : level.timer (écriture), value.timer pour remaining/elapsed",
-				"it": "Ruolo timer corretto: level.timer (scrivibile), value.timer per remaining/elapsed",
-				"es": "Rol timer corregido: level.timer (escribible), value.timer para remaining/elapsed",
-				"pl": "Poprawiono rolę timera: level.timer (zapis), value.timer dla remaining/elapsed",
-				"uk": "Виправлено роль таймера: level.timer (запис), value.timer для remaining/elapsed",
-				"zh-cn": "修复计时器角色：level.timer（可写），remaining/elapsed 用 value.timer"
+			"0.2.5": {
+				"en": "Fix system.adapter config path; trim news for ioBroker E1032 (CI release)",
+				"de": "system.adapter-Konfig-Pfad repariert; News gekürzt für ioBroker E1032 (CI-Release)",
+				"ru": "Исправлен путь system.adapter; news сокращены для E1032 (CI release)",
+				"pt": "Corrigido caminho system.adapter; news reduzidas para E1032 (release CI)",
+				"nl": "system.adapter-pad gerepareerd; news ingekort voor E1032 (CI-release)",
+				"fr": "Chemin system.adapter corrigé ; news réduites pour E1032 (release CI)",
+				"it": "Percorso system.adapter corretto; news ridotte per E1032 (release CI)",
+				"es": "Ruta system.adapter corregida; news recortadas para E1032 (release CI)",
+				"pl": "Naprawiono ścieżkę system.adapter; news skrócone dla E1032 (release CI)",
+				"uk": "Виправлено шлях system.adapter; news скорочено для E1032 (CI release)",
+				"zh-cn": "修复 system.adapter 路径；精简 news 以通过 E1032（CI 发布）"
 			},
 			"0.2.2": {
 				"en": "Fix object structure: timer channel, value.interval roles, button read flags",

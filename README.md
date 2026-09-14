@@ -92,8 +92,17 @@ npm run start
 
 See [CHANGELOG_OLD.md](CHANGELOG_OLD.md) for older entries.
 
-### 0.2.4
-- Fix instance config path: `extendForeignObjectAsync` for `system.adapter.*` (removes invalid object under instance namespace)
+### 0.2.9
+- Repo-check compliance: remove unpublished versions from `common.news`, update README changelog
+
+### 0.2.8
+- Fix startup crash/restart loop: no `system.adapter` native write on boot; cancel in-flight ready on unload
+
+### 0.2.7
+- Fix restart loop (native config diff) and CI lint formatting
+
+### 0.2.5
+- Fix `system.adapter` config path (`extendForeignObject`); trim news for E1032
 
 ### 0.2.2
 - Fix object structure for latest-repo review: `timer` channel, `value.interval` roles, button `read: false`
@@ -105,23 +114,6 @@ See [CHANGELOG_OLD.md](CHANGELOG_OLD.md) for older entries.
 
 ### 0.1.27
 - ioBroker compliance: max 7 news entries, jsonConfig schema, admin i18n keys, English title/desc
-
-### 0.1.26
-- Config: new pictogram starts where the selected one ends (same duration)
-- Config: Duplicate selected pictogram (disabled when 3 already overlap)
-
-### 0.1.25
-- Fix Config widget showing the previous plan after save
-- Allow up to 3 nested pictogram columns for overlapping schedule items
-
-### 0.1.24
-- Sun/moon pictograms on the day-period time bar in Live and Config Daily Schedule widgets
-
-### 0.1.23
-- Fix custom pictogram images not showing: URL-encode vis-2 path (`Autismus Unterstützung`) and fall back to `/files/`
-
-### 0.1.22
-- Fix pictogram folder creation: metadata in adapter store, images in vis-2; remove broken `_library.json` from vis-2 path
 
 ## Author
 
