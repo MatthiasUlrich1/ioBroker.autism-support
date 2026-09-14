@@ -1,9 +1,9 @@
 {
 	"common": {
 		"name": "autism-support",
-		"version": "0.2.9",
+		"version": "0.2.10",
 		"news": {
-			"0.2.9": {
+			"0.2.10": {
 				"en": "Repo-check compliance: remove unpublished news versions, update README changelog",
 				"de": "Repo-Check-Konformität: unveröffentlichte News entfernt, README-Changelog aktualisiert",
 				"ru": "Соответствие проверке репозитория: удалены неопубликованные news, обновлён changelog README",

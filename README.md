@@ -92,7 +92,7 @@ npm run start
 
 See [CHANGELOG_OLD.md](CHANGELOG_OLD.md) for older entries.
 
-### 0.2.9
+### 0.2.10
 - Repo-check compliance: remove unpublished versions from `common.news`, update README changelog
 
 ### 0.2.8
