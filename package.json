@@ -1,7 +1,7 @@
 {
   "name": "iobroker.autism-support",
   "version": "0.2.10",
-  "description": "Unterstützung für Menschen mit Autismus: Visual Countdown, Bild-Ablaufpläne und Piktogramme",
+  "description": "Support for people with autism: Visual Countdown, pictogram-based schedules and pictogram library",
   "author": {
     "name": "Matthias Ulrich",
     "email": "MatthiasUlrich1@gmail.com"
@@ -38,7 +38,7 @@
     "@iobroker/build-tools": "^3.0.1",
     "@iobroker/dev-server": "^0.8.0",
     "@iobroker/eslint-config": "^2.3.4",
-    "@iobroker/testing": "^6.2.1",
+    "@iobroker/testing": "^6.3.1",
     "@iobroker/types-vis-2": "^2.13.17",
     "@iobroker/vis-2-widgets-testing": "^1.0.6",
     "@tsconfig/node22": "^22.0.0",
@@ -64,7 +64,7 @@
   ],
   "scripts": {
     "prebuild": "rimraf build",
-    "build": "build-adapter ts && node tasks --typescript && node tasks --admin",
+    "build": "build-adapter ts && node tasks --typescript",
     "build:adapter": "build-adapter ts",
     "build:widgets": "node tasks --typescript",
     "watch": "build-adapter ts --watch",

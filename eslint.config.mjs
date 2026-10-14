@@ -21,7 +21,6 @@ export default [
 			'tasks.js',
 			'src-widgets-ts/**',
 			'src-admin/**',
-			'admin/custom/**',
 		],
 	},
 	{

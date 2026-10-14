@@ -1,6 +1,9 @@
 {
 	"i18n": true,
 	"type": "tabs",
+	"tabsStyle": {
+		"width": "calc(100% - 100px)"
+	},
 	"items": {
 		"_timerTab": {
 			"type": "panel",
@@ -105,7 +108,7 @@
 					"label": "period_enabled",
 					"default": true,
 					"xs": 12,
-					"sm": 3,
+					"sm": 6,
 					"md": 3,
 					"lg": 3,
 					"xl": 3
@@ -115,7 +118,7 @@
 					"label": "period_start",
 					"default": "06:00",
 					"xs": 12,
-					"sm": 3,
+					"sm": 6,
 					"md": 3,
 					"lg": 3,
 					"xl": 3
@@ -125,7 +128,7 @@
 					"label": "period_end",
 					"default": "09:00",
 					"xs": 12,
-					"sm": 3,
+					"sm": 6,
 					"md": 3,
 					"lg": 3,
 					"xl": 3
@@ -135,7 +138,7 @@
 					"label": "period_color",
 					"default": "#FFE082",
 					"xs": 12,
-					"sm": 3,
+					"sm": 6,
 					"md": 3,
 					"lg": 3,
 					"xl": 3
@@ -157,7 +160,7 @@
 					"label": "period_enabled",
 					"default": true,
 					"xs": 12,
-					"sm": 3,
+					"sm": 6,
 					"md": 3,
 					"lg": 3,
 					"xl": 3
@@ -167,7 +170,7 @@
 					"label": "period_start",
 					"default": "09:00",
 					"xs": 12,
-					"sm": 3,
+					"sm": 6,
 					"md": 3,
 					"lg": 3,
 					"xl": 3
@@ -177,7 +180,7 @@
 					"label": "period_end",
 					"default": "12:00",
 					"xs": 12,
-					"sm": 3,
+					"sm": 6,
 					"md": 3,
 					"lg": 3,
 					"xl": 3
@@ -187,7 +190,7 @@
 					"label": "period_color",
 					"default": "#FFCC80",
 					"xs": 12,
-					"sm": 3,
+					"sm": 6,
 					"md": 3,
 					"lg": 3,
 					"xl": 3
@@ -209,7 +212,7 @@
 					"label": "period_enabled",
 					"default": true,
 					"xs": 12,
-					"sm": 3,
+					"sm": 6,
 					"md": 3,
 					"lg": 3,
 					"xl": 3
@@ -219,7 +222,7 @@
 					"label": "period_start",
 					"default": "12:00",
 					"xs": 12,
-					"sm": 3,
+					"sm": 6,
 					"md": 3,
 					"lg": 3,
 					"xl": 3
@@ -229,7 +232,7 @@
 					"label": "period_end",
 					"default": "14:00",
 					"xs": 12,
-					"sm": 3,
+					"sm": 6,
 					"md": 3,
 					"lg": 3,
 					"xl": 3
@@ -239,7 +242,7 @@
 					"label": "period_color",
 					"default": "#FFAB91",
 					"xs": 12,
-					"sm": 3,
+					"sm": 6,
 					"md": 3,
 					"lg": 3,
 					"xl": 3
@@ -261,7 +264,7 @@
 					"label": "period_enabled",
 					"default": true,
 					"xs": 12,
-					"sm": 3,
+					"sm": 6,
 					"md": 3,
 					"lg": 3,
 					"xl": 3
@@ -271,7 +274,7 @@
 					"label": "period_start",
 					"default": "14:00",
 					"xs": 12,
-					"sm": 3,
+					"sm": 6,
 					"md": 3,
 					"lg": 3,
 					"xl": 3
@@ -281,7 +284,7 @@
 					"label": "period_end",
 					"default": "17:00",
 					"xs": 12,
-					"sm": 3,
+					"sm": 6,
 					"md": 3,
 					"lg": 3,
 					"xl": 3
@@ -291,7 +294,7 @@
 					"label": "period_color",
 					"default": "#81C784",
 					"xs": 12,
-					"sm": 3,
+					"sm": 6,
 					"md": 3,
 					"lg": 3,
 					"xl": 3
@@ -313,7 +316,7 @@
 					"label": "period_enabled",
 					"default": true,
 					"xs": 12,
-					"sm": 3,
+					"sm": 6,
 					"md": 3,
 					"lg": 3,
 					"xl": 3
@@ -323,7 +326,7 @@
 					"label": "period_start",
 					"default": "17:00",
 					"xs": 12,
-					"sm": 3,
+					"sm": 6,
 					"md": 3,
 					"lg": 3,
 					"xl": 3
@@ -333,7 +336,7 @@
 					"label": "period_end",
 					"default": "21:00",
 					"xs": 12,
-					"sm": 3,
+					"sm": 6,
 					"md": 3,
 					"lg": 3,
 					"xl": 3
@@ -343,7 +346,7 @@
 					"label": "period_color",
 					"default": "#7986CB",
 					"xs": 12,
-					"sm": 3,
+					"sm": 6,
 					"md": 3,
 					"lg": 3,
 					"xl": 3
@@ -365,7 +368,7 @@
 					"label": "period_enabled",
 					"default": true,
 					"xs": 12,
-					"sm": 3,
+					"sm": 6,
 					"md": 3,
 					"lg": 3,
 					"xl": 3
@@ -375,7 +378,7 @@
 					"label": "period_start",
 					"default": "21:00",
 					"xs": 12,
-					"sm": 3,
+					"sm": 6,
 					"md": 3,
 					"lg": 3,
 					"xl": 3
@@ -385,7 +388,7 @@
 					"label": "period_end",
 					"default": "06:00",
 					"xs": 12,
-					"sm": 3,
+					"sm": 6,
 					"md": 3,
 					"lg": 3,
 					"xl": 3
@@ -395,7 +398,7 @@
 					"label": "period_color",
 					"default": "#5C6BC0",
 					"xs": 12,
-					"sm": 3,
+					"sm": 6,
 					"md": 3,
 					"lg": 3,
 					"xl": 3

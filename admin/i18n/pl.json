@@ -1,6 +1,6 @@
 {
 	"autism-support adapter settings": "Ustawienia adaptera Autism Support",
-	"timer_tab": "Visual Countdown",
+	"timer_tab": "Odliczanie",
 	"timer_settings_header": "Visual Countdown â€“ ustawienia domyÅ›lne",
 	"default_duration_hours": "DomyÅ›lny czas (godziny)",
 	"default_duration_minutes": "DomyÅ›lny czas (minuty)",
@@ -16,7 +16,7 @@
 	"period_evening": "WieczÃ³r",
 	"period_night": "Noc",
 	"period_enabled": "WÅ‚Ä…czone",
-	"period_start": "Start (HH:MM)",
+	"period_start": "Początek (HH:MM)",
 	"period_end": "Koniec (HH:MM)",
 	"period_color": "Kolor",
 	"period_night_wrap_hint": "Noc moÅ¼e przechodziÄ‡ przez pÃ³Å‚noc (np. 21:00â€“06:00).",
@@ -31,7 +31,7 @@
 	"custom_pictogram_tags": "Tagi (przecinek)",
 	"custom_pictogram_open_files": "OtwÃ³rz menedÅ¼er plikÃ³w (vis-2.0/Autismus UnterstÃ¼tzung/pictograms)",
 	"custom_pictogram_refresh": "OdÅ›wieÅ¼ listÄ™",
-	"weekly_tab": "Plan tygodniowy",
+	"weekly_tab": "Tydzień",
 	"weekly_header": "Plan tygodniowy: kolory dni i szablony",
 	"weekly_colors_hint": "Kolory tła dni tygodnia dla widżetu podglądu tygodnia na żywo.",
 	"weekday_mon": "Poniedziałek",
@@ -45,7 +45,7 @@
 	"weekly_plans_hint": "Edytuj nazwy lub usuń wiersze, odśwież listę i zapisz instancję. «●» oznacza załadowany/aktywny plan (ustawiany w Config).",
 	"weekly_plans_refresh": "Odśwież listę",
 	"weekly_plans_table": "Zapisane plany tygodniowe",
-	"weekly_plan_id": "ID",
+	"weekly_plan_id": "Identyfikator",
 	"weekly_plan_name": "Nazwa",
 	"weekly_plan_active": "Aktywny"
 }

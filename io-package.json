@@ -156,7 +156,6 @@
 		"adminUI": {
 			"config": "json"
 		},
-		"supportCustoms": true,
 		"visWidgets": {
 			"asVisualCountdownLive": {
 				"i18n": "component",

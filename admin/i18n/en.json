@@ -1,6 +1,6 @@
 {
 	"autism-support adapter settings": "Autism Support adapter settings",
-	"timer_tab": "Visual Countdown",
+	"timer_tab": "Timer",
 	"timer_settings_header": "Visual Countdown – default settings",
 	"default_duration_hours": "Default duration (hours)",
 	"default_duration_minutes": "Default duration (minutes)",
@@ -31,7 +31,7 @@
 	"custom_pictogram_file": "Image",
 	"custom_pictogram_label": "Name",
 	"custom_pictogram_tags": "Tags (comma-separated)",
-	"weekly_tab": "Weekly plan",
+	"weekly_tab": "Weekly",
 	"weekly_header": "Weekly plan – weekday colors and templates",
 	"weekly_colors_hint": "Background colors for weekdays in the Weekly Overview live widget.",
 	"weekday_mon": "Monday",

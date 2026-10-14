@@ -667,9 +667,9 @@ class AutismSupport extends utils.Adapter {
 
 		try {
 			const hint =
-				"Piktogramm-Bilder (PNG, JPEG, GIF, WebP, SVG) hier hochladen.\n" +
-				"Keine neuen Ordner anlegen (Dateimanager zeigt dann oft „doppelter Name“).\n" +
-				"Stattdessen oben auf Hochladen klicken und Bilder in DIESEN Ordner legen.\n";
+				"Upload pictogram images (PNG, JPEG, GIF, WebP, SVG) here.\n" +
+				"Do not create new folders (the file manager often then shows \"duplicate name\").\n" +
+				"Instead click Upload above and place images in THIS folder.\n";
 			const placeholderPath = `${PICTOGRAM_DIR}/${PICTOGRAM_PLACEHOLDER_FILE}`;
 			let needsWrite = true;
 			try {

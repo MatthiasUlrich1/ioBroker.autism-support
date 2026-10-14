@@ -1,12 +1,12 @@
 {
 	"autism-support adapter settings": "Autism Support é€‚é…å™¨è®¾ç½®",
-	"timer_tab": "Visual Countdown",
+	"timer_tab": "计时器",
 	"timer_settings_header": "Visual Countdown â€“ é»˜è®¤è®¾ç½®",
 	"default_duration_hours": "é»˜è®¤æ—¶é•¿ï¼ˆå°æ—¶ï¼‰",
 	"default_duration_minutes": "é»˜è®¤æ—¶é•¿ï¼ˆåˆ†é’Ÿï¼‰",
 	"max_duration_hours": "æœ€å¤§æ—¶é•¿ï¼ˆå°æ—¶ï¼Œæœ€å¤š 24ï¼‰",
 	"timer_settings_hint": "é€šè¿‡ VIS-2 å°ç»„ä»¶æˆ– timer.* çŠ¶æ€è¿›è¡ŒæŽ§åˆ¶å’Œæ˜¾ç¤ºã€‚åœ†çŽ¯å§‹ç»ˆä»£è¡¨ä¸€å°æ—¶ã€‚",
-	"day_periods_tab": "æ—¥é—´æ—¶æ®µ",
+	"day_periods_tab": "时段",
 	"day_periods_header": "æ—¥ç¨‹æ—¶é—´æ¡çš„æ—¥é—´æ—¶æ®µ",
 	"day_periods_hint": "ä¸ºæ—©æ™¨ã€ä¸Šåˆã€ä¸­åˆã€ä¸‹åˆã€å‚æ™šå’Œå¤œé—´é…ç½®å¼€å§‹/ç»“æŸï¼ˆHH:MMï¼‰å’Œé¢œè‰²ï¼Œç”¨äºŽæ—¥ç¨‹å°ç»„ä»¶çš„æ—¶é—´æ¡ã€‚",
 	"period_morning": "æ—©æ™¨",
@@ -20,7 +20,7 @@
 	"period_end": "ç»“æŸ (HH:MM)",
 	"period_color": "é¢œè‰²",
 	"period_night_wrap_hint": "å¤œé—´å¯è·¨è¶Šåˆå¤œï¼ˆä¾‹å¦‚ 21:00â€“06:00ï¼‰ã€‚",
-	"pictograms_tab": "è±¡å½¢å›¾",
+	"pictograms_tab": "象形图",
 	"pictograms_header": "è±¡å½¢å›¾æ¥æº",
 	"arasaac_license_info": "ARASAAC è±¡å½¢å›¾ä»…ä»Ž static.arasaac.org / api.arasaac.org å¤–éƒ¨åŠ è½½ï¼Œæœ¬é€‚é…å™¨ä¸å­˜å‚¨æˆ–å†åˆ†å‘ã€‚è®¸å¯ï¼šCC BY-NC-SAï¼ˆä½œè€… Sergio Palaoï¼Œæ‰€æœ‰è€…é˜¿æ‹‰è´¡æ”¿åºœï¼‰ã€‚éœ€æ³¨æ˜Žå‡ºå¤„ã€‚ç½‘ç«™ï¼šhttps://arasaac.org",
 	"custom_pictogram_info": "åœ¨æ­¤ä¸Šä¼ å¹¶ä¸ºè‡ªå®šä¹‰è±¡å½¢å›¾æ·»åŠ æ ‡ç­¾ã€‚æ–‡ä»¶ä½äºŽ autism-support.X/pictograms/ã€‚æ—¥ç¨‹é…ç½®å°ç»„ä»¶å¯æŒ‰æ ‡ç­¾æœç´¢å¹¶é€‰æ‹©å›¾ç‰‡ã€‚ä»…ä¸Šä¼ æœ‰æƒä½¿ç”¨çš„å›¾ç‰‡ã€‚è¯·å‹¿ä¸Šä¼  ARASAAC æ–‡ä»¶ï¼Œè¯·ä½¿ç”¨å¤–éƒ¨ IDã€‚",
@@ -45,7 +45,7 @@
 	"weekly_plans_hint": "编辑名称或删除行，然后刷新列表并保存实例。「●」表示当前加载/激活的计划（在 Config 中设置）。",
 	"weekly_plans_refresh": "刷新列表",
 	"weekly_plans_table": "已保存的周计划",
-	"weekly_plan_id": "ID",
+	"weekly_plan_id": "标识",
 	"weekly_plan_name": "名称",
 	"weekly_plan_active": "激活"
 }

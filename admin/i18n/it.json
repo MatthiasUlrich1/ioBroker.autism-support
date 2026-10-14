@@ -1,12 +1,12 @@
 {
 	"autism-support adapter settings": "Impostazioni adattatore Autism Support",
-	"timer_tab": "Visual Countdown",
+	"timer_tab": "Temporizzatore",
 	"timer_settings_header": "Visual Countdown â€“ impostazioni predefinite",
 	"default_duration_hours": "Durata predefinita (ore)",
 	"default_duration_minutes": "Durata predefinita (minuti)",
 	"max_duration_hours": "Durata massima (ore, fino a 24)",
 	"timer_settings_hint": "Controllo e visualizzazione tramite widget VIS-2 o stati sotto timer.*. Il cerchio rappresenta sempre un'ora.",
-	"day_periods_tab": "Periodi della giornata",
+	"day_periods_tab": "Periodi",
 	"day_periods_header": "Periodi per la barra temporale",
 	"day_periods_hint": "Configura mattina, mattinata, mezzogiorno, pomeriggio, sera e notte con inizio/fine (HH:MM) e colore per la barra del piano.",
 	"period_morning": "Mattina",
@@ -31,7 +31,7 @@
 	"custom_pictogram_tags": "Tag (virgola)",
 	"custom_pictogram_open_files": "Apri gestore file (vis-2.0/Autismus UnterstÃ¼tzung/pictograms)",
 	"custom_pictogram_refresh": "Aggiorna elenco",
-	"weekly_tab": "Piano settimanale",
+	"weekly_tab": "Settimana",
 	"weekly_header": "Piano settimanale: colori dei giorni e modelli",
 	"weekly_colors_hint": "Colori di sfondo dei giorni per il widget live panoramica settimana.",
 	"weekday_mon": "Lunedì",
@@ -45,7 +45,7 @@
 	"weekly_plans_hint": "Modifica i nomi o elimina righe, aggiorna l'elenco e salva l'istanza. «●» indica il piano caricato/attivo (impostato in Config).",
 	"weekly_plans_refresh": "Aggiorna elenco",
 	"weekly_plans_table": "Piani settimanali salvati",
-	"weekly_plan_id": "ID",
+	"weekly_plan_id": "Identificativo",
 	"weekly_plan_name": "Nome",
 	"weekly_plan_active": "Attivo"
 }
