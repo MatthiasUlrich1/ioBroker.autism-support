@@ -10,4 +10,7 @@ jobs:
     steps:
       - uses: iobroker-bot-orga/action-automerge-dependabot@v1
         with:
-          token: ${{ secrets.AUTO_MERGE_TOKEN }}
+          github-token: ${{ secrets.AUTO_MERGE_TOKEN || secrets.GITHUB_TOKEN }}
+          config-file-path: .github/auto-merge.yml
+          merge-method: merge
+          wait-for-checks: true
