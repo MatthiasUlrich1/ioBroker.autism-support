@@ -1,8 +1,21 @@
 {
 	"common": {
 		"name": "autism-support",
-		"version": "0.2.10",
+		"version": "0.2.11",
 		"news": {
+			"0.2.11": {
+				"en": "Latest-repo review: English description, i18n, remove unused customs, responsive admin tabs",
+				"de": "Latest-Repo-Review: englische Description, i18n, ungenutzte Customs entfernt, responsive Admin-Tabs",
+				"ru": "Review latest: английское description, i18n, удалены неиспользуемые customs, адаптивные вкладки Admin",
+				"pt": "Review latest: description em inglês, i18n, customs não usados removidos, tabs Admin responsivas",
+				"nl": "Latest-repo-review: Engelse description, i18n, ongebruikte customs verwijderd, responsive Admin-tabs",
+				"fr": "Review latest : description en anglais, i18n, customs inutilisés retirés, onglets Admin responsives",
+				"it": "Review latest: description in inglese, i18n, customs inutilizzati rimossi, tab Admin responsive",
+				"es": "Review latest: description en inglés, i18n, customs no usados eliminados, pestañas Admin responsive",
+				"pl": "Review latest: angielski description, i18n, usunięto nieużywane customs, responsywne taby Admin",
+				"uk": "Review latest: англійський description, i18n, видалено непотрібні customs, адаптивні вкладки Admin",
+				"zh-cn": "Latest 仓库评审修复：英文 description、i18n、移除未用 customs、响应式 Admin 标签"
+			},
 			"0.2.10": {
 				"en": "Repo-check compliance: remove unpublished news versions, update README changelog",
 				"de": "Repo-Check-Konformität: unveröffentlichte News entfernt, README-Changelog aktualisiert",
@@ -80,19 +93,6 @@
 				"pl": "Plany tygodniowe: zakładki dni, szablony, kolory Admin, podgląd tygodnia, sync dzienny",
 				"uk": "Тижневі плани: вкладки днів, шаблони, кольори Admin, огляд тижня, щоденна синхронізація",
 				"zh-cn": "周计划：工作日标签、模板、Admin 颜色、周概览、每日同步"
-			},
-			"0.1.27": {
-				"en": "ioBroker compliance: news trim, jsonConfig, i18n; keep package checker-ready",
-				"de": "ioBroker-Konformität: News gekürzt, jsonConfig, i18n; Adapter-Checker bereit",
-				"ru": "Соответствие ioBroker: сокращение news, jsonConfig, i18n; готовность к проверке адаптера",
-				"pt": "Conformidade ioBroker: news reduzidas, jsonConfig, i18n; pronto para verificação",
-				"nl": "ioBroker-conformiteit: news ingekort, jsonConfig, i18n; klaar voor adapter-check",
-				"fr": "Conformité ioBroker : news réduites, jsonConfig, i18n ; prêt pour le contrôle",
-				"it": "Conformità ioBroker: news ridotte, jsonConfig, i18n; pronto per il controllo",
-				"es": "Conformidad ioBroker: news recortadas, jsonConfig, i18n; listo para verificación",
-				"pl": "Zgodność ioBroker: skrócone news, jsonConfig, i18n; gotowy do sprawdzenia",
-				"uk": "Відповідність ioBroker: скорочені news, jsonConfig, i18n; готовність до перевірки",
-				"zh-cn": "ioBroker 合规：精简 news、jsonConfig、i18n；适配器检查就绪"
 			}
 		},
 		"titleLang": {
