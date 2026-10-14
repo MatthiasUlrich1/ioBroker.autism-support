@@ -668,7 +668,7 @@ class AutismSupport extends utils.Adapter {
 		try {
 			const hint =
 				"Upload pictogram images (PNG, JPEG, GIF, WebP, SVG) here.\n" +
-				"Do not create new folders (the file manager often then shows \"duplicate name\").\n" +
+				'Do not create new folders (the file manager often then shows "duplicate name").\n' +
 				"Instead click Upload above and place images in THIS folder.\n";
 			const placeholderPath = `${PICTOGRAM_DIR}/${PICTOGRAM_PLACEHOLDER_FILE}`;
 			let needsWrite = true;
