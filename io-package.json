@@ -1,8 +1,21 @@
 {
 	"common": {
 		"name": "autism-support",
-		"version": "0.2.11",
+		"version": "0.2.12",
 		"news": {
+			"0.2.12": {
+				"en": "Remove leftover Admin sidebar tab that could not be opened",
+				"de": "Überbleibenden Admin-Seitenleisten-Eintrag entfernen, der nicht geöffnet werden konnte",
+				"ru": "Удаление устаревшей вкладки Admin в боковой панели, которую нельзя открыть",
+				"pt": "Remover separador legado da barra lateral do Admin que não podia ser aberto",
+				"nl": "Verouderde Admin-zijbalkinvoer verwijderen die niet geopend kon worden",
+				"fr": "Retirer l’onglet Admin latéral restant qui ne pouvait pas s’ouvrir",
+				"it": "Rimuovere la voce legacy nella barra laterale Admin non apribile",
+				"es": "Quitar la pestaña heredada de la barra lateral de Admin que no se podía abrir",
+				"pl": "Usuń pozostałą pozycję menu Admin, której nie dało się otworzyć",
+				"uk": "Видалити застарілий пункт бічної панелі Admin, який не відкривався",
+				"zh-cn": "移除无法打开的遗留 Admin 侧栏项"
+			},
 			"0.2.11": {
 				"en": "Latest-repo review: English description, i18n, remove unused customs, responsive admin tabs",
 				"de": "Latest-Repo-Review: englische Description, i18n, ungenutzte Customs entfernt, responsive Admin-Tabs",
@@ -80,19 +93,6 @@
 				"pl": "Naprawiono strukturę obiektów: kanał timer, role value.interval, flagi read przycisków",
 				"uk": "Виправлено структуру об'єктів: канал timer, ролі value.interval, прапорці read кнопок",
 				"zh-cn": "修复对象结构：timer 通道、value.interval 角色、按钮 read 标志"
-			},
-			"0.2.1": {
-				"en": "Weekly plans: weekday tabs, templates, Admin colors, week live overview, daily sync",
-				"de": "Wochenpläne: Wochentags-Tabs, Vorlagen, Admin-Farben, Live-Wochenübersicht, Tages-Sync",
-				"ru": "Планы на неделю: вкладки по дням, шаблоны, цвета в Admin, обзор недели, синхронизация дня",
-				"pt": "Planos semanais: separadores por dia, modelos, cores no Admin, visão geral da semana, sync diário",
-				"nl": "Weekplannen: tabbladen per weekdag, sjablonen, Admin-kleuren, weekoverzicht, dag-sync",
-				"fr": "Plans hebdomadaires: onglets par jour, modèles, couleurs Admin, aperçu semaine, sync quotidien",
-				"it": "Piani settimanali: schede per giorno, modelli, colori Admin, panoramica settimana, sync giornaliero",
-				"es": "Planes semanales: pestañas por día, plantillas, colores Admin, vista semanal, sync diario",
-				"pl": "Plany tygodniowe: zakładki dni, szablony, kolory Admin, podgląd tygodnia, sync dzienny",
-				"uk": "Тижневі плани: вкладки днів, шаблони, кольори Admin, огляд тижня, щоденна синхронізація",
-				"zh-cn": "周计划：工作日标签、模板、Admin 颜色、周概览、每日同步"
 			}
 		},
 		"titleLang": {

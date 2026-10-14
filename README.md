@@ -92,6 +92,10 @@ npm run start
 
 See [CHANGELOG_OLD.md](CHANGELOG_OLD.md) for older entries.
 
+### 0.2.12
+
+* Remove leftover Admin sidebar tab that could not be opened
+
 ### 0.2.11
 
 * Latest repository review fixes: English package description, translations, remove unused custom config, responsive admin tabs

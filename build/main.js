@@ -77,6 +77,10 @@ class AutismSupport extends utils.Adapter {
       if (this.isStartupCancelled(runId)) {
         return;
       }
+      await this.removeLegacyAdminTab();
+      if (this.isStartupCancelled(runId)) {
+        return;
+      }
       await this.createTimerStates();
       if (this.isStartupCancelled(runId)) {
         return;
@@ -286,6 +290,35 @@ class AutismSupport extends utils.Adapter {
       });
     }
     await this.migrateTimerStateRoles();
+  }
+  /**
+   * Older releases registered a broken Admin sidebar tab (`adminTab` with empty link).
+   * io-package no longer defines it, but installed objects may still keep the leftover.
+   */
+  async removeLegacyAdminTab() {
+    var _a;
+    const ids = [`system.adapter.${this.name}`, instanceConfigId(this.namespace)];
+    for (const id of ids) {
+      const obj = await this.getForeignObjectAsync(id);
+      if (!(obj == null ? void 0 : obj.common)) {
+        continue;
+      }
+      const common = obj.common;
+      let changed = false;
+      if (common.adminTab !== void 0) {
+        delete common.adminTab;
+        changed = true;
+      }
+      if (((_a = common.adminUI) == null ? void 0 : _a.tab) !== void 0) {
+        delete common.adminUI.tab;
+        changed = true;
+      }
+      if (!changed) {
+        continue;
+      }
+      await this.setForeignObjectAsync(id, obj);
+      this.log.info(`Removed legacy Admin sidebar tab from ${id}`);
+    }
   }
   /**
    * Earlier versions used extendObject() for system.adapter.* which ioBroker resolves
