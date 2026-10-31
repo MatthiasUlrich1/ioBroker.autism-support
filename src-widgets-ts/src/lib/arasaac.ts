@@ -35,10 +35,9 @@ export async function searchArasaac(language: string, query: string): Promise<Ar
 	if (q.length < 2) {
 		return [];
 	}
-	const controller = new AbortController();
-	const timer = setTimeout(() => controller.abort(), 10_000);
+	const signal = AbortSignal.timeout(10_000);
 	try {
-		const response = await fetch(arasaacSearchUrl(language, q), { signal: controller.signal });
+		const response = await fetch(arasaacSearchUrl(language, q), { signal });
 		if (!response.ok) {
 			throw new Error(`ARASAAC search failed (${response.status})`);
 		}
@@ -50,7 +49,10 @@ export async function searchArasaac(language: string, query: string): Promise<Ar
 			id: entry._id,
 			keyword: entry.keywords?.[0]?.keyword || String(entry._id),
 		}));
-	} finally {
-		clearTimeout(timer);
+	} catch (error) {
+		if (error instanceof DOMException && error.name === "TimeoutError") {
+			throw new Error("ARASAAC search timeout");
+		}
+		throw error;
 	}
 }
