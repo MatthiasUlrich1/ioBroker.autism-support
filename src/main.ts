@@ -18,7 +18,6 @@ import {
 	PICTOGRAM_PLACEHOLDER_FILE,
 	LEGACY_VIS_LIBRARY_FILE,
 	LEGACY_PICTOGRAM_DIR,
-	LEGACY_MAIN_PICTOGRAM_DIR,
 	emptyLibrary,
 	isIgnoredPictogramFile,
 	libraryFromNativeRows,

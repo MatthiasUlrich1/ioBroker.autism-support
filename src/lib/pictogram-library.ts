@@ -17,9 +17,8 @@ export const PICTOGRAM_PLACEHOLDER_FILE = "UPLOAD_IMAGES_HERE.txt";
 export const LEGACY_VIS_LIBRARY_FILE = "Autismus Unterstützung/pictograms/_library.json";
 /** Legacy vis-2 pictograms folder (old German folder name). */
 export const LEGACY_PICTOGRAM_DIR = "Autismus Unterstützung/pictograms";
-/** Legacy path from versions before 0.1.21 (old main folder). */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const LEGACY_MAIN_PICTOGRAM_DIR = "main/autism-support/pictograms"; // used by fileRefToPath for legacy path migration
+/** Legacy path from versions before 0.1.21 (old main folder). Used in fileRefToPath for legacy path migration. */
+const LEGACY_MAIN_PICTOGRAM_DIR = "main/autism-support/pictograms";
 
 export interface CustomPictogram {
 	id: string;
