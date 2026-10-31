@@ -12,6 +12,7 @@
 			"fileMatch": [
 				"admin/jsonConfig.json",
 				"admin/jsonConfig.json5",
+				"admin/jsonCustom.json",
 				"admin/jsonTab.json",
 				"admin/jsonTab.json5"
 			],
