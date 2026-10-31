@@ -17,6 +17,8 @@ import {
 	PICTOGRAM_FILE_ADAPTER,
 	PICTOGRAM_PLACEHOLDER_FILE,
 	LEGACY_VIS_LIBRARY_FILE,
+	LEGACY_PICTOGRAM_DIR,
+	LEGACY_MAIN_PICTOGRAM_DIR,
 	emptyLibrary,
 	isIgnoredPictogramFile,
 	libraryFromNativeRows,
@@ -668,6 +670,7 @@ class AutismSupport extends utils.Adapter {
 	}
 
 	private async ensurePictogramStore(): Promise<void> {
+		// Ensure adapter library file exists
 		try {
 			await this.readFileAsync(this.namespace, ADAPTER_LIBRARY_FILE);
 		} catch {
@@ -683,6 +686,7 @@ class AutismSupport extends utils.Adapter {
 			}
 		}
 
+		// Migrate legacy vis-2 library file (old German path) if exists
 		try {
 			const legacy = await this.readFileAsync(PICTOGRAM_FILE_ADAPTER, LEGACY_VIS_LIBRARY_FILE);
 			const raw = typeof legacy.file === "string" ? legacy.file : Buffer.from(legacy.file).toString("utf8");
@@ -695,12 +699,17 @@ class AutismSupport extends utils.Adapter {
 			// no legacy library in vis-2
 		}
 
+		// Remove legacy vis-2 library file (old German path)
 		try {
 			await this.unlinkAsync(PICTOGRAM_FILE_ADAPTER, LEGACY_VIS_LIBRARY_FILE);
 		} catch {
 			// ignore
 		}
 
+		// Migrate user pictogram files from old German folder to new English folder
+		await this.migrateLegacyPictogramFiles();
+
+		// Ensure new English folder exists with placeholder
 		try {
 			const hint =
 				"Upload pictogram images (PNG, JPEG, GIF, WebP, SVG) here.\n" +
@@ -721,9 +730,69 @@ class AutismSupport extends utils.Adapter {
 				this.log.info(`Ensured vis-2 pictogram folder ${PICTOGRAM_FILE_ADAPTER}/${PICTOGRAM_DIR}`);
 			}
 		} catch (error) {
-			this.log.error(
-				`Could not write ${PICTOGRAM_FILE_ADAPTER}/${PICTOGRAM_DIR}/${PICTOGRAM_PLACEHOLDER_FILE}: ${(error as Error).message}`,
+			// vis-2 filestore may not be available (vis-2 not installed) - don't crash
+			this.log.warn(
+				`Could not write ${PICTOGRAM_FILE_ADAPTER}/${PICTOGRAM_DIR}/${PICTOGRAM_PLACEHOLDER_FILE}: ${(error as Error).message}. Continuing without vis-2 filestore.`
 			);
+		}
+	}
+
+	/**
+	 * Migrate pictogram files from old German folder (Autismus Unterstützung/pictograms)
+	 * to new English folder (Autism Support/pictograms) in vis-2 file store.
+	 * User images must not be lost during the migration.
+	 */
+	private async migrateLegacyPictogramFiles(): Promise<void> {
+		try {
+			// Check if legacy folder exists and has files
+			const legacyFiles = await this.readDirAsync(PICTOGRAM_FILE_ADAPTER, LEGACY_PICTOGRAM_DIR);
+			if (!legacyFiles || legacyFiles.length === 0) {
+				this.log.debug("No legacy pictogram folder found, skipping migration");
+				return;
+			}
+
+			this.log.info(`Found ${legacyFiles.length} files in legacy folder, migrating to ${PICTOGRAM_DIR}`);
+
+			// Ensure new folder exists
+			try {
+				await this.writeFileAsync(PICTOGRAM_FILE_ADAPTER, `${PICTOGRAM_DIR}/.migration-check`, "migration");
+				await this.unlinkAsync(PICTOGRAM_FILE_ADAPTER, `${PICTOGRAM_DIR}/.migration-check`);
+			} catch (error) {
+				this.log.warn(`Could not verify new folder accessibility: ${(error as Error).message}`);
+			}
+
+			let migratedCount = 0;
+			for (const entry of legacyFiles) {
+				if (entry.isDir || isIgnoredPictogramFile(entry.file)) {
+					continue;
+				}
+				const legacyPath = `${LEGACY_PICTOGRAM_DIR}/${entry.file}`;
+				const newPath = `${PICTOGRAM_DIR}/${entry.file}`;
+
+				try {
+					// Read file from legacy location (binary files are stored as base64 in file store)
+					const fileData = await this.readFileAsync(PICTOGRAM_FILE_ADAPTER, legacyPath);
+					const buffer = typeof fileData.file === "string"
+						? Buffer.from(fileData.file, "base64")
+						: Buffer.from(fileData.file);
+
+					// Write to new location
+					await this.writeFileAsync(PICTOGRAM_FILE_ADAPTER, newPath, buffer);
+					migratedCount++;
+
+					// Delete from legacy location after successful write
+					await this.unlinkAsync(PICTOGRAM_FILE_ADAPTER, legacyPath);
+				} catch (error) {
+					this.log.warn(`Failed to migrate file ${entry.file}: ${(error as Error).message}`);
+				}
+			}
+
+			if (migratedCount > 0) {
+				this.log.info(`Successfully migrated ${migratedCount} pictogram file(s) from legacy folder`);
+			}
+		} catch (error) {
+			// Legacy folder doesn't exist or vis-2 not available - not an error
+			this.log.debug(`Legacy pictogram migration skipped: ${(error as Error).message}`);
 		}
 	}
 

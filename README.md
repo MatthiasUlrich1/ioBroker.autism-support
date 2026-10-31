@@ -92,6 +92,10 @@ npm run start
 
 See [CHANGELOG_OLD.md](CHANGELOG_OLD.md) for older entries.
 
+### 0.2.14
+
+* Fix red instance after 0.2.13 update: migrate pictograms from old German vis-2 folder to 'Autism Support', robust startup without vis-2
+
 ### 0.2.13
 
 * Latest-repo review fixes: English vis-2 folder names, widget i18n translations, ARASAAC fetch timeout, modern nogit build setup

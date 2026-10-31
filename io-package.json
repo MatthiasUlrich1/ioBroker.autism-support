@@ -1,8 +1,21 @@
 {
 	"common": {
 		"name": "autism-support",
-		"version": "0.2.13",
+		"version": "0.2.14",
 		"news": {
+			"0.2.14": {
+				"en": "Fix red instance after 0.2.13 update: migrate pictograms from old German vis-2 folder to 'Autism Support', robust startup without vis-2",
+				"de": "Rote Instanz nach 0.2.13-Update behoben: Piktogramme vom alten deutschen vis-2-Ordner nach 'Autism Support' migriert, robuster Start ohne vis-2",
+				"ru": "Исправлено красная инстанция после обновления 0.2.13: миграция пиктограмм из старой немецкой папки vis-2 в 'Autism Support', надёжный старт без vis-2",
+				"pt": "Corrigida instância vermelha após a atualização 0.2.13: pictogramas migrados da antiga pasta alemã vis-2 para 'Autism Support', inicialização robusta sem vis-2",
+				"nl": "Rode instantie na update 0.2.13 opgelost: pictogrammen gemigreerd van oude Duitse vis-2-map naar 'Autism Support', robuuste start zonder vis-2",
+				"fr": "Correction de l'instance rouge après la mise à jour 0.2.13 : pictogrammes migrés de l'ancien dossier vis-2 allemand vers 'Autism Support', démarrage robuste sans vis-2",
+				"it": "Corretta istanza rossa dopo l'aggiornamento 0.2.13: pittogrammi migrati dalla vecchia cartella vis-2 tedesca a 'Autism Support', avvio robusto senza vis-2",
+				"es": "Corregida instancia roja tras la actualización 0.2.13: pictogramas migrados de la antigua carpeta alemana vis-2 a 'Autism Support', arranque robusto sin vis-2",
+				"pl": "Naprawiono czerwoną instancję po aktualizacji 0.2.13: migracja piktogramów ze starego niemieckiego folderu vis-2 do 'Autism Support', odporna inicjalizacja bez vis-2",
+				"uk": "Виправлено червону інстанцію після оновлення 0.2.13: міграція піктограм зі старої німецької папки vis-2 у 'Autism Support', надійний запуск без vis-2",
+				"zh-cn": "修复 0.2.13 更新后实例变红：将图形符号从旧德语 vis-2 文件夹迁移到 'Autism Support'，无 vis-2 时稳健启动"
+			},
 			"0.2.13": {
 				"en": "Latest-repo review fixes: English vis-2 folder names, widget i18n translations, ARASAAC fetch timeout, modern nogit build setup",
 				"de": "Latest-Repo-Review-Fixes: englische vis-2-Ordernamen, Widget-i18n-Übersetzungen, ARASAAC-Fetch-Timeout, moderner nogit-Build-Setup",
@@ -80,19 +93,6 @@
 				"pl": "Naprawiono pętlę restartu (diff native) i formatowanie CI lint",
 				"uk": "Виправлено цикл перезапуску (diff native) і форматування CI lint",
 				"zh-cn": "修复重启循环（native diff）及 CI lint 格式"
-			},
-			"0.2.5": {
-				"en": "Fix system.adapter config path; trim news for ioBroker E1032 (CI release)",
-				"de": "system.adapter-Konfig-Pfad repariert; News gekürzt für ioBroker E1032 (CI-Release)",
-				"ru": "Исправлен путь system.adapter; news сокращены для E1032 (CI release)",
-				"pt": "Corrigido caminho system.adapter; news reduzidas para E1032 (release CI)",
-				"nl": "system.adapter-pad gerepareerd; news ingekort voor E1032 (CI-release)",
-				"fr": "Chemin system.adapter corrigé ; news réduites pour E1032 (release CI)",
-				"it": "Percorso system.adapter corretto; news ridotte per E1032 (release CI)",
-				"es": "Ruta system.adapter corregida; news recortadas para E1032 (release CI)",
-				"pl": "Naprawiono ścieżkę system.adapter; news skrócone dla E1032 (release CI)",
-				"uk": "Виправлено шлях system.adapter; news скорочено для E1032 (CI release)",
-				"zh-cn": "修复 system.adapter 路径；精简 news 以通过 E1032（CI 发布）"
 			}
 		},
 		"titleLang": {

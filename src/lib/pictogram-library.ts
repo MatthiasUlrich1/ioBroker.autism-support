@@ -13,10 +13,12 @@ export const PICTOGRAM_DIR = `${VIS_PROJECT}/${PICTOGRAM_SUBFOLDER}`;
 export const ADAPTER_LIBRARY_FILE = "pictograms/_library.json";
 /** Visible placeholder so the vis-2 folder shows up in Admin file manager. */
 export const PICTOGRAM_PLACEHOLDER_FILE = "UPLOAD_IMAGES_HERE.txt";
-/** @deprecated Legacy vis-2 library path – removed on startup. */
-export const LEGACY_VIS_LIBRARY_FILE = `${PICTOGRAM_DIR}/_library.json`;
-/** Legacy path from versions before 0.1.21. */
-export const LEGACY_PICTOGRAM_DIR = "main/autism-support/pictograms";
+/** @deprecated Legacy vis-2 library path (old German folder name) – removed on startup. */
+export const LEGACY_VIS_LIBRARY_FILE = "Autismus Unterstützung/pictograms/_library.json";
+/** Legacy vis-2 pictograms folder (old German folder name). */
+export const LEGACY_PICTOGRAM_DIR = "Autismus Unterstützung/pictograms";
+/** Legacy path from versions before 0.1.21 (old main folder). */
+export const LEGACY_MAIN_PICTOGRAM_DIR = "main/autism-support/pictograms";
 
 export interface CustomPictogram {
 	id: string;
@@ -140,6 +142,11 @@ export function fileRefToPath(file: string): string {
 
 	if (ref.startsWith(`${LEGACY_PICTOGRAM_DIR}/`)) {
 		const filename = ref.slice(`${LEGACY_PICTOGRAM_DIR}/`.length);
+		return filename ? pictogramStoragePath(filename) : "";
+	}
+
+	if (ref.startsWith(`${LEGACY_MAIN_PICTOGRAM_DIR}/`)) {
+		const filename = ref.slice(`${LEGACY_MAIN_PICTOGRAM_DIR}/`.length);
 		return filename ? pictogramStoragePath(filename) : "";
 	}
 
