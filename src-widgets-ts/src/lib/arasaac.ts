@@ -35,16 +35,22 @@ export async function searchArasaac(language: string, query: string): Promise<Ar
 	if (q.length < 2) {
 		return [];
 	}
-	const response = await fetch(arasaacSearchUrl(language, q));
-	if (!response.ok) {
-		throw new Error(`ARASAAC search failed (${response.status})`);
+	const controller = new AbortController();
+	const timer = setTimeout(() => controller.abort(), 10_000);
+	try {
+		const response = await fetch(arasaacSearchUrl(language, q), { signal: controller.signal });
+		if (!response.ok) {
+			throw new Error(`ARASAAC search failed (${response.status})`);
+		}
+		const data = (await response.json()) as Array<{
+			_id: number;
+			keywords?: Array<{ keyword?: string }>;
+		}>;
+		return (data || []).slice(0, 24).map(entry => ({
+			id: entry._id,
+			keyword: entry.keywords?.[0]?.keyword || String(entry._id),
+		}));
+	} finally {
+		clearTimeout(timer);
 	}
-	const data = (await response.json()) as Array<{
-		_id: number;
-		keywords?: Array<{ keyword?: string }>;
-	}>;
-	return (data || []).slice(0, 24).map(entry => ({
-		id: entry._id,
-		keyword: entry.keywords?.[0]?.keyword || String(entry._id),
-	}));
 }
