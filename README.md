@@ -67,7 +67,7 @@ The **Daily / Weekly Schedule (Config)** widget edits a full week (Mo–Su tabs)
 1. **ARASAAC (external)** – only pictogram ID is stored; image is loaded at runtime from `static.arasaac.org`. No ARASAAC files in the adapter package.
 2. **Custom uploads** – via the adapter instance settings in Admin (Pictograms tab). vis-2 widgets cannot upload files reliably.
 
-Custom images are stored in the **vis-2** file store at `vis-2.0/Autismus Unterstützung/pictograms/` (URL `/vis-2.0/Autismus Unterstützung/pictograms/...`). The `pictograms` folder is created automatically on adapter start. Upload images via Admin → **Files** (or the link in instance settings).
+Custom images are stored in the **vis-2** file store at `vis-2.0/Autism Support/pictograms/` (URL `/vis-2.0/Autism Support/pictograms/...`). The `pictograms` folder is created automatically on adapter start. Upload images via Admin → **Files** (or the link in instance settings).
 
 ## Development
 

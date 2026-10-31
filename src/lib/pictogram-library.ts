@@ -7,7 +7,7 @@ export const PICTOGRAM_FILE_ADAPTER = "vis-2.0";
 /** vis-2 project folder (created by vis-2 when the project is set up). */
 export const VIS_PROJECT = "Autism Support";
 export const PICTOGRAM_SUBFOLDER = "pictograms";
-/** Path inside vis-2.0 for image files, e.g. Autismus Unterstützung/pictograms */
+/** Path inside vis-2.0 for image files, e.g. Autism Support/pictograms */
 export const PICTOGRAM_DIR = `${VIS_PROJECT}/${PICTOGRAM_SUBFOLDER}`;
 /** Library metadata lives in the adapter file store (not vis-2). */
 export const ADAPTER_LIBRARY_FILE = "pictograms/_library.json";
@@ -56,7 +56,7 @@ export function encodeIoBrokerFileUrl(urlPath: string): string {
 		.join("/")}`;
 }
 
-/** Public URL as used in vis-2 views, e.g. /vis-2.0/Autismus%20Unterst%C3%BCtzung/pictograms/foo.png */
+/** Public URL as used in vis-2 views, e.g. /vis-2.0/Autism%20Support/pictograms/foo.png */
 export function pictogramPublicUrl(storagePath: string): string {
 	const path = fileRefToPath(storagePath);
 	return path ? encodeIoBrokerFileUrl(`${PICTOGRAM_FILE_ADAPTER}/${path}`) : "";
@@ -119,7 +119,7 @@ export function matchesPictogramQuery(item: CustomPictogram, query: string): boo
 	return q.split(/\s+/).every(part => haystack.includes(part));
 }
 
-/** Normalize admin/config references to vis-2 storage path (Autismus Unterstützung/pictograms/…). */
+/** Normalize admin/config references to vis-2 storage path (Autism Support/pictograms/…). */
 export function fileRefToPath(file: string): string {
 	const ref = String(file || "")
 		.trim()

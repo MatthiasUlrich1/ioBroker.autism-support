@@ -269,14 +269,14 @@ function visPictogramRelativePath(path: string): string {
 		.replace(/^\/+/, "")
 		.replace(/^files\//, "")
 		.replace(/^vis-2\.0\//, "");
-	if (p.startsWith("Autismus Unterstützung/")) {
+	if (p.startsWith("Autism Support/")) {
 		return p;
 	}
 	if (p.startsWith("main/autism-support/pictograms/")) {
 		return p;
 	}
 	const filename = p.split("/").pop() || p;
-	return `Autismus Unterstützung/pictograms/${filename}`;
+	return `Autism Support/pictograms/${filename}`;
 }
 
 /** Resolve image URL for a schedule item (ARASAAC CDN or custom file/URL). */

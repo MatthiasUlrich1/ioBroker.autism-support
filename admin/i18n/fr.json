@@ -4,7 +4,7 @@
 	"custom_pictogram_file": "Fichier image",
 	"custom_pictogram_info": "TÃ©lÃ©versez et Ã©tiquetez vos pictogrammes ici. Fichiers dans autism-support.X/pictograms/. Le widget de configuration peut chercher ces Ã©tiquettes. Uniquement des images autorisÃ©es. Pas de fichiers ARASAAC â€“ utilisez l'ID externe.",
 	"custom_pictogram_label": "Nom",
-	"custom_pictogram_open_files": "Ouvrir le gestionnaire de fichiers (vis-2.0/Autismus UnterstÃ¼tzung/pictograms)",
+	"custom_pictogram_open_files": "Ouvrir le gestionnaire de fichiers (vis-2.0/Autism Support/pictograms)",
 	"custom_pictogram_refresh": "Actualiser la liste",
 	"custom_pictogram_tags": "Tags (virgule)",
 	"custom_pictograms_hint": "Televersez une image depuis l ordinateur via le bouton d upload a cote de la liste (pas vis.0). Fichiers dans autism-support.X/pictograms. Nom/tags optionnels dans le tableau, puis enregistrez.",
