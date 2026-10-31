@@ -153,6 +153,7 @@
 		"dataSource": "poll",
 		"compact": true,
 		"messagebox": true,
+		"nogit": true,
 		"adminUI": {
 			"config": "json"
 		},
