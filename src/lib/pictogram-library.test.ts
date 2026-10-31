@@ -22,7 +22,7 @@ describe("pictogram-library", () => {
 		const item = {
 			id: "1",
 			filename: "brush-1.png",
-			path: "Autismus Unterstützung/pictograms/brush-1.png",
+			path: "Autism Support/pictograms/brush-1.png",
 			label: "Zähneputzen",
 			tags: ["hygiene", "morgen"],
 			originalName: "zaehne.png",
@@ -43,31 +43,31 @@ describe("pictogram-library", () => {
 	it("maps native admin rows to vis-2 storage paths", () => {
 		const library = libraryFromNativeRows([
 			{
-				file: "vis-2.0/Autismus Unterstützung/pictograms/brush.png",
+				file: "vis-2.0/Autism Support/pictograms/brush.png",
 				label: "Zähne",
 				tags: "hygiene, morgen",
 			},
 		]);
-		expect(fileRefToPath("/vis-2.0/Autismus Unterstützung/pictograms/brush.png")).to.equal(
-			"Autismus Unterstützung/pictograms/brush.png",
+		expect(fileRefToPath("/vis-2.0/Autism Support/pictograms/brush.png")).to.equal(
+			"Autism Support/pictograms/brush.png",
 		);
-		expect(library.items[0].path).to.equal("Autismus Unterstützung/pictograms/brush.png");
+		expect(library.items[0].path).to.equal("Autism Support/pictograms/brush.png");
 		expect(library.items[0].tags).to.deep.equal(["hygiene", "morgen"]);
 	});
 
 	it("maps legacy paths to the vis-2 project folder", () => {
 		expect(fileRefToPath("main/autism-support/pictograms/brush.png")).to.equal(
-			"Autismus Unterstützung/pictograms/brush.png",
+			"Autism Support/pictograms/brush.png",
 		);
-		expect(pictogramStoragePath("brush.png")).to.equal("Autismus Unterstützung/pictograms/brush.png");
-		expect(pictogramPublicUrl("Autismus Unterstützung/pictograms/brush.png")).to.equal(
-			"/vis-2.0/Autismus%20Unterst%C3%BCtzung/pictograms/brush.png",
+		expect(pictogramStoragePath("brush.png")).to.equal("Autism Support/pictograms/brush.png");
+		expect(pictogramPublicUrl("Autism Support/pictograms/brush.png")).to.equal(
+			"/vis-2.0/Autism%20Support/pictograms/brush.png",
 		);
 	});
 
 	it("ignores placeholder and library files in folder listings", () => {
 		expect(isIgnoredPictogramFile("_library.json")).to.equal(true);
-		expect(isIgnoredPictogramFile("HIER_BILDER_HOCHLADEN.txt")).to.equal(true);
+		expect(isIgnoredPictogramFile("UPLOAD_IMAGES_HERE.txt")).to.equal(true);
 		expect(isIgnoredPictogramFile("brush.png")).to.equal(false);
 	});
 
@@ -78,16 +78,16 @@ describe("pictogram-library", () => {
 	it("builds admin table rows from disk files and keeps tags", () => {
 		const rows = syncCustomPictogramRows(
 			["brush.png", "readme.txt", "other.jpg"],
-			[{ file: "Autismus Unterstützung/pictograms/brush.png", label: "Zähne", tags: "hygiene, morgen" }],
+			[{ file: "Autism Support/pictograms/brush.png", label: "Zähne", tags: "hygiene, morgen" }],
 		);
 		expect(rows).to.deep.equal([
 			{
-				file: "Autismus Unterstützung/pictograms/brush.png",
+				file: "Autism Support/pictograms/brush.png",
 				label: "Zähne",
 				tags: "hygiene, morgen",
 			},
 			{
-				file: "Autismus Unterstützung/pictograms/other.jpg",
+				file: "Autism Support/pictograms/other.jpg",
 				label: "other",
 				tags: "",
 			},
@@ -101,7 +101,7 @@ describe("pictogram-library", () => {
 				{
 					id: "brush.png",
 					filename: "brush.png",
-					path: "Autismus Unterstützung/pictograms/brush.png",
+					path: "Autism Support/pictograms/brush.png",
 					label: "brush",
 					tags: [],
 					originalName: "brush.png",
@@ -111,7 +111,7 @@ describe("pictogram-library", () => {
 			],
 		});
 		const configRows = libraryFromNativeRows([
-			{ file: "Autismus Unterstützung/pictograms/brush.png", label: "Zähne", tags: "hygiene" },
+			{ file: "Autism Support/pictograms/brush.png", label: "Zähne", tags: "hygiene" },
 		]);
 		const merged = mergePictogramSources(disk, configRows);
 		expect(merged.items).to.have.length(1);

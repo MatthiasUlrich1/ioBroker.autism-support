@@ -8,6 +8,8 @@ node_modules
 src-widgets-ts/node_modules
 src-widgets-ts/build
 nbproject
+build/
+widgets/autism-support/assets/
 
 # npm package files
 iobroker.*.tgz

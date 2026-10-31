@@ -1,18 +1,18 @@
 /**
  * Metadata for user-uploaded pictograms (never ARASAAC files).
- * Image files live in the vis-2 file store: vis-2.0/Autismus Unterstützung/pictograms/
+ * Image files live in the vis-2 file store: vis-2.0/Autism Support/pictograms/
  */
 
 export const PICTOGRAM_FILE_ADAPTER = "vis-2.0";
 /** vis-2 project folder (created by vis-2 when the project is set up). */
-export const VIS_PROJECT = "Autismus Unterstützung";
+export const VIS_PROJECT = "Autism Support";
 export const PICTOGRAM_SUBFOLDER = "pictograms";
 /** Path inside vis-2.0 for image files, e.g. Autismus Unterstützung/pictograms */
 export const PICTOGRAM_DIR = `${VIS_PROJECT}/${PICTOGRAM_SUBFOLDER}`;
 /** Library metadata lives in the adapter file store (not vis-2). */
 export const ADAPTER_LIBRARY_FILE = "pictograms/_library.json";
 /** Visible placeholder so the vis-2 folder shows up in Admin file manager. */
-export const PICTOGRAM_PLACEHOLDER_FILE = "HIER_BILDER_HOCHLADEN.txt";
+export const PICTOGRAM_PLACEHOLDER_FILE = "UPLOAD_IMAGES_HERE.txt";
 /** @deprecated Legacy vis-2 library path – removed on startup. */
 export const LEGACY_VIS_LIBRARY_FILE = `${PICTOGRAM_DIR}/_library.json`;
 /** Legacy path from versions before 0.1.21. */
