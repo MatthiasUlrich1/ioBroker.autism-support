@@ -1,8 +1,21 @@
 {
 	"common": {
 		"name": "autism-support",
-		"version": "0.2.12",
+		"version": "0.2.13",
 		"news": {
+			"0.2.13": {
+				"en": "Latest-repo review fixes: English vis-2 folder names, widget i18n translations, ARASAAC fetch timeout, modern nogit build setup",
+				"de": "Latest-Repo-Review-Fixes: englische vis-2-Ordernamen, Widget-i18n-Übersetzungen, ARASAAC-Fetch-Timeout, moderner nogit-Build-Setup",
+				"ru": "Исправления последнего обзора репозитория: английские имена папок vis-2, переводы виджетов i18n, таймаут запроса ARASAAC, современная настройка сборки nogit",
+				"pt": "Correções da revisão latest: nomes de pastas vis-2 em inglês, traduções i18n de widget, timeout de fetch ARASAAC, configuração moderna de build nogit",
+				"nl": "Latest-repo-review-fixes: Engelse vis-2-mappennamen, widget-i18n-vertalingen, ARASAAC-fetch-timeout, moderne nogit-buildsetup",
+				"fr": "Correctifs de la revue latest : noms de dossiers vis-2 en anglais, traductions i18n des widgets, timeout de requête ARASAAC, configuration de build nogit moderne",
+				"it": "Correzioni della revisione latest: nomi di cartelle vis-2 in inglese, traduzioni widget i18n, timeout fetch ARASAAC, moderna configurazione build nogit",
+				"es": "Correcciones de la revisión latest: nombres de carpeta vis-2 en inglés, traducciones i18n de widget, timeout de fetch ARASAAC, configuración moderna de build nogit",
+				"pl": "Poprawki z latest-repo review: angielskie nazwy folderów vis-2, tłumaczenia i18n widgetów, timeout fetchu ARASAAC, nowoczesne konfiguracja build nogit",
+				"uk": "Виправлення останнього огляду репозиторію: англійські назви папок vis-2, переклади виджетів i18n, таймаут запиту ARASAAC, сучасна настройка збірки nogit",
+				"zh-cn": "最新仓库评审修复：英文 vis-2 文件夹名称、widget i18n 翻译、ARASAAC 获取超时、现代 nogit 构建设置"
+			},
 			"0.2.12": {
 				"en": "Remove leftover Admin sidebar tab that could not be opened",
 				"de": "Überbleibenden Admin-Seitenleisten-Eintrag entfernen, der nicht geöffnet werden konnte",
@@ -80,19 +93,6 @@
 				"pl": "Naprawiono ścieżkę system.adapter; news skrócone dla E1032 (release CI)",
 				"uk": "Виправлено шлях system.adapter; news скорочено для E1032 (CI release)",
 				"zh-cn": "修复 system.adapter 路径；精简 news 以通过 E1032（CI 发布）"
-			},
-			"0.2.2": {
-				"en": "Fix object structure: timer channel, value.interval roles, button read flags",
-				"de": "Objektstruktur repariert: Timer-Kanal, value.interval-Rollen, Button read-Flags",
-				"ru": "Исправлена структура объектов: канал timer, роли value.interval, флаги read кнопок",
-				"pt": "Corrigida estrutura de objetos: canal timer, roles value.interval, flags read dos botões",
-				"nl": "Objectstructuur gerepareerd: timer-kanaal, value.interval-rollen, button read-flags",
-				"fr": "Structure d'objets corrigée : canal timer, rôles value.interval, flags read des boutons",
-				"it": "Struttura oggetti corretta: canale timer, ruoli value.interval, flag read pulsanti",
-				"es": "Estructura de objetos corregida: canal timer, roles value.interval, flags read de botones",
-				"pl": "Naprawiono strukturę obiektów: kanał timer, role value.interval, flagi read przycisków",
-				"uk": "Виправлено структуру об'єктів: канал timer, ролі value.interval, прапорці read кнопок",
-				"zh-cn": "修复对象结构：timer 通道、value.interval 角色、按钮 read 标志"
 			}
 		},
 		"titleLang": {

@@ -1,6 +1,6 @@
 {
   "name": "iobroker.autism-support",
-  "version": "0.2.12",
+  "version": "0.2.13",
   "description": "Support for people with autism: Visual Countdown, pictogram-based schedules and pictogram library",
   "author": {
     "name": "Matthias Ulrich",
