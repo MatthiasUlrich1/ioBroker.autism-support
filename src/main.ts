@@ -732,7 +732,7 @@ class AutismSupport extends utils.Adapter {
 		} catch (error) {
 			// vis-2 filestore may not be available (vis-2 not installed) - don't crash
 			this.log.warn(
-				`Could not write ${PICTOGRAM_FILE_ADAPTER}/${PICTOGRAM_DIR}/${PICTOGRAM_PLACEHOLDER_FILE}: ${(error as Error).message}. Continuing without vis-2 filestore.`
+				`Could not write ${PICTOGRAM_FILE_ADAPTER}/${PICTOGRAM_DIR}/${PICTOGRAM_PLACEHOLDER_FILE}: ${(error as Error).message}. Continuing without vis-2 filestore.`,
 			);
 		}
 	}
@@ -772,9 +772,10 @@ class AutismSupport extends utils.Adapter {
 				try {
 					// Read file from legacy location (binary files are stored as base64 in file store)
 					const fileData = await this.readFileAsync(PICTOGRAM_FILE_ADAPTER, legacyPath);
-					const buffer = typeof fileData.file === "string"
-						? Buffer.from(fileData.file, "base64")
-						: Buffer.from(fileData.file);
+					const buffer =
+						typeof fileData.file === "string"
+							? Buffer.from(fileData.file, "base64")
+							: Buffer.from(fileData.file);
 
 					// Write to new location
 					await this.writeFileAsync(PICTOGRAM_FILE_ADAPTER, newPath, buffer);
