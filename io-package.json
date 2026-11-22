@@ -1,258 +1,258 @@
 {
-	"common": {
-		"name": "autism-support",
-		"version": "0.2.14",
-		"news": {
-			"0.2.14": {
-				"en": "Fix red instance after 0.2.13 update: migrate pictograms from old German vis-2 folder to 'Autism Support', robust startup without vis-2",
-				"de": "Rote Instanz nach 0.2.13-Update behoben: Piktogramme vom alten deutschen vis-2-Ordner nach 'Autism Support' migriert, robuster Start ohne vis-2",
-				"ru": "Исправлено красная инстанция после обновления 0.2.13: миграция пиктограмм из старой немецкой папки vis-2 в 'Autism Support', надёжный старт без vis-2",
-				"pt": "Corrigida instância vermelha após a atualização 0.2.13: pictogramas migrados da antiga pasta alemã vis-2 para 'Autism Support', inicialização robusta sem vis-2",
-				"nl": "Rode instantie na update 0.2.13 opgelost: pictogrammen gemigreerd van oude Duitse vis-2-map naar 'Autism Support', robuuste start zonder vis-2",
-				"fr": "Correction de l'instance rouge après la mise à jour 0.2.13 : pictogrammes migrés de l'ancien dossier vis-2 allemand vers 'Autism Support', démarrage robuste sans vis-2",
-				"it": "Corretta istanza rossa dopo l'aggiornamento 0.2.13: pittogrammi migrati dalla vecchia cartella vis-2 tedesca a 'Autism Support', avvio robusto senza vis-2",
-				"es": "Corregida instancia roja tras la actualización 0.2.13: pictogramas migrados de la antigua carpeta alemana vis-2 a 'Autism Support', arranque robusto sin vis-2",
-				"pl": "Naprawiono czerwoną instancję po aktualizacji 0.2.13: migracja piktogramów ze starego niemieckiego folderu vis-2 do 'Autism Support', odporna inicjalizacja bez vis-2",
-				"uk": "Виправлено червону інстанцію після оновлення 0.2.13: міграція піктограм зі старої німецької папки vis-2 у 'Autism Support', надійний запуск без vis-2",
-				"zh-cn": "修复 0.2.13 更新后实例变红：将图形符号从旧德语 vis-2 文件夹迁移到 'Autism Support'，无 vis-2 时稳健启动"
-			},
-			"0.2.13": {
-				"en": "Latest-repo review fixes: English vis-2 folder names, widget i18n translations, ARASAAC fetch timeout, modern nogit build setup",
-				"de": "Latest-Repo-Review-Fixes: englische vis-2-Ordernamen, Widget-i18n-Übersetzungen, ARASAAC-Fetch-Timeout, moderner nogit-Build-Setup",
-				"ru": "Исправления последнего обзора репозитория: английские имена папок vis-2, переводы виджетов i18n, таймаут запроса ARASAAC, современная настройка сборки nogit",
-				"pt": "Correções da revisão latest: nomes de pastas vis-2 em inglês, traduções i18n de widget, timeout de fetch ARASAAC, configuração moderna de build nogit",
-				"nl": "Latest-repo-review-fixes: Engelse vis-2-mappennamen, widget-i18n-vertalingen, ARASAAC-fetch-timeout, moderne nogit-buildsetup",
-				"fr": "Correctifs de la revue latest : noms de dossiers vis-2 en anglais, traductions i18n des widgets, timeout de requête ARASAAC, configuration de build nogit moderne",
-				"it": "Correzioni della revisione latest: nomi di cartelle vis-2 in inglese, traduzioni widget i18n, timeout fetch ARASAAC, moderna configurazione build nogit",
-				"es": "Correcciones de la revisión latest: nombres de carpeta vis-2 en inglés, traducciones i18n de widget, timeout de fetch ARASAAC, configuración moderna de build nogit",
-				"pl": "Poprawki z latest-repo review: angielskie nazwy folderów vis-2, tłumaczenia i18n widgetów, timeout fetchu ARASAAC, nowoczesne konfiguracja build nogit",
-				"uk": "Виправлення останнього огляду репозиторію: англійські назви папок vis-2, переклади виджетів i18n, таймаут запиту ARASAAC, сучасна настройка збірки nogit",
-				"zh-cn": "最新仓库评审修复：英文 vis-2 文件夹名称、widget i18n 翻译、ARASAAC 获取超时、现代 nogit 构建设置"
-			},
-			"0.2.12": {
-				"en": "Remove leftover Admin sidebar tab that could not be opened",
-				"de": "Überbleibenden Admin-Seitenleisten-Eintrag entfernen, der nicht geöffnet werden konnte",
-				"ru": "Удаление устаревшей вкладки Admin в боковой панели, которую нельзя открыть",
-				"pt": "Remover separador legado da barra lateral do Admin que não podia ser aberto",
-				"nl": "Verouderde Admin-zijbalkinvoer verwijderen die niet geopend kon worden",
-				"fr": "Retirer l’onglet Admin latéral restant qui ne pouvait pas s’ouvrir",
-				"it": "Rimuovere la voce legacy nella barra laterale Admin non apribile",
-				"es": "Quitar la pestaña heredada de la barra lateral de Admin que no se podía abrir",
-				"pl": "Usuń pozostałą pozycję menu Admin, której nie dało się otworzyć",
-				"uk": "Видалити застарілий пункт бічної панелі Admin, який не відкривався",
-				"zh-cn": "移除无法打开的遗留 Admin 侧栏项"
-			},
-			"0.2.11": {
-				"en": "Latest-repo review: English description, i18n, remove unused customs, responsive admin tabs",
-				"de": "Latest-Repo-Review: englische Description, i18n, ungenutzte Customs entfernt, responsive Admin-Tabs",
-				"ru": "Review latest: английское description, i18n, удалены неиспользуемые customs, адаптивные вкладки Admin",
-				"pt": "Review latest: description em inglês, i18n, customs não usados removidos, tabs Admin responsivas",
-				"nl": "Latest-repo-review: Engelse description, i18n, ongebruikte customs verwijderd, responsive Admin-tabs",
-				"fr": "Review latest : description en anglais, i18n, customs inutilisés retirés, onglets Admin responsives",
-				"it": "Review latest: description in inglese, i18n, customs inutilizzati rimossi, tab Admin responsive",
-				"es": "Review latest: description en inglés, i18n, customs no usados eliminados, pestañas Admin responsive",
-				"pl": "Review latest: angielski description, i18n, usunięto nieużywane customs, responsywne taby Admin",
-				"uk": "Review latest: англійський description, i18n, видалено непотрібні customs, адаптивні вкладки Admin",
-				"zh-cn": "Latest 仓库评审修复：英文 description、i18n、移除未用 customs、响应式 Admin 标签"
-			},
-			"0.2.10": {
-				"en": "Repo-check compliance: remove unpublished news versions, update README changelog",
-				"de": "Repo-Check-Konformität: unveröffentlichte News entfernt, README-Changelog aktualisiert",
-				"ru": "Соответствие проверке репозитория: удалены неопубликованные news, обновлён changelog README",
-				"pt": "Conformidade com verificação do repositório: news não publicadas removidas, changelog README atualizado",
-				"nl": "Repo-check-conformiteit: niet-gepubliceerde news verwijderd, README-changelog bijgewerkt",
-				"fr": "Conformité contrôle dépôt : news non publiées retirées, changelog README mis à jour",
-				"it": "Conformità controllo repository: news non pubblicate rimosse, changelog README aggiornato",
-				"es": "Conformidad comprobación repositorio: news no publicadas eliminadas, changelog README actualizado",
-				"pl": "Zgodność z kontrolą repozytorium: usunięto nieopublikowane news, zaktualizowano changelog README",
-				"uk": "Відповідність перевірці репозиторію: видалено неопубліковані news, оновлено changelog README",
-				"zh-cn": "仓库检查合规：移除未发布 news，更新 README 变更日志"
-			},
-			"0.2.8": {
-				"en": "Fix startup crash/restart loop: no native write on boot, cancel in-flight ready on unload",
-				"de": "Start-Absturz/Neustart-Schleife behoben: kein native-Schreiben beim Boot, ready bei unload abbrechen",
-				"ru": "Исправлен сбой/цикл перезапуска: без записи native при старте, отмена ready при unload",
-				"pt": "Corrigido crash/loop no arranque: sem gravação native no boot, cancelar ready no unload",
-				"nl": "Start-crash/herstart-lus opgelost: geen native schrijven bij boot, ready annuleren bij unload",
-				"fr": "Crash/boucle démarrage corrigés : pas d'écriture native au boot, annulation ready au unload",
-				"it": "Corretto crash/loop avvio: nessuna scrittura native al boot, annulla ready su unload",
-				"es": "Corregido crash/bucle al inicio: sin escritura native al boot, cancelar ready en unload",
-				"pl": "Naprawiono crash/pętlę startu: brak zapisu native przy boot, anulowanie ready przy unload",
-				"uk": "Виправлено збій/цикл запуску: без запису native при boot, скасування ready при unload",
-				"zh-cn": "修复启动崩溃/重启循环：启动时不写 native，unload 时取消 ready"
-			},
-			"0.2.7": {
-				"en": "Fix restart loop (native config diff) and CI lint formatting",
-				"de": "Neustart-Schleife behoben (native Diff) und CI-Lint-Formatierung",
-				"ru": "Исправлен цикл перезапуска (diff native) и форматирование CI lint",
-				"pt": "Corrigido loop de reinício (diff native) e formatação CI lint",
-				"nl": "Herstart-lus opgelost (native diff) en CI lint-opmaak",
-				"fr": "Boucle redémarrage corrigée (diff native) et formatage CI lint",
-				"it": "Corretto loop riavvio (diff native) e formattazione CI lint",
-				"es": "Corregido bucle reinicio (diff native) y formato CI lint",
-				"pl": "Naprawiono pętlę restartu (diff native) i formatowanie CI lint",
-				"uk": "Виправлено цикл перезапуску (diff native) і форматування CI lint",
-				"zh-cn": "修复重启循环（native diff）及 CI lint 格式"
-			}
-		},
-		"titleLang": {
-			"en": "Autism Support",
-			"de": "Autismus-Unterstützung",
-			"ru": "Поддержка аутизма",
-			"pt": "Apoio ao autismo",
-			"nl": "Ondersteuning voor autisme",
-			"fr": "Soutien à l'autisme",
-			"it": "Supporto all'autismo",
-			"es": "Apoyo al autismo",
-			"pl": "Wsparcie autyzmu",
-			"uk": "Підтримка аутистів",
-			"zh-cn": "自闭症支持"
-		},
-		"desc": {
-			"en": "Support for people with autism: Visual Countdown, picture schedules and pictograms",
-			"de": "Unterstützung für Menschen mit Autismus: Visual Countdown, Bild-Ablaufpläne und Piktogramme",
-			"ru": "Поддержка людей с аутизмом: Visual Countdown, визуальные расписания и пиктограммы",
-			"pt": "Apoio a pessoas com autismo: Visual Countdown, planos com imagens e pictogramas",
-			"nl": "Ondersteuning voor mensen met autisme: Visual Countdown, beeldschema's en pictogrammen",
-			"fr": "Soutien pour les personnes avec autisme : Visual Countdown, plannings images et pictogrammes",
-			"it": "Supporto per persone con autismo: Visual Countdown, piani con immagini e pittogrammi",
-			"es": "Apoyo para personas con autismo: Visual Countdown, planes con imágenes y pictogramas",
-			"pl": "Wsparcie dla osób z autyzmem: Visual Countdown, plany obrazkowe i piktogramy",
-			"uk": "Підтримка людей з аутизмом: Visual Countdown, плани з зображеннями та піктограми",
-			"zh-cn": "自闭症支持：可视化倒计时、图片日程与象形图"
-		},
-		"authors": [
-			"Matthias Ulrich <MatthiasUlrich1@gmail.com>"
-		],
-		"keywords": [
-			"autism",
-			"timer",
-			"visual-countdown",
-			"schedule",
-			"pictogram",
-			"vis-2",
-			"accessibility"
-		],
-		"licenseInformation": {
-			"type": "free",
-			"license": "MIT"
-		},
-		"platform": "Javascript/Node.js",
-		"icon": "autism-support.png",
-		"enabled": true,
-		"extIcon": "https://raw.githubusercontent.com/MatthiasUlrich1/ioBroker.autism-support/main/admin/autism-support.png",
-		"readme": "https://github.com/MatthiasUlrich1/ioBroker.autism-support/blob/main/README.md",
-		"loglevel": "info",
-		"tier": 3,
-		"restartAdapters": [
-			"vis-2"
-		],
-		"mode": "daemon",
-		"type": "general",
-		"connectionType": "local",
-		"dataSource": "poll",
-		"compact": true,
-		"messagebox": true,
-		"nogit": true,
-		"adminUI": {
-			"config": "json"
-		},
-		"visWidgets": {
-			"asVisualCountdownLive": {
-				"i18n": "component",
-				"name": "asVisualCountdownLive",
-				"url": "autism-support/customWidgets.js",
-				"bundlerType": "module",
-				"components": [
-					"VisualCountdownLiveWidget"
-				]
-			},
-			"asVisualCountdownConfig": {
-				"i18n": "component",
-				"name": "asVisualCountdownConfig",
-				"url": "autism-support/customWidgets.js",
-				"bundlerType": "module",
-				"components": [
-					"VisualCountdownConfigWidget"
-				]
-			},
-			"asDailyScheduleLive": {
-				"i18n": "component",
-				"name": "asDailyScheduleLive",
-				"url": "autism-support/customWidgets.js",
-				"bundlerType": "module",
-				"components": [
-					"DailyScheduleLiveWidget"
-				]
-			},
-			"asDailyScheduleConfig": {
-				"i18n": "component",
-				"name": "asDailyScheduleConfig",
-				"url": "autism-support/customWidgets.js",
-				"bundlerType": "module",
-				"components": [
-					"DailyScheduleConfigWidget"
-				]
-			},
-			"asWeeklyScheduleLive": {
-				"i18n": "component",
-				"name": "asWeeklyScheduleLive",
-				"url": "autism-support/customWidgets.js",
-				"bundlerType": "module",
-				"components": [
-					"WeeklyScheduleLiveWidget"
-				]
-			}
-		},
-		"dependencies": [
-			{
-				"js-controller": ">=6.0.11"
-			},
-			"vis-2"
-		],
-		"globalDependencies": [
-			{
-				"admin": ">=7.6.20"
-			}
-		]
-	},
-	"native": {
-		"defaultDurationHours": 1,
-		"defaultDurationMinutes": 0,
-		"maxDurationHours": 24,
-		"periodMorningEnabled": true,
-		"periodMorningStart": "06:00",
-		"periodMorningEnd": "09:00",
-		"periodMorningColor": "#FFE082",
-		"periodForenoonEnabled": true,
-		"periodForenoonStart": "09:00",
-		"periodForenoonEnd": "12:00",
-		"periodForenoonColor": "#FFCC80",
-		"periodNoonEnabled": true,
-		"periodNoonStart": "12:00",
-		"periodNoonEnd": "14:00",
-		"periodNoonColor": "#FFAB91",
-		"periodAfternoonEnabled": true,
-		"periodAfternoonStart": "14:00",
-		"periodAfternoonEnd": "17:00",
-		"periodAfternoonColor": "#81C784",
-		"periodEveningEnabled": true,
-		"periodEveningStart": "17:00",
-		"periodEveningEnd": "21:00",
-		"periodEveningColor": "#7986CB",
-		"periodNightEnabled": true,
-		"periodNightStart": "21:00",
-		"periodNightEnd": "06:00",
-		"periodNightColor": "#5C6BC0",
-		"weekdayColorMon": "#BBDEFB",
-		"weekdayColorTue": "#C8E6C9",
-		"weekdayColorWed": "#FFF9C4",
-		"weekdayColorThu": "#FFE0B2",
-		"weekdayColorFri": "#F8BBD0",
-		"weekdayColorSat": "#E1BEE7",
-		"weekdayColorSun": "#B2EBF2",
-		"customPictograms": [],
-		"weeklyPlanRows": []
-	},
-	"objects": []
+  "common": {
+    "name": "autism-support",
+    "version": "0.2.15",
+    "news": {
+      "0.2.15": {
+        "en": "Fix remaining widget i18n (schedule widgets full 11-language i18n, cognate keys); automerge on pull_request; bump @iobroker/testing",
+        "de": "Verbleibende Widget-Übersetzungen behoben: Schedule-Widgets mit vollständigem 11-Sprachen-i18n; Automerge auf pull_request; @iobroker/testing aktualisiert",
+        "ru": "Исправление оставшегося виджета i18n (расписание виджетов полностью на 11-язычном i18n, родственные ключи); автоматическое слияние при pull_request; bump @iobroker /testing",
+        "pt": "Corrija o widget i18n restante (agende widgets em 11 idiomas, teclas cognatas); automerge em pull_request; bump @iobroker /testing",
+        "nl": "De resterende widget i18n herstellen (widgets volledig in elf talen inplannen, i18n met bijbehorende toetsen); automatisch samenvoegen op pull_request; bump @iobroker /testing",
+        "fr": "Corriger le widget i18n restant (calendrier complet en 11 langues, clés associées) ; fusion automatique sur pull_request ; bump @iobroker /testing",
+        "it": "Risolve il restante widget i18n (pianifica widget i18n in 11 lingue, tasti affini); automerge su pull_request; bump @iobroker /testing",
+        "es": "Corregir el resto del widget i18n (programar widgets i18n en 11 idiomas, claves afines); fusionar automáticamente en pull_request; bump @iobroker /testing",
+        "pl": "Napraw pozostały widget i18n (harmonogram widżetów pełnych 11-języków i18n, pokrewne klucze); automatyzuj na pull_request; bump @iobroker /testing",
+        "uk": "Виправлено віджет, що залишився i18n (розклад віджетів повного 11-мовного i18n, однорідні ключі); automerge на pull_request; bump @iobroker /testing",
+        "zh-cn": "修复剩余的小部件 i18n（日程控件完整的 11 种语言 i18n，同源密钥）；在 pull_request 上自动合并；bump @iobroker /testing"
+      },
+      "0.2.14": {
+        "en": "Fix red instance after 0.2.13 update: migrate pictograms from old German vis-2 folder to 'Autism Support', robust startup without vis-2",
+        "de": "Rote Instanz nach 0.2.13-Update behoben: Piktogramme vom alten deutschen vis-2-Ordner nach 'Autism Support' migriert, robuster Start ohne vis-2",
+        "ru": "Исправлено красная инстанция после обновления 0.2.13: миграция пиктограмм из старой немецкой папки vis-2 в 'Autism Support', надёжный старт без vis-2",
+        "pt": "Corrigida instância vermelha após a atualização 0.2.13: pictogramas migrados da antiga pasta alemã vis-2 para 'Autism Support', inicialização robusta sem vis-2",
+        "nl": "Rode instantie na update 0.2.13 opgelost: pictogrammen gemigreerd van oude Duitse vis-2-map naar 'Autism Support', robuuste start zonder vis-2",
+        "fr": "Correction de l'instance rouge après la mise à jour 0.2.13 : pictogrammes migrés de l'ancien dossier vis-2 allemand vers 'Autism Support', démarrage robuste sans vis-2",
+        "it": "Corretta istanza rossa dopo l'aggiornamento 0.2.13: pittogrammi migrati dalla vecchia cartella vis-2 tedesca a 'Autism Support', avvio robusto senza vis-2",
+        "es": "Corregida instancia roja tras la actualización 0.2.13: pictogramas migrados de la antigua carpeta alemana vis-2 a 'Autism Support', arranque robusto sin vis-2",
+        "pl": "Naprawiono czerwoną instancję po aktualizacji 0.2.13: migracja piktogramów ze starego niemieckiego folderu vis-2 do 'Autism Support', odporna inicjalizacja bez vis-2",
+        "uk": "Виправлено червону інстанцію після оновлення 0.2.13: міграція піктограм зі старої німецької папки vis-2 у 'Autism Support', надійний запуск без vis-2",
+        "zh-cn": "修复 0.2.13 更新后实例变红：将图形符号从旧德语 vis-2 文件夹迁移到 'Autism Support'，无 vis-2 时稳健启动"
+      },
+      "0.2.13": {
+        "en": "Latest-repo review fixes: English vis-2 folder names, widget i18n translations, ARASAAC fetch timeout, modern nogit build setup",
+        "de": "Latest-Repo-Review-Fixes: englische vis-2-Ordernamen, Widget-i18n-Übersetzungen, ARASAAC-Fetch-Timeout, moderner nogit-Build-Setup",
+        "ru": "Исправления последнего обзора репозитория: английские имена папок vis-2, переводы виджетов i18n, таймаут запроса ARASAAC, современная настройка сборки nogit",
+        "pt": "Correções da revisão latest: nomes de pastas vis-2 em inglês, traduções i18n de widget, timeout de fetch ARASAAC, configuração moderna de build nogit",
+        "nl": "Latest-repo-review-fixes: Engelse vis-2-mappennamen, widget-i18n-vertalingen, ARASAAC-fetch-timeout, moderne nogit-buildsetup",
+        "fr": "Correctifs de la revue latest : noms de dossiers vis-2 en anglais, traductions i18n des widgets, timeout de requête ARASAAC, configuration de build nogit moderne",
+        "it": "Correzioni della revisione latest: nomi di cartelle vis-2 in inglese, traduzioni widget i18n, timeout fetch ARASAAC, moderna configurazione build nogit",
+        "es": "Correcciones de la revisión latest: nombres de carpeta vis-2 en inglés, traducciones i18n de widget, timeout de fetch ARASAAC, configuración moderna de build nogit",
+        "pl": "Poprawki z latest-repo review: angielskie nazwy folderów vis-2, tłumaczenia i18n widgetów, timeout fetchu ARASAAC, nowoczesne konfiguracja build nogit",
+        "uk": "Виправлення останнього огляду репозиторію: англійські назви папок vis-2, переклади виджетів i18n, таймаут запиту ARASAAC, сучасна настройка збірки nogit",
+        "zh-cn": "最新仓库评审修复：英文 vis-2 文件夹名称、widget i18n 翻译、ARASAAC 获取超时、现代 nogit 构建设置"
+      },
+      "0.2.12": {
+        "en": "Remove leftover Admin sidebar tab that could not be opened",
+        "de": "Überbleibenden Admin-Seitenleisten-Eintrag entfernen, der nicht geöffnet werden konnte",
+        "ru": "Удаление устаревшей вкладки Admin в боковой панели, которую нельзя открыть",
+        "pt": "Remover separador legado da barra lateral do Admin que não podia ser aberto",
+        "nl": "Verouderde Admin-zijbalkinvoer verwijderen die niet geopend kon worden",
+        "fr": "Retirer l’onglet Admin latéral restant qui ne pouvait pas s’ouvrir",
+        "it": "Rimuovere la voce legacy nella barra laterale Admin non apribile",
+        "es": "Quitar la pestaña heredada de la barra lateral de Admin que no se podía abrir",
+        "pl": "Usuń pozostałą pozycję menu Admin, której nie dało się otworzyć",
+        "uk": "Видалити застарілий пункт бічної панелі Admin, який не відкривався",
+        "zh-cn": "移除无法打开的遗留 Admin 侧栏项"
+      },
+      "0.2.11": {
+        "en": "Latest-repo review: English description, i18n, remove unused customs, responsive admin tabs",
+        "de": "Latest-Repo-Review: englische Description, i18n, ungenutzte Customs entfernt, responsive Admin-Tabs",
+        "ru": "Review latest: английское description, i18n, удалены неиспользуемые customs, адаптивные вкладки Admin",
+        "pt": "Review latest: description em inglês, i18n, customs não usados removidos, tabs Admin responsivas",
+        "nl": "Latest-repo-review: Engelse description, i18n, ongebruikte customs verwijderd, responsive Admin-tabs",
+        "fr": "Review latest : description en anglais, i18n, customs inutilisés retirés, onglets Admin responsives",
+        "it": "Review latest: description in inglese, i18n, customs inutilizzati rimossi, tab Admin responsive",
+        "es": "Review latest: description en inglés, i18n, customs no usados eliminados, pestañas Admin responsive",
+        "pl": "Review latest: angielski description, i18n, usunięto nieużywane customs, responsywne taby Admin",
+        "uk": "Review latest: англійський description, i18n, видалено непотрібні customs, адаптивні вкладки Admin",
+        "zh-cn": "Latest 仓库评审修复：英文 description、i18n、移除未用 customs、响应式 Admin 标签"
+      },
+      "0.2.10": {
+        "en": "Repo-check compliance: remove unpublished news versions, update README changelog",
+        "de": "Repo-Check-Konformität: unveröffentlichte News entfernt, README-Changelog aktualisiert",
+        "ru": "Соответствие проверке репозитория: удалены неопубликованные news, обновлён changelog README",
+        "pt": "Conformidade com verificação do repositório: news não publicadas removidas, changelog README atualizado",
+        "nl": "Repo-check-conformiteit: niet-gepubliceerde news verwijderd, README-changelog bijgewerkt",
+        "fr": "Conformité contrôle dépôt : news non publiées retirées, changelog README mis à jour",
+        "it": "Conformità controllo repository: news non pubblicate rimosse, changelog README aggiornato",
+        "es": "Conformidad comprobación repositorio: news no publicadas eliminadas, changelog README actualizado",
+        "pl": "Zgodność z kontrolą repozytorium: usunięto nieopublikowane news, zaktualizowano changelog README",
+        "uk": "Відповідність перевірці репозиторію: видалено неопубліковані news, оновлено changelog README",
+        "zh-cn": "仓库检查合规：移除未发布 news，更新 README 变更日志"
+      },
+      "0.2.8": {
+        "en": "Fix startup crash/restart loop: no native write on boot, cancel in-flight ready on unload",
+        "de": "Start-Absturz/Neustart-Schleife behoben: kein native-Schreiben beim Boot, ready bei unload abbrechen",
+        "ru": "Исправлен сбой/цикл перезапуска: без записи native при старте, отмена ready при unload",
+        "pt": "Corrigido crash/loop no arranque: sem gravação native no boot, cancelar ready no unload",
+        "nl": "Start-crash/herstart-lus opgelost: geen native schrijven bij boot, ready annuleren bij unload",
+        "fr": "Crash/boucle démarrage corrigés : pas d'écriture native au boot, annulation ready au unload",
+        "it": "Corretto crash/loop avvio: nessuna scrittura native al boot, annulla ready su unload",
+        "es": "Corregido crash/bucle al inicio: sin escritura native al boot, cancelar ready en unload",
+        "pl": "Naprawiono crash/pętlę startu: brak zapisu native przy boot, anulowanie ready przy unload",
+        "uk": "Виправлено збій/цикл запуску: без запису native при boot, скасування ready при unload",
+        "zh-cn": "修复启动崩溃/重启循环：启动时不写 native，unload 时取消 ready"
+      }
+    },
+    "titleLang": {
+      "en": "Autism Support",
+      "de": "Autismus-Unterstützung",
+      "ru": "Поддержка аутизма",
+      "pt": "Apoio ao autismo",
+      "nl": "Ondersteuning voor autisme",
+      "fr": "Soutien à l'autisme",
+      "it": "Supporto all'autismo",
+      "es": "Apoyo al autismo",
+      "pl": "Wsparcie autyzmu",
+      "uk": "Підтримка аутистів",
+      "zh-cn": "自闭症支持"
+    },
+    "desc": {
+      "en": "Support for people with autism: Visual Countdown, picture schedules and pictograms",
+      "de": "Unterstützung für Menschen mit Autismus: Visual Countdown, Bild-Ablaufpläne und Piktogramme",
+      "ru": "Поддержка людей с аутизмом: Visual Countdown, визуальные расписания и пиктограммы",
+      "pt": "Apoio a pessoas com autismo: Visual Countdown, planos com imagens e pictogramas",
+      "nl": "Ondersteuning voor mensen met autisme: Visual Countdown, beeldschema's en pictogrammen",
+      "fr": "Soutien pour les personnes avec autisme : Visual Countdown, plannings images et pictogrammes",
+      "it": "Supporto per persone con autismo: Visual Countdown, piani con immagini e pittogrammi",
+      "es": "Apoyo para personas con autismo: Visual Countdown, planes con imágenes y pictogramas",
+      "pl": "Wsparcie dla osób z autyzmem: Visual Countdown, plany obrazkowe i piktogramy",
+      "uk": "Підтримка людей з аутизмом: Visual Countdown, плани з зображеннями та піктограми",
+      "zh-cn": "自闭症支持：可视化倒计时、图片日程与象形图"
+    },
+    "authors": [
+      "Matthias Ulrich <MatthiasUlrich1@gmail.com>"
+    ],
+    "keywords": [
+      "autism",
+      "timer",
+      "visual-countdown",
+      "schedule",
+      "pictogram",
+      "vis-2",
+      "accessibility"
+    ],
+    "licenseInformation": {
+      "type": "free",
+      "license": "MIT"
+    },
+    "platform": "Javascript/Node.js",
+    "icon": "autism-support.png",
+    "enabled": true,
+    "extIcon": "https://raw.githubusercontent.com/MatthiasUlrich1/ioBroker.autism-support/main/admin/autism-support.png",
+    "readme": "https://github.com/MatthiasUlrich1/ioBroker.autism-support/blob/main/README.md",
+    "loglevel": "info",
+    "tier": 3,
+    "restartAdapters": [
+      "vis-2"
+    ],
+    "mode": "daemon",
+    "type": "general",
+    "connectionType": "local",
+    "dataSource": "poll",
+    "compact": true,
+    "messagebox": true,
+    "nogit": true,
+    "adminUI": {
+      "config": "json"
+    },
+    "visWidgets": {
+      "asVisualCountdownLive": {
+        "i18n": "component",
+        "name": "asVisualCountdownLive",
+        "url": "autism-support/customWidgets.js",
+        "bundlerType": "module",
+        "components": [
+          "VisualCountdownLiveWidget"
+        ]
+      },
+      "asVisualCountdownConfig": {
+        "i18n": "component",
+        "name": "asVisualCountdownConfig",
+        "url": "autism-support/customWidgets.js",
+        "bundlerType": "module",
+        "components": [
+          "VisualCountdownConfigWidget"
+        ]
+      },
+      "asDailyScheduleLive": {
+        "i18n": "component",
+        "name": "asDailyScheduleLive",
+        "url": "autism-support/customWidgets.js",
+        "bundlerType": "module",
+        "components": [
+          "DailyScheduleLiveWidget"
+        ]
+      },
+      "asDailyScheduleConfig": {
+        "i18n": "component",
+        "name": "asDailyScheduleConfig",
+        "url": "autism-support/customWidgets.js",
+        "bundlerType": "module",
+        "components": [
+          "DailyScheduleConfigWidget"
+        ]
+      },
+      "asWeeklyScheduleLive": {
+        "i18n": "component",
+        "name": "asWeeklyScheduleLive",
+        "url": "autism-support/customWidgets.js",
+        "bundlerType": "module",
+        "components": [
+          "WeeklyScheduleLiveWidget"
+        ]
+      }
+    },
+    "dependencies": [
+      {
+        "js-controller": ">=6.0.11"
+      },
+      "vis-2"
+    ],
+    "globalDependencies": [
+      {
+        "admin": ">=7.6.20"
+      }
+    ]
+  },
+  "native": {
+    "defaultDurationHours": 1,
+    "defaultDurationMinutes": 0,
+    "maxDurationHours": 24,
+    "periodMorningEnabled": true,
+    "periodMorningStart": "06:00",
+    "periodMorningEnd": "09:00",
+    "periodMorningColor": "#FFE082",
+    "periodForenoonEnabled": true,
+    "periodForenoonStart": "09:00",
+    "periodForenoonEnd": "12:00",
+    "periodForenoonColor": "#FFCC80",
+    "periodNoonEnabled": true,
+    "periodNoonStart": "12:00",
+    "periodNoonEnd": "14:00",
+    "periodNoonColor": "#FFAB91",
+    "periodAfternoonEnabled": true,
+    "periodAfternoonStart": "14:00",
+    "periodAfternoonEnd": "17:00",
+    "periodAfternoonColor": "#81C784",
+    "periodEveningEnabled": true,
+    "periodEveningStart": "17:00",
+    "periodEveningEnd": "21:00",
+    "periodEveningColor": "#7986CB",
+    "periodNightEnabled": true,
+    "periodNightStart": "21:00",
+    "periodNightEnd": "06:00",
+    "periodNightColor": "#5C6BC0",
+    "weekdayColorMon": "#BBDEFB",
+    "weekdayColorTue": "#C8E6C9",
+    "weekdayColorWed": "#FFF9C4",
+    "weekdayColorThu": "#FFE0B2",
+    "weekdayColorFri": "#F8BBD0",
+    "weekdayColorSat": "#E1BEE7",
+    "weekdayColorSun": "#B2EBF2",
+    "customPictograms": [],
+    "weeklyPlanRows": []
+  },
+  "objects": []
 }

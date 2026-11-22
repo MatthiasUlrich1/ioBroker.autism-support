@@ -5,8 +5,6 @@ import VisFileImage from "./VisFileImage";
 import { resolveItemImageUrl } from "../lib/schedule";
 import {
 	WEEKDAY_KEYS,
-	WEEKDAY_LABELS_DE,
-	WEEKDAY_LABELS_EN,
 	weekdayKeyFromDate,
 	type WeekdayColors,
 	type WeekdayKey,
@@ -18,15 +16,15 @@ export interface WeeklyScheduleOverviewProps {
 	colors: WeekdayColors;
 	adapterInstance: string;
 	pictogramSize?: number;
-	locale?: string;
+	/** Translation function (widget `t`, e.g. `(key) => WeeklyScheduleLiveWidget.t(key)`). */
+	t: (key: string) => string;
 	/** Highlight this weekday (default: today) */
 	highlightDay?: WeekdayKey;
 }
 
 export default function WeeklyScheduleOverview(props: WeeklyScheduleOverviewProps): React.JSX.Element {
 	const size = Math.max(28, Math.min(72, Number(props.pictogramSize) || 40));
-	const isDe = (props.locale || "de").startsWith("de");
-	const labels = isDe ? WEEKDAY_LABELS_DE : WEEKDAY_LABELS_EN;
+	const t = props.t;
 	const today = props.highlightDay || weekdayKeyFromDate(new Date());
 
 	return (
@@ -67,8 +65,8 @@ export default function WeeklyScheduleOverview(props: WeeklyScheduleOverviewProp
 							variant="subtitle2"
 							sx={{ fontWeight: 800, textAlign: "center" }}
 						>
-							{labels[day]}
-							{isToday ? (isDe ? " · heute" : " · today") : ""}
+							{t(`weekday_${day}`)}
+							{isToday ? ` ${t("today_suffix")}` : ""}
 						</Typography>
 						{plan.items.length === 0 ? (
 							<Typography

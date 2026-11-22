@@ -44,8 +44,6 @@ import {
 } from "./lib/schedule";
 import {
 	WEEKDAY_KEYS,
-	WEEKDAY_LABELS_DE,
-	WEEKDAY_LABELS_EN,
 	cloneDayPlan,
 	createEmptyWeeklyPlan,
 	parseWeeklyPlan,
@@ -457,7 +455,7 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 		const name = this.state.templateName.trim();
 		if (!name) {
 			this.setState({
-				searchError: this.isDe() ? "Bitte einen Namen für den Wochenplan eingeben." : "Enter a name for the weekly plan.",
+				searchError: DailyScheduleConfigWidget.t("err_weekly_name_required"),
 			});
 			return;
 		}
@@ -487,7 +485,7 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 		const saved = library.plans.find(p => p.id === id);
 		if (!saved) {
 			this.setState({
-				searchError: this.isDe() ? "Bitte einen gespeicherten Wochenplan wählen." : "Select a saved weekly plan.",
+				searchError: DailyScheduleConfigWidget.t("err_weekly_select_saved"),
 			});
 			return;
 		}
@@ -564,10 +562,7 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 	}
 
 	private async resetPlan(): Promise<void> {
-		const lang = this.props.context?.lang || "de";
-		const message = lang.startsWith("de")
-			? "Plan für diesen Wochentag wirklich löschen? Alle Piktogramme werden entfernt."
-			: "Really clear this weekday plan? All pictograms will be removed.";
+		const message = DailyScheduleConfigWidget.t("confirm_reset_weekday");
 		if (!window.confirm(message)) {
 			return;
 		}
@@ -590,7 +585,7 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 		} catch (error) {
 			this.setState({
 				localClearAfterLast: undefined,
-				searchError: (error as Error).message || "Option konnte nicht gespeichert werden",
+				searchError: (error as Error).message || DailyScheduleConfigWidget.t("err_option_save"),
 			});
 		}
 	}
@@ -603,28 +598,24 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 		} catch (error) {
 			this.setState({
 				localLoadDailyFromWeekly: undefined,
-				searchError: (error as Error).message || "Option konnte nicht gespeichert werden",
+				searchError: (error as Error).message || DailyScheduleConfigWidget.t("err_option_save"),
 			});
 		}
 	}
 
 	private weekdayLabel(key: WeekdayKey): string {
-		return this.isDe() ? WEEKDAY_LABELS_DE[key] : WEEKDAY_LABELS_EN[key];
+		return DailyScheduleConfigWidget.t(`weekday_${key}`);
 	}
 
 	private activeTemplateLabel(): string {
 		const library = this.getLibraryFromState();
 		if (!library.activeId) {
-			return this.isDe() ? "Kein gespeicherter Plan aktiv" : "No saved plan active";
+			return DailyScheduleConfigWidget.t("tpl_none_active");
 		}
 		const plan = library.plans.find(p => p.id === library.activeId);
 		return plan
-			? this.isDe()
-				? `Aktiv: ${plan.name}`
-				: `Active: ${plan.name}`
-			: this.isDe()
-				? "Kein gespeicherter Plan aktiv"
-				: "No saved plan active";
+			? `${DailyScheduleConfigWidget.t("tpl_active_prefix")} ${plan.name}`
+			: DailyScheduleConfigWidget.t("tpl_none_active");
 	}
 
 	private async setPeriodEnabled(periodId: string, enabled: boolean): Promise<void> {
@@ -643,26 +634,16 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 				delete local[periodId];
 				return {
 					localPeriodOverrides: local,
-					searchError: (error as Error).message || "Tagesbereich konnte nicht gespeichert werden",
+					searchError: (error as Error).message || DailyScheduleConfigWidget.t("err_period_save"),
 				};
 			});
 		}
 	}
 
 	private periodLabel(id: string): string {
-		const de: Record<string, string> = {
-			morning: "Morgens",
-			forenoon: "Vormittag",
-			noon: "Mittag",
-			afternoon: "Nachmittag",
-			evening: "Abend",
-			night: "Nacht",
-		};
-		return de[id] || id;
-	}
-
-	private isDe(): boolean {
-		return (this.props.context?.lang || "de").startsWith("de");
+		const key = `period_${id}`;
+		const label = DailyScheduleConfigWidget.t(key);
+		return label && label !== key ? label : id;
 	}
 
 	private adapterInstance(): string {
@@ -695,9 +676,7 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 		const index = this.state.selectedIndex;
 		if (index < 0) {
 			this.setState({
-				searchError: this.isDe()
-					? "Bitte zuerst einen Plan-Eintrag auswählen."
-					: "Select a schedule item first.",
+				searchError: DailyScheduleConfigWidget.t("err_select_item_first"),
 			});
 			return;
 		}
@@ -746,7 +725,7 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 					variant="caption"
 					sx={{ fontWeight: 700 }}
 				>
-					{this.isDe() ? "Eigene Bilder" : "Own images"}
+					{DailyScheduleConfigWidget.t("own_images")}
 				</Typography>
 				<Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, maxHeight: 160, overflowY: "auto" }}>
 					{hits.map(item => this.renderLibraryThumb(item, thumb, instance))}
@@ -822,15 +801,15 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 				) : null}
 				<TextField
 					size="small"
-					label={this.isDe() ? "URL oder Dateipfad" : "Custom URL or file path"}
+					label={DailyScheduleConfigWidget.t("custom_url_label")}
 					value={selected.customRef || ""}
 					onChange={e => this.updateItem(this.state.selectedIndex, { customRef: e.target.value })}
 				/>
-				{tags ? <Typography variant="caption">Tags: {tags}</Typography> : null}
+				{tags ? <Typography variant="caption">{DailyScheduleConfigWidget.t("tags_label")} {tags}</Typography> : null}
 				<TextField
 					size="small"
 					fullWidth
-					label={this.isDe() ? "Eigene Bilder suchen" : "Search own images"}
+					label={DailyScheduleConfigWidget.t("search_own_images")}
 					value={this.state.searchQuery}
 					onChange={e => this.setState({ searchQuery: e.target.value })}
 				/>
@@ -846,7 +825,7 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 					variant="caption"
 					sx={{ fontWeight: 700 }}
 				>
-					{this.isDe() ? "Gespeicherte Bilder – antippen zum Auswählen" : "Saved images – tap to select"}
+					{DailyScheduleConfigWidget.t("saved_images_tap")}
 				</Typography>
 				<Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, maxHeight: 260, overflowY: "auto" }}>
 					{items.length ? (
@@ -856,9 +835,7 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 							variant="caption"
 							sx={{ opacity: 0.75 }}
 						>
-							{this.isDe()
-								? "Noch keine eigenen Bilder. Bitte in den Instanzeinstellungen (Admin) hochladen und mit Tags versehen."
-								: "No own images yet. Upload and tag them in the Admin instance settings."}
+							{DailyScheduleConfigWidget.t("no_own_images_hint")}
 						</Typography>
 					)}
 				</Box>
@@ -866,9 +843,7 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 					variant="caption"
 					sx={{ opacity: 0.75 }}
 				>
-					{this.isDe()
-						? "Upload und Tags nur in den Instanzeinstellungen (Admin, Reiter Piktogramme). Die Suche hier findet eigene Bilder über Name und Tags."
-						: "Upload and tags are only in Admin instance settings (Pictograms tab). Search here finds own images by name and tags."}
+					{DailyScheduleConfigWidget.t("upload_tags_admin_hint")}
 				</Typography>
 			</>
 		);
@@ -895,7 +870,7 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 							variant="subtitle1"
 							sx={{ mb: 1, fontWeight: 700 }}
 						>
-							{this.isDe() ? "Wochenplan" : "Weekly schedule"}
+							{DailyScheduleConfigWidget.t("weekly_schedule")}
 						</Typography>
 						<Typography
 							variant="caption"
@@ -929,7 +904,7 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 								variant="caption"
 								sx={{ fontWeight: 700, mr: 0.5 }}
 							>
-								{this.isDe() ? "Kopieren nach:" : "Copy to:"}
+								{DailyScheduleConfigWidget.t("copy_to")}
 							</Typography>
 							{WEEKDAY_KEYS.filter(key => key !== this.state.activeWeekday).map(key => (
 								<FormControlLabel
@@ -955,7 +930,7 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 								disabled={this.state.busy || !WEEKDAY_KEYS.some(k => this.state.copyTargets[k])}
 								onClick={() => this.copyPlanToTargets()}
 							>
-								{this.isDe() ? "Übernehmen" : "Apply"}
+								{DailyScheduleConfigWidget.t("apply_copy")}
 							</Button>
 						</Stack>
 
@@ -966,7 +941,7 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 						>
 							<TextField
 								size="small"
-								label={this.isDe() ? "Name speichern" : "Save as name"}
+								label={DailyScheduleConfigWidget.t("save_as_name")}
 								value={this.state.templateName}
 								onChange={e => this.setState({ templateName: e.target.value })}
 								sx={{ minWidth: 160 }}
@@ -977,20 +952,20 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 								disabled={this.state.busy}
 								onClick={() => void this.saveAsTemplate()}
 							>
-								{this.isDe() ? "Wochenplan speichern" : "Save weekly plan"}
+								{DailyScheduleConfigWidget.t("save_weekly_plan")}
 							</Button>
 							<FormControl
 								size="small"
 								sx={{ minWidth: 180 }}
 							>
-								<InputLabel>{this.isDe() ? "Laden" : "Load"}</InputLabel>
+								<InputLabel>{DailyScheduleConfigWidget.t("load")}</InputLabel>
 								<Select
-									label={this.isDe() ? "Laden" : "Load"}
+									label={DailyScheduleConfigWidget.t("load")}
 									value={this.state.loadTemplateId}
 									onChange={e => this.setState({ loadTemplateId: String(e.target.value) })}
 								>
 									<MenuItem value="">
-										<em>{this.isDe() ? "— wählen —" : "— select —"}</em>
+										<em>{DailyScheduleConfigWidget.t("select_placeholder")}</em>
 									</MenuItem>
 									{this.getLibraryFromState().plans.map(plan => (
 										<MenuItem
@@ -999,9 +974,7 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 										>
 											{plan.name}
 											{this.getLibraryFromState().activeId === plan.id
-												? this.isDe()
-													? " ● aktiv"
-													: " ● active"
+												? ` ${DailyScheduleConfigWidget.t("marker_active")}`
 												: ""}
 										</MenuItem>
 									))}
@@ -1013,7 +986,7 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 								disabled={this.state.busy || !this.state.loadTemplateId}
 								onClick={() => void this.loadTemplate()}
 							>
-								{this.isDe() ? "Wochenplan laden" : "Load weekly plan"}
+								{DailyScheduleConfigWidget.t("load_weekly_plan")}
 							</Button>
 						</Stack>
 
@@ -1028,20 +1001,16 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 								disabled={this.state.busy}
 								onClick={() => this.addItemAfterSelected()}
 							>
-								{this.isDe() ? "+ Piktogramm" : "+ Item"}
+								{DailyScheduleConfigWidget.t("add_item")}
 							</Button>
 							<Button
 								size="small"
 								variant="outlined"
 								disabled={this.state.busy || !this.canDuplicateSelected()}
-								title={
-									this.isDe()
-										? "Kopie des ausgewählten Piktogramms (gleicher Zeitraum). Max. 3 parallel."
-										: "Copy the selected pictogram (same time range). Max. 3 in parallel."
-								}
+								title={DailyScheduleConfigWidget.t("duplicate_title")}
 								onClick={() => this.duplicateSelectedItem()}
 							>
-								{this.isDe() ? "Duplizieren" : "Duplicate"}
+								{DailyScheduleConfigWidget.t("duplicate")}
 							</Button>
 							<Button
 								size="small"
@@ -1058,7 +1027,7 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 									})
 								}
 							>
-								{this.isDe() ? "Löschen" : "Delete"}
+								{DailyScheduleConfigWidget.t("delete")}
 							</Button>
 							<Button
 								size="small"
@@ -1066,7 +1035,7 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 								disabled={this.state.busy}
 								onClick={() => void this.savePlan()}
 							>
-								{this.isDe() ? "Speichern" : "Save"}
+								{DailyScheduleConfigWidget.t("save")}
 							</Button>
 							<Button
 								size="small"
@@ -1074,7 +1043,7 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 								disabled={this.state.busy}
 								onClick={() => void this.applyCurrentDayToDailyPlan()}
 							>
-								{this.isDe() ? "Als Tagesplan" : "To daily plan"}
+								{DailyScheduleConfigWidget.t("to_daily_plan")}
 							</Button>
 							<Button
 								size="small"
@@ -1083,7 +1052,7 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 								disabled={this.state.busy || this.state.draft.items.length === 0}
 								onClick={() => void this.resetPlan()}
 							>
-								Reset
+								{DailyScheduleConfigWidget.t("reset")}
 							</Button>
 						</Stack>
 
@@ -1096,11 +1065,7 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 									onChange={(_, checked) => void this.setLoadDailyFromWeekly(checked)}
 								/>
 							}
-							label={
-								this.isDe()
-									? "Tagesplan täglich aus Wochenplan laden"
-									: "Load daily plan from weekly plan each day"
-							}
+							label={DailyScheduleConfigWidget.t("load_daily_from_weekly")}
 						/>
 
 						<FormControlLabel
@@ -1113,9 +1078,7 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 								/>
 							}
 							label={
-								(this.props.context?.lang || "de").startsWith("de")
-									? "Plan nach Ablauf löschen"
-									: "Clear plan after last pictogram"
+								DailyScheduleConfigWidget.t("clear_after_last")
 							}
 						/>
 
@@ -1123,7 +1086,7 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 							variant="subtitle2"
 							sx={{ mt: 1, mb: 0.5, fontWeight: 700 }}
 						>
-							Tagesbereiche
+							{DailyScheduleConfigWidget.t("day_periods_section")}
 						</Typography>
 						<FormGroup
 							row
@@ -1188,7 +1151,7 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 							<Stack spacing={1.5}>
 								<TextField
 									size="small"
-									label="Label"
+									label={DailyScheduleConfigWidget.t("item_label")}
 									value={selected.label}
 									onChange={e => this.updateItem(this.state.selectedIndex, { label: e.target.value })}
 								/>
@@ -1198,7 +1161,7 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 								>
 									<TextField
 										size="small"
-										label="Start"
+										label={DailyScheduleConfigWidget.t("item_start")}
 										value={selected.start}
 										onChange={e =>
 											this.updateItem(this.state.selectedIndex, { start: e.target.value })
@@ -1206,7 +1169,7 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 									/>
 									<TextField
 										size="small"
-										label="End"
+										label={DailyScheduleConfigWidget.t("item_end")}
 										value={selected.end}
 										onChange={e =>
 											this.updateItem(this.state.selectedIndex, { end: e.target.value })
@@ -1214,9 +1177,9 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 									/>
 								</Stack>
 								<FormControl size="small">
-									<InputLabel>Source</InputLabel>
+									<InputLabel>{DailyScheduleConfigWidget.t("item_source")}</InputLabel>
 									<Select
-										label="Source"
+										label={DailyScheduleConfigWidget.t("item_source")}
 										value={selected.source}
 										onChange={e =>
 											this.updateItem(this.state.selectedIndex, {
@@ -1224,8 +1187,8 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 											})
 										}
 									>
-										<MenuItem value="arasaac">ARASAAC (external)</MenuItem>
-										<MenuItem value="custom">Custom / URL</MenuItem>
+										<MenuItem value="arasaac">{DailyScheduleConfigWidget.t("source_arasaac")}</MenuItem>
+										<MenuItem value="custom">{DailyScheduleConfigWidget.t("source_custom")}</MenuItem>
 									</Select>
 								</FormControl>
 
@@ -1233,7 +1196,7 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 									<>
 										<TextField
 											size="small"
-											label="ARASAAC ID"
+											label={DailyScheduleConfigWidget.t("arasaac_id")}
 											type="number"
 											value={selected.arasaacId ?? ""}
 											onChange={e =>
@@ -1249,11 +1212,7 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 											<TextField
 												size="small"
 												fullWidth
-												label={
-													this.isDe()
-														? "Suche (ARASAAC + eigene Tags)"
-														: "Search (ARASAAC + own tags)"
-												}
+												label={DailyScheduleConfigWidget.t("search_arasaac_tags")}
 												value={this.state.searchQuery}
 												onChange={e => this.setState({ searchQuery: e.target.value })}
 												onKeyDown={e => {
@@ -1267,7 +1226,7 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 												disabled={this.state.busy}
 												onClick={() => void this.runSearch()}
 											>
-												{this.isDe() ? "Suchen" : "Search"}
+												{DailyScheduleConfigWidget.t("search")}
 											</Button>
 										</Stack>
 										{this.state.searchError ? (
@@ -1350,9 +1309,7 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 											variant="caption"
 											sx={{ opacity: 0.75 }}
 										>
-											{this.isDe()
-												? "ARASAAC-Bilder kommen nur von static.arasaac.org (CC BY-NC-SA)."
-												: "ARASAAC images are loaded from static.arasaac.org only (CC BY-NC-SA)."}
+											{DailyScheduleConfigWidget.t("arasaac_cdn_hint")}
 										</Typography>
 									</>
 								) : (
@@ -1369,7 +1326,7 @@ export default class DailyScheduleConfigWidget extends (window.visRxWidget as ty
 							nowMinutes={nowMinutes}
 							adapterInstance={this.state.rxData.adapterInstance || "autism-support.0"}
 							pictogramSize={Number(this.state.rxData.pictogramSize) || 64}
-							locale={this.props.context?.lang || "de"}
+							t={(key: string) => DailyScheduleConfigWidget.t(key)}
 						/>
 					</Box>
 				</Stack>

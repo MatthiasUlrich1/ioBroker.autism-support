@@ -125,7 +125,7 @@ export default class DailyScheduleLiveWidget extends (window.visRxWidget as type
 					nowMinutes={nowMinutes}
 					adapterInstance={this.state.rxData.adapterInstance || "autism-support.0"}
 					pictogramSize={Number(this.state.rxData.pictogramSize) || 64}
-					locale={this.props.context?.lang || "de"}
+					t={(key: string) => DailyScheduleLiveWidget.t(key)}
 				/>
 			</Box>
 		);

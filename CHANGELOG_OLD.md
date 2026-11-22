@@ -1,6 +1,28 @@
 # Changelog (older releases)
 
 Entries moved here when removed from `io-package.json` (repository builder keeps at most 7 news items).
+## 0.2.10
+- Repo-check compliance: remove unpublished versions from `common.news`, update README changelog
+
+## 0.2.8
+- Fix startup crash/restart loop: no `system.adapter` native write on boot; cancel in-flight ready on unload
+
+## 0.2.7
+- Fix restart loop (native config diff) and CI lint formatting
+
+## 0.2.5
+- Fix `system.adapter` config path (`extendForeignObject`); trim news for E1032
+
+## 0.2.2
+- Fix object structure for latest-repo review: `timer` channel, `value.interval` roles, button `read: false`
+
+## 0.2.1
+- Weekly plans: weekday tabs in Config, copy to other days, named templates (save/load)
+- Admin: weekday colors + list of saved plans with active/loaded marker
+- New Live widget: week overview; optional daily sync from weekly plan
+
+## 0.1.27
+- ioBroker compliance: max 7 news entries, jsonConfig schema, admin i18n keys, English title/desc
 
 ## 0.1.21
 - Pictogram path: `vis-2.0/Autismus Unterstützung/pictograms`; auto-create pictograms folder on start

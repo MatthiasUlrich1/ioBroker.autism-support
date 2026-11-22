@@ -39,26 +39,6 @@ export const DEFAULT_WEEKDAY_COLORS: WeekdayColors = {
 	sun: "#B2EBF2",
 };
 
-export const WEEKDAY_LABELS_DE: Record<WeekdayKey, string> = {
-	mon: "Mo",
-	tue: "Di",
-	wed: "Mi",
-	thu: "Do",
-	fri: "Fr",
-	sat: "Sa",
-	sun: "So",
-};
-
-export const WEEKDAY_LABELS_EN: Record<WeekdayKey, string> = {
-	mon: "Mon",
-	tue: "Tue",
-	wed: "Wed",
-	thu: "Thu",
-	fri: "Fri",
-	sat: "Sat",
-	sun: "Sun",
-};
-
 export function createEmptyWeeklyPlan(seed?: SchedulePlan): WeeklyPlanData {
 	const day = seed ? parseSchedulePlan(seed) : { version: 1 as const, items: [] };
 	const days = {} as Record<WeekdayKey, SchedulePlan>;

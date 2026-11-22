@@ -1,5 +1,4 @@
 import React from "react";
-import { ARASAAC_ATTRIBUTION_DE, ARASAAC_ATTRIBUTION_EN } from "../lib/arasaac";
 import {
 	type DayPeriodDefinition,
 	type ScheduleItem,
@@ -17,7 +16,8 @@ export interface DailyScheduleVisualProps {
 	periods: DayPeriodDefinition[];
 	nowMinutes: number;
 	adapterInstance?: string;
-	locale?: string;
+	/** Translation function (widget `t`, e.g. `(key) => DailyScheduleLiveWidget.t(key)`). */
+	t: (key: string) => string;
 	/** Pictogram display size in px (default 64). */
 	pictogramSize?: number;
 }
@@ -70,24 +70,10 @@ export function compressEmptyHeight(minutes: number, edge: boolean, minItemH: nu
 	return Math.min(cap, Math.max(edge ? 6 : 8, raw));
 }
 
-function periodLabel(id: string, locale: string): string {
-	const de: Record<string, string> = {
-		morning: "Morgens",
-		forenoon: "Vormittag",
-		noon: "Mittag",
-		afternoon: "Nachmittag",
-		evening: "Abend",
-		night: "Nacht",
-	};
-	const en: Record<string, string> = {
-		morning: "Morning",
-		forenoon: "Forenoon",
-		noon: "Noon",
-		afternoon: "Afternoon",
-		evening: "Evening",
-		night: "Night",
-	};
-	return (locale.startsWith("de") ? de : en)[id] || id;
+function periodLabel(id: string, t: (key: string) => string): string {
+	const key = `period_${id}`;
+	const label = t(key);
+	return label && label !== key ? label : id;
 }
 
 export function itemDurationMin(item: ScheduleItem): number {
@@ -460,7 +446,7 @@ export default function DailyScheduleVisual({
 	periods,
 	nowMinutes,
 	adapterInstance = "autism-support.0",
-	locale = "de",
+	t,
 	pictogramSize = 64,
 }: DailyScheduleVisualProps): React.JSX.Element {
 	const pictoPx = Math.max(32, Math.min(200, Number(pictogramSize) || 64));
@@ -469,7 +455,7 @@ export default function DailyScheduleVisual({
 	const nowTop = computeNowMarkerTop(blocks, nowMinutes);
 
 	const usesArasaac = plan.items.some(item => item.source === "arasaac" && item.arasaacId);
-	const attribution = locale.startsWith("de") ? ARASAAC_ATTRIBUTION_DE : ARASAAC_ATTRIBUTION_EN;
+	const attribution = t("arasaac_attribution");
 	const activePeriods = periods.filter(p => p.enabled);
 	const barBlocks = blocks.filter(b => b.enabled);
 
@@ -552,14 +538,14 @@ export default function DailyScheduleVisual({
 										}}
 										title={
 											block.enabled
-												? `${periodLabel(block.periodId, locale)} · ${formatClock(block.startMin)} – ${formatClock(block.endMin)}`
-												: `${periodLabel(block.periodId, locale)} (${locale.startsWith("de") ? "aus" : "off"})`
+												? `${periodLabel(block.periodId, t)} · ${formatClock(block.startMin)} – ${formatClock(block.endMin)}`
+												: `${periodLabel(block.periodId, t)} (${t("period_disabled_suffix")})`
 										}
 									>
 										<PeriodIcon
 											periodId={block.periodId}
 											size={iconSize}
-											alt={periodLabel(block.periodId, locale)}
+											alt={periodLabel(block.periodId, t)}
 										/>
 									</div>
 								);
@@ -603,9 +589,7 @@ export default function DailyScheduleVisual({
 			</div>
 
 			<div style={{ fontSize: 11, opacity: 0.7 }}>
-				{locale.startsWith("de")
-					? `${sorted.length} Piktogramm${sorted.length === 1 ? "" : "e"} · ${barBlocks.length} Tagesbereich${barBlocks.length === 1 ? "" : "e"}${laneCount > 1 ? ` · ${laneCount} Spalten` : ""}`
-					: `${sorted.length} pictogram${sorted.length === 1 ? "" : "s"} · ${barBlocks.length} day period${barBlocks.length === 1 ? "" : "s"}${laneCount > 1 ? ` · ${laneCount} columns` : ""}`}
+				{`${sorted.length} ${t("footer_pictograms")} · ${barBlocks.length} ${t("footer_periods")}${laneCount > 1 ? ` · ${laneCount} ${t("footer_columns")}` : ""}`}
 			</div>
 
 			<div style={{ display: "flex", flexWrap: "wrap", gap: 8, fontSize: 12 }}>
@@ -628,12 +612,12 @@ export default function DailyScheduleVisual({
 								display: "inline-block",
 							}}
 						/>
-						{periodLabel(p.id, locale)}
+						{periodLabel(p.id, t)}
 					</span>
 				))}
 				<span style={{ display: "inline-flex", alignItems: "center", gap: 4, marginLeft: 4 }}>
 					<span style={{ width: 12, height: 3, background: "#D32F2F", display: "inline-block" }} />
-					{locale.startsWith("de") ? "jetzt" : "now"}
+					{t("now_marker")}
 				</span>
 			</div>
 

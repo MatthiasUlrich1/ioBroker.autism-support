@@ -7,12 +7,6 @@ export const ARASAAC_SITE = "https://arasaac.org";
 export const ARASAAC_API_BASE = "https://api.arasaac.org/v1";
 export const ARASAAC_STATIC_BASE = "https://static.arasaac.org/pictograms";
 
-export const ARASAAC_ATTRIBUTION_DE =
-	"Piktogramme: Eigentum der Regierung von Aragón, erstellt von Sergio Palao für ARASAAC (https://arasaac.org), Lizenz CC BY-NC-SA.";
-
-export const ARASAAC_ATTRIBUTION_EN =
-	"Pictograms: property of the Government of Aragon, created by Sergio Palao for ARASAAC (https://arasaac.org), license CC BY-NC-SA.";
-
 export function arasaacImageUrl(pictogramId: number, size: 300 | 500 = 500): string {
 	const id = Math.max(1, Math.floor(Number(pictogramId) || 0));
 	const safeSize = size === 300 ? 300 : 500;

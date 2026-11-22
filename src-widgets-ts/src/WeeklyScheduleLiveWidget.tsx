@@ -92,7 +92,7 @@ export default class WeeklyScheduleLiveWidget extends (window.visRxWidget as typ
 					colors={colors}
 					adapterInstance={this.state.rxData.adapterInstance || "autism-support.0"}
 					pictogramSize={Number(this.state.rxData.pictogramSize) || 40}
-					locale={this.props.context?.lang || "de"}
+					t={(key: string) => WeeklyScheduleLiveWidget.t(key)}
 				/>
 			</Box>
 		);
